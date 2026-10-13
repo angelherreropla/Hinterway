@@ -45,6 +45,8 @@
 .set-check input{ margin-top:2px; accent-color:var(--accent); }
 .set-check .sub{ font-size:11.5px; color:var(--text-dim); margin-top:2px; }
 .type-row input[type=text]:disabled{ opacity:.45; }
+.calc-in{ width:80px; background:var(--panel); color:var(--text); border:1px solid var(--line); border-radius:6px; padding:6px 8px; font:inherit; font-size:13px; text-align:right; }
+.calc-formula{ font-size:12.5px; background:var(--panel); border:1px solid var(--line); border-radius:6px; padding:8px 10px; margin:8px 0 4px; line-height:1.5; }
 .type-row .cnt{ font-size:11.5px; color:var(--text-dim); white-space:nowrap; text-align:right; min-width:110px; }
 @media (max-width:700px){ .type-row .cnt{ min-width:0; } }
 *{box-sizing:border-box}
@@ -614,6 +616,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
         <button class="ghost active" data-tab="look" data-i18n="set_tab_look">Apariencia</button>
         <button class="ghost" data-tab="types" data-i18n="set_tab_types">Tipos de actividad</button>
         <button class="ghost" data-tab="map" data-i18n="set_tab_map">Mapa</button>
+        <button class="ghost" data-tab="calc" data-i18n="set_tab_calc">Cálculos</button>
       </div>
       <div id="setPaneLook">
         <div class="set-row"><div><div class="lbl" data-i18n="set_lang">Idioma</div></div>
@@ -633,6 +636,22 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
         <div class="set-note" data-i18n="set_types_note">Cambia el color o el nombre de cada tipo. Si le pones el nombre de otro tipo que ya existe, se fusionan. Los cambios se guardan en la app, no en los archivos GPX.</div>
         <label class="set-check"><input type="checkbox" id="setTypesFiltered"><span><span data-i18n="set_types_filtered">Cambiar solo las rutas filtradas</span><div class="sub" data-i18n="set_types_filtered_sub">El nuevo nombre se aplica solo a las rutas de ese tipo que cumplen los filtros activos (año, distancia, nombre…). El resto conserva su tipo. El color es siempre del tipo entero.</div></span></label>
         <div id="typeRows"></div>
+      </div>
+      <div id="setPaneCalc" class="hidden">
+        <div class="set-note" style="margin-top:0;" data-i18n-html="set_calc_note"></div>
+        <div class="calc-formula" id="calcFormula"></div>
+        <div class="set-row"><div><div class="lbl" data-i18n="set_calc_fp">Factor pista</div><div class="sub" data-i18n="set_calc_fp_sub">Cuánto cuesta 1 km de pista frente a 1 km de asfalto.</div></div>
+          <input type="number" class="calc-in" id="calcFp" min="0.5" max="5" step="0.1"></div>
+        <div class="set-row"><div><div class="lbl" data-i18n="set_calc_fs">Factor senda</div><div class="sub" data-i18n="set_calc_fs_sub">Cuánto cuesta 1 km de senda frente a 1 km de asfalto.</div></div>
+          <input type="number" class="calc-in" id="calcFs" min="0.5" max="5" step="0.1"></div>
+        <div class="set-row"><div><div class="lbl" data-i18n="set_calc_fn">Factor sin datos</div><div class="sub" data-i18n="set_calc_fn_sub">Para los tramos sin camino en OpenStreetMap y para las rutas sin terreno analizado.</div></div>
+          <input type="number" class="calc-in" id="calcFn" min="0.5" max="5" step="0.1"></div>
+        <div class="set-row"><div><div class="lbl" data-i18n="set_calc_dm">Metros de subida por km</div><div class="sub" data-i18n="set_calc_dm_sub">Cuántos metros de desnivel positivo equivalen a 1 km llano. Menos metros = el desnivel pesa más.</div></div>
+          <input type="number" class="calc-in" id="calcDm" min="5" max="300" step="5"></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:10px;">
+          <span class="set-note" id="calcStats" style="margin:0;"></span>
+          <button class="ghost" id="calcReset" style="font-size:13px; padding:6px 12px; white-space:nowrap;" data-i18n="set_calc_reset">Valores por defecto</button>
+        </div>
       </div>
       <div id="setPaneMap" class="hidden">
         <div class="set-row"><div><div class="lbl" data-i18n="set_base">Mapa de fondo al abrir</div><div class="sub" data-i18n="set_base_sub">"El último usado" recuerda el que tenías al cerrar.</div></div>
@@ -809,6 +828,15 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       set_types_filtered_sub: "El nuevo nombre se aplica solo a las rutas de ese tipo que cumplen los filtros activos (año, distancia, nombre…). El resto conserva su tipo. El color es siempre del tipo entero.",
       set_type_count_f: (n, total, km) => `${n} de ${total} filtradas · ${km} km`,
       confirm_retype_filtered: (n, a, b) => `¿Cambiar a "${b}" el tipo de ${n} ${n === 1 ? "ruta filtrada" : "rutas filtradas"} de "${a}"?`,
+      set_tab_calc: "Cálculos",
+      set_calc_note: "El <strong>índice de dificultad</strong> se mide en <em>km equivalentes</em>: los km llanos de asfalto que supondrían el mismo esfuerzo. No depende del tiempo, así que la misma ruta vale lo mismo la hagas como la hagas.",
+      set_calc_formula: (c) => `Índice = km asfalto + km pista × ${c.fp} + km senda × ${c.fs} + km sin datos × ${c.fn} + desnivel ÷ ${c.dm}`,
+      set_calc_fp: "Factor pista", set_calc_fp_sub: "Cuánto cuesta 1 km de pista frente a 1 km de asfalto.",
+      set_calc_fs: "Factor senda", set_calc_fs_sub: "Cuánto cuesta 1 km de senda frente a 1 km de asfalto.",
+      set_calc_fn: "Factor sin datos", set_calc_fn_sub: "Para los tramos sin camino en OpenStreetMap y para las rutas sin terreno analizado.",
+      set_calc_dm: "Metros de subida por km", set_calc_dm_sub: "Cuántos metros de desnivel positivo equivalen a 1 km llano. Menos metros = el desnivel pesa más.",
+      set_calc_reset: "Valores por defecto",
+      set_calc_stats: (n, med, max, noSurf) => `Con estos valores, en tus ${n} rutas: mediana ${med}, máximo ${max}.` + (noSurf ? ` ${noSurf} sin terreno analizado.` : ""),
       set_tab_map: "Mapa", set_base: "Mapa de fondo al abrir", set_base_sub: "\"El último usado\" recuerda el que tenías al cerrar.", set_base_last: "El último usado",
       set_heat: "Capa de densidad al abrir", set_heat_sub: "Muestra el mapa de calor nada más abrir la app. Se puede encender y apagar igualmente con el botón de capas del mapa.",
       set_off: "Apagada", set_on: "Encendida", set_yes: "Sí", set_no: "No",
@@ -958,6 +986,15 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       set_types_filtered_sub: "The new name only applies to the routes of that type that match the active filters (year, distance, name…). The rest keep their type. Colors always apply to the whole type.",
       set_type_count_f: (n, total, km) => `${n} of ${total} filtered · ${km} km`,
       confirm_retype_filtered: (n, a, b) => `Change the type of ${n} filtered ${n === 1 ? "route" : "routes"} from "${a}" to "${b}"?`,
+      set_tab_calc: "Calculations",
+      set_calc_note: "The <strong>difficulty index</strong> is measured in <em>equivalent km</em>: the flat paved km that would take the same effort. It doesn't depend on time, so the same route scores the same however you ride it.",
+      set_calc_formula: (c) => `Index = paved km + track km × ${c.fp} + trail km × ${c.fs} + no-data km × ${c.fn} + gain ÷ ${c.dm}`,
+      set_calc_fp: "Track factor", set_calc_fp_sub: "How much 1 km of dirt track costs compared with 1 km of pavement.",
+      set_calc_fs: "Trail factor", set_calc_fs_sub: "How much 1 km of trail costs compared with 1 km of pavement.",
+      set_calc_fn: "No-data factor", set_calc_fn_sub: "For sections with no way in OpenStreetMap and for routes without terrain analysis.",
+      set_calc_dm: "Meters of climb per km", set_calc_dm_sub: "How many meters of elevation gain equal 1 flat km. Fewer meters = climbing weighs more.",
+      set_calc_reset: "Default values",
+      set_calc_stats: (n, med, max, noSurf) => `With these values, across your ${n} routes: median ${med}, maximum ${max}.` + (noSurf ? ` ${noSurf} without terrain analysis.` : ""),
       set_tab_map: "Map", set_base: "Background map on open", set_base_sub: "\"Last used\" remembers the one you had when you closed.", set_base_last: "Last used",
       set_heat: "Density layer on open", set_heat_sub: "Shows the heatmap as soon as the app opens. You can still turn it on and off with the map's layers button.",
       set_off: "Off", set_on: "On", set_yes: "Yes", set_no: "No",
@@ -1102,6 +1139,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
   function applyI18n(){
     document.querySelectorAll("[data-i18n]").forEach(el => { el.textContent = tr(el.dataset.i18n); });
     document.querySelectorAll("[data-i18n-ph]").forEach(el => { el.placeholder = tr(el.dataset.i18nPh); });
+    document.querySelectorAll("[data-i18n-html]").forEach(el => { el.innerHTML = tr(el.dataset.i18nHtml); });
     document.documentElement.lang = LANG;
     els("btnLangEs").classList.toggle("lang-active", LANG === "es");
     els("btnLangEn").classList.toggle("lang-active", LANG === "en");
@@ -1706,7 +1744,10 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       try{ await surfCachePut([t]); }catch(e){}
       if(elevTrack && elevTrack.id === t.id && !els("elevPanel").classList.contains("hidden")) renderProfileView();
     } finally {
-      surfBusy.delete(t.id); surfProgress.delete(t.id); refreshTrackPopup(t);
+      surfBusy.delete(t.id); surfProgress.delete(t.id);
+      filteredTracks();            // el índice depende del terreno: recalcula el IDR de la selección
+      refreshTrackPopup(t);
+      if(!surfBatchRunning) refreshIndexViews();
     }
   }
 
@@ -1732,6 +1773,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       catch(e){ fail++; }
       if(!els("tableModal").classList.contains("hidden")) renderTable();
     }
+    refreshIndexViews();
     els("surfStatusText").textContent = tr("surf_done", ok, fail, surfBatchStop);
     els("surfSpinner").classList.add("hidden"); els("surfStop").classList.add("hidden"); els("surfClose").classList.remove("hidden");
     surfBatchRunning = false;
@@ -1864,13 +1906,13 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     if(nuevo) els("routeHead").innerHTML = routeHeadHtml(t);
   }
 
-  function selectRoute(line, t){
+  function selectRoute(line, t, noZoom){
     if(selectedLine && selectedLine !== line) selectedLine.setStyle(selectedLine._baseStyle);
     selectedLine = line;
     line.setStyle({ color:"#39ff14", weight:Math.max(5.5, routeWeight + 2), opacity:1 });
     line.bringToFront();
     drawElevationProfile(t);
-    if(FIT_ON_SELECT) zoomToRoute(line);
+    if(FIT_ON_SELECT && !noZoom) zoomToRoute(line);
   }
   // Amplía y centra el mapa en la ruta, dejando libre la parte que tapa la ventana de abajo.
   function zoomToRoute(line){
@@ -2260,10 +2302,29 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     heatLayer.setLatLngs(puntos);
   }
 
-  // ---------- filtros / UI ----------  // Índice de dificultad: desnivel/10 + km + horas en movimiento x 25. Sin tiempo en movimiento, no hay índice.
+  // ---------- filtros / UI ----------
+  // Índice de dificultad = "km equivalentes" (km llanos de asfalto que supondrían el mismo esfuerzo):
+  //   km asfalto × 1 + km pista × fp + km senda × fs + km sin datos × fn + desnivel / dm
+  // El reparto por terreno sale del análisis de OpenStreetMap; si la ruta no lo tiene, todos sus km cuentan × fn.
+  // Los coeficientes se cambian en ⚙ → Cálculos.
+  const CALC_DEFAULT = { fp:1.2, fs:1.5, fn:1.2, dm:40 };
+  let CALC = { ...CALC_DEFAULT };
+  try{
+    const c = JSON.parse(localStorage.getItem("heatmap-calc") || "{}");
+    Object.keys(CALC_DEFAULT).forEach(k => { if(typeof c[k] === "number" && c[k] > 0) CALC[k] = c[k]; });
+  }catch(e){}
+  function saveCalc(){ lsSet("heatmap-calc", JSON.stringify(CALC)); }
   function difficultyIndex(t){
-    if(!t.duration) return null;
-    return Math.round(t.gain/10 + t.km + (t.duration/3600)*25);
+    if(!t || !(t.km >= 0)) return null;
+    let kmEq;
+    const k = t.surface && t.surface.km;
+    const tot = k ? (k.asfalto||0) + (k.pista||0) + (k.senda||0) + (k.sinDatos||0) : 0;
+    if(tot > 0){
+      kmEq = t.km * ((k.asfalto||0) + (k.pista||0)*CALC.fp + (k.senda||0)*CALC.fs + (k.sinDatos||0)*CALC.fn) / tot;
+    } else {
+      kmEq = t.km * CALC.fn;
+    }
+    return Math.round(kmEq + (t.gain || 0) / CALC.dm);
   }
 
   // Índice de dificultad relativo (IDR): percentil del índice dentro de la selección actual.
@@ -2403,6 +2464,22 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       Math.round(km).toLocaleString(LOC()), Math.round(gain).toLocaleString(LOC()), tiempo, vel);
   }
 
+  // Como applyFiltersAndRedraw, pero sin mover el mapa ni perder la ruta abierta si la selección no cambia
+  // (se usa al cambiar el índice de dificultad: coeficientes o terreno recién analizado).
+  function applyFiltersAndRedrawKeepSelection(){
+    const list = filteredTracks();
+    const drawn = new Set(); routeLayer.eachLayer(l => drawn.add(l._id));
+    if(list.length === drawn.size && list.every(t => drawn.has(t.id))){ updateHeaderTotals(list); return; }
+    const openId = elevTrack && !els("elevPanel").classList.contains("hidden") ? elevTrack.id : null;
+    const center = map.getCenter(), zoom = map.getZoom();
+    applyFiltersAndRedraw();
+    map.setView(center, zoom, { animate:false });
+    if(openId){
+      let found = null; routeLayer.eachLayer(l => { if(l._id === openId) found = l; });
+      const t = tracks.find(x => x.id === openId);
+      if(found && t) selectRoute(found, t, true);
+    }
+  }
   function applyFiltersAndRedraw(){
     const list = filteredTracks();
     updateHeaderTotals(list);
@@ -2623,7 +2700,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
   const HELP_HTML = {
     es: `
       <ul style="margin:0 0 10px; padding-left:18px;">
-        <li><strong>Menú superior:</strong> <em>Datos</em> (añadir rutas, exportar CSV, copia de seguridad, analizar terreno, vaciar todo), <em>Filtros</em> (mostrar/ocultar panel, restablecer), <em>Paneles</em> (gráficos, récords, calendario, tabla, resumen anual) e <em>Info</em> (esta ayuda y Quiénes somos). El botón ⚙ abre la <em>Configuración</em>: pestaña <em>Apariencia</em> (idioma, tema claro u oscuro, formato de fecha, e intensidad y grosor de las rutas), pestaña <em>Tipos de actividad</em> (color de cada tipo, renombrar o fusionar tipos —si pones el nombre de otro tipo existente, se juntan; con la casilla "Cambiar solo las rutas filtradas" el cambio afecta solo a las rutas que cumplen los filtros, por ejemplo las de ciertos años— y el tipo que se pone por defecto a los archivos que no lo traen) y pestaña <em>Mapa</em> (mapa de fondo al abrir —uno fijo o el último usado—, capa de densidad encendida o apagada al abrir, y si el mapa se centra al pinchar una ruta).</li>
+        <li><strong>Menú superior:</strong> <em>Datos</em> (añadir rutas, exportar CSV, copia de seguridad, analizar terreno, vaciar todo), <em>Filtros</em> (mostrar/ocultar panel, restablecer), <em>Paneles</em> (gráficos, récords, calendario, tabla, resumen anual) e <em>Info</em> (esta ayuda y Quiénes somos). El botón ⚙ abre la <em>Configuración</em>: pestaña <em>Apariencia</em> (idioma, tema claro u oscuro, formato de fecha, e intensidad y grosor de las rutas), pestaña <em>Tipos de actividad</em> (color de cada tipo, renombrar o fusionar tipos —si pones el nombre de otro tipo existente, se juntan; con la casilla "Cambiar solo las rutas filtradas" el cambio afecta solo a las rutas que cumplen los filtros, por ejemplo las de ciertos años— y el tipo que se pone por defecto a los archivos que no lo traen) pestaña <em>Mapa</em> (mapa de fondo al abrir —uno fijo o el último usado—, capa de densidad encendida o apagada al abrir, y si el mapa se centra al pinchar una ruta) y pestaña <em>Cálculos</em> (los coeficientes del índice de dificultad, con el resultado al momento).</li>
         <li><strong>Añadir rutas</strong> desde Datos → Añadir rutas, seleccionando varios archivos a la vez; se guardan en este navegador. Admite <strong>GPX</strong> y <strong>TCX</strong> (Garmin), también comprimidos en <strong>.gz</strong>. Si el archivo no trae el tipo, te lo pregunta (o pone el tipo por defecto de ⚙); ese tipo asignado a varios archivos de golpe solo se guarda en la aplicación. Si luego cambias el tipo o renombras una ruta concreta desde su ventana, con Chrome o Edge ese cambio se graba también en su archivo, pero solo si es un GPX sin comprimir; en TCX y .gz se guarda solo en la aplicación. Los archivos FIT todavía no se admiten.</li>
         <li><strong>Filtros</strong> (panel izquierdo): nombre, fecha desde / hasta (ambos días incluidos; puedes rellenar solo uno), año, tipo (con su color; se cambia en ⚙ → Tipos de actividad), distancia, desnivel e índice de dificultad. Se combinan entre sí y afectan al mapa y a los totales de la cabecera. Al añadir rutas nuevas, los máximos de distancia, desnivel e índice se amplían solos, salvo que los hayas cambiado a mano.</li>
         <li><strong>Una ruta en el mapa:</strong> al pincharla se resalta y se abre abajo su ventana: nombre, fecha y tipo; sus cifras (km, desnivel, tiempo, velocidad, índice e IDR); el terreno; los botones para cambiar el tipo (se guarda al elegirlo), renombrar (✎), analizar el terreno (↻), borrar (🗑) y cerrar (✕); y su perfil de elevación. Arrastra sobre el perfil para ampliar un tramo y ver su pendiente coloreada por sectores; pasa el ratón para ver km, altitud, pendiente y tipo de terreno de cada punto. Si la ruta tiene el terreno analizado, una franja de colores bajo el perfil marca los tramos de asfalto, pista y senda.</li>
@@ -2634,14 +2711,14 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
         <li><strong>Compartir el resumen anual:</strong> en Paneles → Resumen anual, "Compartir…" genera una imagen con las cifras del año (sin nombres de rutas) y ofrece WhatsApp, Telegram, X, email, copiar el texto o descargar la imagen; Facebook y LinkedIn solo aparecen si abres la app desde su dirección web. En el móvil, "Compartir (imagen + texto)" envía la imagen directamente a cualquier app; en los demás casos solo se envía el texto y la imagen hay que adjuntarla.</li>
         <li><strong>Datos:</strong> exporta a CSV, o haz una copia de seguridad completa (y restáurala) desde el menú Datos. La copia es un archivo JSON legible que incluye las rutas, sus análisis de terreno, los colores de cada tipo y tu configuración. Si hay cambios sin copiar y la última copia tiene más de 7 días (o no hay ninguna), la app te lo recuerda al abrirla. "Vaciar todos los datos" borra todo lo guardado en este navegador.</li>
       </ul>
-      <p><strong>Cómo se calcula:</strong> el desnivel suma subidas de más de 2 m tras limpiar la altitud de aberraciones; el tiempo en movimiento descuenta los tramos a menos de 0,3 m/s; el índice de dificultad es desnivel/10 + km + horas en movimiento × 25 (si no hay tiempo calculable, sale "Sin índice"). El IDR (índice de dificultad relativo) es el percentil de ese índice dentro de las rutas que cumplen los filtros activos: un IDR de 70 significa que la ruta es igual o más difícil que el 70 % de la selección, y la más difícil tiene 100. Por eso cambia al cambiar los filtros.</p>
+      <p><strong>Cómo se calcula:</strong> el desnivel suma subidas de más de 2 m tras limpiar la altitud de aberraciones; el tiempo en movimiento descuenta los tramos a menos de 0,3 m/s; el índice de dificultad se mide en <em>km equivalentes</em> (los km llanos de asfalto que supondrían el mismo esfuerzo): km de asfalto + km de pista × 1,2 + km de senda × 1,5 + km sin datos × 1,2 + desnivel ÷ 40. El reparto por terreno sale del análisis de terreno; si una ruta aún no lo tiene, todos sus km cuentan × 1,2, y al analizarla el índice se recalcula solo. No depende del tiempo, así que todas las rutas tienen índice. Los coeficientes se pueden cambiar en ⚙ → Cálculos. El IDR (índice de dificultad relativo) es el percentil de ese índice dentro de las rutas que cumplen los filtros activos: un IDR de 70 significa que la ruta es igual o más difícil que el 70 % de la selección, y la más difícil tiene 100. Por eso cambia al cambiar los filtros.</p>
       <p><strong>Terreno:</strong> el botón ↻ de la ventana de la ruta (o Datos → Analizar terreno, para varias a la vez) descarga de OpenStreetMap los caminos de la zona, ajusta la traza a ellos y calcula qué parte va por asfalto, pista, senda o sin datos (a más de 25 m de cualquier camino). Para ello se envía la zona de la ruta (no la traza) a los servidores públicos de OpenStreetMap: el principal y, si está saturado, un espejo de VK Maps; las descargas se reparten entre ambos. Refleja los caminos tal como están hoy en OpenStreetMap, no cuando hiciste la ruta. El resultado se guarda con la ruta y entra en la copia de seguridad. Además se guarda una copia aparte, que se conserva al vaciar los datos (salvo que elijas borrarla) y se recupera sola al volver a cargar el mismo GPX. Los caminos descargados de cada zona también se guardan en el navegador durante 180 días, así que analizar otras rutas por zonas ya consultadas es casi instantáneo; la primera ruta de cada zona nueva es la que más tarda, y depende de lo cargado que esté el servidor público de OpenStreetMap.</p>
       <p style="margin-bottom:0;"><strong>Privacidad:</strong> tus rutas se guardan solo en este navegador, nunca se suben a ningún servidor; solo sale lo que tú decidas compartir. Si cambias de navegador o lo limpias, haz antes una copia de seguridad.</p>
       <p><strong>Navegadores:</strong> funciona en las versiones actuales de Chrome, Edge, Firefox y Safari, en ordenador y en móvil. Para abrir archivos <strong>.gz</strong> hace falta Chrome o Edge 80 o posterior, Firefox 113 o Safari 16.4. Grabar el nombre o el tipo dentro del propio archivo GPX solo es posible en Chrome, Edge u Opera de ordenador; en los demás, esos cambios se guardan solo en la aplicación. Se ha probado sobre todo en Chrome.</p>
     `,
     en: `
       <ul style="margin:0 0 10px; padding-left:18px;">
-        <li><strong>Top menu:</strong> <em>Data</em> (add routes, export CSV, backup, analyze terrain, clear all), <em>Filters</em> (show/hide panel, reset), <em>Panels</em> (charts, records, calendar, table, year in review) and <em>Info</em> (this help and About). The ⚙ button opens <em>Settings</em>: the <em>Appearance</em> tab (language, light or dark theme, date format, and route intensity and thickness), the <em>Activity types</em> tab (each type's color, renaming or merging types —give one the name of another existing type and they are combined; with the "Change filtered routes only" box the change only affects the routes matching the filters, e.g. certain years— and the default type for files that don't include one) and the <em>Map</em> tab (background map on open —a fixed one or the last used—, density layer on or off at start, and whether the map centers when you click a route).</li>
+        <li><strong>Top menu:</strong> <em>Data</em> (add routes, export CSV, backup, analyze terrain, clear all), <em>Filters</em> (show/hide panel, reset), <em>Panels</em> (charts, records, calendar, table, year in review) and <em>Info</em> (this help and About). The ⚙ button opens <em>Settings</em>: the <em>Appearance</em> tab (language, light or dark theme, date format, and route intensity and thickness), the <em>Activity types</em> tab (each type's color, renaming or merging types —give one the name of another existing type and they are combined; with the "Change filtered routes only" box the change only affects the routes matching the filters, e.g. certain years— and the default type for files that don't include one) the <em>Map</em> tab (background map on open —a fixed one or the last used—, density layer on or off at start, and whether the map centers when you click a route) and the <em>Calculations</em> tab (the difficulty index coefficients, with live results).</li>
         <li><strong>Add routes</strong> from Data → Add routes, picking several files at once; they're saved in this browser. <strong>GPX</strong> and <strong>TCX</strong> (Garmin) files are supported, also gzipped as <strong>.gz</strong>. If a file has no type, you'll be asked (or the default type from ⚙ is used); a type assigned to many files at once is only saved in the app. If you later change the type or rename one specific route from its panel, with Chrome or Edge that change is also written to its file, but only for uncompressed GPX; for TCX and .gz it's saved in the app only. FIT files aren't supported yet.</li>
         <li><strong>Filters</strong> (left panel): name, date from / to (both days included; you can fill in just one), year, type (with its color, which you change in ⚙ → Activity types), distance, elevation gain and difficulty index. They all combine and affect the map and the header totals. When you add new routes, the distance, gain and index maximums widen automatically unless you changed them by hand.</li>
         <li><strong>A route on the map:</strong> clicking it highlights it and opens its panel at the bottom: name, date and type; its figures (km, gain, time, speed, index and RDI); the terrain; buttons to change the type (saved when chosen), rename (✎), analyze terrain (↻), delete (🗑) and close (✕); and its elevation profile. Drag over the profile to zoom into a section and see its gradient colored by sector; hover to see the km, altitude, gradient and terrain type at any point. If the route's terrain has been analyzed, a colored strip under the profile marks the paved, track and trail sections.</li>
@@ -2652,7 +2729,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
         <li><strong>Sharing the year in review:</strong> in Panels → Year in review, "Share…" creates an image with the year's figures (no route names) and offers WhatsApp, Telegram, X, email, copy the text or download the image; Facebook and LinkedIn only appear when you open the app from its web address. On mobile, "Share (image + text)" sends the image straight to any app; otherwise only the text is sent and the image has to be attached.</li>
         <li><strong>Data:</strong> export to CSV, or make a full backup (and restore it) from the Data menu. The backup is a readable JSON file with the routes, their terrain analyses, each type's color and your settings. If there are unsaved changes and the last backup is more than 7 days old (or there is none), the app reminds you when you open it. "Clear all data" deletes everything saved in this browser.</li>
       </ul>
-      <p><strong>How it's calculated:</strong> elevation gain adds climbs of more than 2 m after cleaning up altitude glitches; moving time excludes sections under 0.3 m/s; the difficulty index is gain/10 + km + moving hours × 25 (shown as "No index" when no time can be calculated). The RDI (relative difficulty index) is that index's percentile within the routes matching the active filters: an RDI of 70 means the route is as hard as or harder than 70% of the selection, and the hardest one gets 100. That's why it changes when you change the filters.</p>
+      <p><strong>How it's calculated:</strong> elevation gain adds climbs of more than 2 m after cleaning up altitude glitches; moving time excludes sections under 0.3 m/s; the difficulty index is measured in <em>equivalent km</em> (the flat paved km that would take the same effort): paved km + track km × 1.2 + trail km × 1.5 + no-data km × 1.2 + gain ÷ 40. The terrain split comes from the terrain analysis; if a route doesn't have it yet, all its km count × 1.2, and the index updates by itself once it's analyzed. It doesn't depend on time, so every route has an index. The coefficients can be changed in ⚙ → Calculations. The RDI (relative difficulty index) is that index's percentile within the routes matching the active filters: an RDI of 70 means the route is as hard as or harder than 70% of the selection, and the hardest one gets 100. That's why it changes when you change the filters.</p>
       <p><strong>Terrain:</strong> the ↻ button in the route panel (or Data → Analyze terrain, for several at once) downloads the ways in the area from OpenStreetMap, matches the track to them and works out how much is paved, track, trail or no data (more than 25 m from any way). Only the route's area (not the track) is sent to public OpenStreetMap servers: the main one and, when it is busy, a VK Maps mirror; downloads are spread between both. It reflects the ways as they are in OpenStreetMap today, not when you rode. The result is saved with the route and included in the backup. A separate copy is also kept, which survives clearing the data (unless you choose to delete it) and comes back automatically when you load the same GPX again. The ways downloaded for each area are also kept in the browser for 180 days, so analyzing other routes in areas already queried is almost instant; the first route in each new area is the slowest, and it depends on how busy the public OpenStreetMap server is.</p>
       <p style="margin-bottom:0;"><strong>Privacy:</strong> your routes are stored only in this browser and never uploaded to any server; only what you choose to share leaves it. If you switch or clear your browser, back up first.</p>
       <p><strong>Browsers:</strong> it works in current versions of Chrome, Edge, Firefox and Safari, on desktop and mobile. Opening <strong>.gz</strong> files needs Chrome or Edge 80 or later, Firefox 113 or Safari 16.4. Writing the name or type into the GPX file itself is only possible in desktop Chrome, Edge or Opera; elsewhere those changes are saved in the app only. It has been tested mainly in Chrome.</p>
@@ -2668,7 +2745,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
   // ---------- Quiénes somos / About ----------
   // Versión de la app: se sube (0.4 → 0.5 → …) y se pone la fecha del día cada vez que se genera un HTML nuevo.
   // Versiones 0.x mientras la app no se publique.
-  const APP_VERSION = "0.14", APP_VERSION_DATE = "2026-10-13";
+  const APP_VERSION = "0.15", APP_VERSION_DATE = "2026-10-13";
   const APP_AUTHOR = "Angel Herrero", APP_EMAIL = "angelherreropla@gmail.com";
   const ABOUT_HTML = {
     es: () => `
@@ -2764,7 +2841,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       try{ baseLayer = localStorage.getItem("heatmap-capa-base"); }catch(e){}
       const payload = {
         app: "hinterway", version: 2, appVersion: APP_VERSION, exportedAt: new Date().toISOString(),
-        settings: { lang: LANG, theme: THEME, dateFmt: DATE_FMT, routeIntensity, routeWeight, typeColors: Object.fromEntries(typeColors), defaultType: DEFAULT_TYPE, baseLayer, baseDefault: BASE_DEFAULT, heatOnOpen: HEAT_ON_OPEN, fitOnSelect: FIT_ON_SELECT },
+        settings: { lang: LANG, theme: THEME, dateFmt: DATE_FMT, routeIntensity, routeWeight, typeColors: Object.fromEntries(typeColors), defaultType: DEFAULT_TYPE, baseLayer, baseDefault: BASE_DEFAULT, heatOnOpen: HEAT_ON_OPEN, fitOnSelect: FIT_ON_SELECT, calc: CALC },
         counts: { tracks: tracks.length, surfaceCache: surfaceCache.length },
         tracks,
         surfaceCache,
@@ -2851,6 +2928,10 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       if(typeof st.baseLayer === "string") lsSet("heatmap-capa-base", baseById[st.baseLayer] ? st.baseLayer : baseIdOf(baseMaps[st.baseLayer]));
       if(typeof st.heatOnOpen === "boolean"){ HEAT_ON_OPEN = st.heatOnOpen; lsSet("heatmap-heat-open", HEAT_ON_OPEN ? "1" : "0"); }
       if(typeof st.fitOnSelect === "boolean"){ FIT_ON_SELECT = st.fitOnSelect; lsSet("heatmap-fit-select", FIT_ON_SELECT ? "1" : "0"); }
+      if(st.calc && typeof st.calc === "object"){
+        Object.keys(CALC_DEFAULT).forEach(k => { if(typeof st.calc[k] === "number" && st.calc[k] > 0) CALC[k] = st.calc[k]; });
+        saveCalc();
+      }
       if(typeof st.defaultType === "string"){ DEFAULT_TYPE = st.defaultType; lsSet("heatmap-default-type", DEFAULT_TYPE); }
       if(["dark","light","auto"].includes(st.theme)){ THEME = st.theme; lsSet("heatmap-theme", THEME); applyTheme(); }
       if(["dmy","long","iso"].includes(st.dateFmt)){ DATE_FMT = st.dateFmt; lsSet("heatmap-date-fmt", DATE_FMT); }
@@ -4053,6 +4134,8 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     els("setPaneLook").classList.toggle("hidden", tab !== "look");
     els("setPaneTypes").classList.toggle("hidden", tab !== "types");
     els("setPaneMap").classList.toggle("hidden", tab !== "map");
+    els("setPaneCalc").classList.toggle("hidden", tab !== "calc");
+    if(tab === "calc") renderCalcPane();
     if(tab === "types") renderTypesPane();
   }
   els("setTabs").addEventListener("click", e => { const b = e.target.closest("button[data-tab]"); if(b) showSetTab(b.dataset.tab); });
@@ -4145,6 +4228,41 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     renderTypesPane();
   });
   els("typeRows").addEventListener("keydown", e => { if(e.key === "Enter" && e.target.matches("[data-rename-type]")) e.target.blur(); });
+  // ---------- Configuración → Cálculos ----------
+  const CALC_INPUTS = { fp:"calcFp", fs:"calcFs", fn:"calcFn", dm:"calcDm" };
+  function renderCalcPane(){
+    Object.entries(CALC_INPUTS).forEach(([k, id]) => { if(document.activeElement !== els(id)) els(id).value = CALC[k]; });
+    const fmt = v => String(v).replace(".", LANG === "en" ? "." : ",");
+    els("calcFormula").textContent = tr("set_calc_formula", { fp:fmt(CALC.fp), fs:fmt(CALC.fs), fn:fmt(CALC.fn), dm:fmt(CALC.dm) });
+    const vals = tracks.map(difficultyIndex).filter(v => v != null).sort((a,b) => a-b);
+    els("calcStats").textContent = vals.length
+      ? tr("set_calc_stats", vals.length, vals[Math.floor(vals.length/2)], vals[vals.length-1], tracks.filter(t => !t.surface).length) : "";
+  }
+  // Después de cambiar el índice (coeficientes o terreno nuevo): IDR, máximos del filtro y paneles abiertos.
+  function refreshIndexViews(){
+    rebuildFilterLists();
+    readRangeInputs();
+    applyFiltersAndRedrawKeepSelection();
+    refreshDates();
+    if(!els("yearReviewModal").classList.contains("hidden")) renderYearReview();
+    if(!els("settingsModal").classList.contains("hidden") && !els("setPaneCalc").classList.contains("hidden")) renderCalcPane();
+  }
+  let calcTimer = null;
+  els("setPaneCalc").addEventListener("input", e => {
+    const k = Object.keys(CALC_INPUTS).find(k => CALC_INPUTS[k] === e.target.id);
+    if(!k) return;
+    const v = parseFloat(String(e.target.value).replace(",", "."));
+    if(!(v > 0)) return;
+    CALC[k] = v; saveCalc();
+    clearTimeout(calcTimer);
+    calcTimer = setTimeout(refreshIndexViews, 250);
+    renderCalcPane();
+  });
+  els("calcReset").addEventListener("click", () => {
+    CALC = { ...CALC_DEFAULT }; saveCalc();
+    Object.entries(CALC_INPUTS).forEach(([k, id]) => { els(id).value = CALC[k]; });
+    refreshIndexViews(); renderCalcPane();
+  });
   els("setBase").addEventListener("change", e => {
     BASE_DEFAULT = e.target.value; lsSet("heatmap-base-default", BASE_DEFAULT);
     const want = baseById[BASE_DEFAULT];
