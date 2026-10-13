@@ -259,6 +259,9 @@ main{ position:relative; flex:1; min-width:0; }
 .data-table th.c-date{ width:82px; }
 @media (max-width:1100px){ .data-table th.c-name{ width:160px; } }
 @media (max-width:900px){ .data-table th.c-name{ width:120px; } .data-table{ font-size:11.5px; } .data-table th.c-date{ width:74px; } }
+#helpBody h4{ font-family:'Public Sans',sans-serif; font-size:13.5px; color:var(--accent); margin:14px 0 4px; }
+#helpBody ul{ margin:0 0 6px; padding-left:18px; }
+#helpBody li{ margin-bottom:3px; }
 .cell-tip{ position:fixed; z-index:3000; max-width:360px; padding:4px 8px; font-size:12px; line-height:1.35; background:var(--panel); color:var(--text); border:1px solid var(--line); border-radius:6px; box-shadow:0 6px 18px rgba(0,0,0,.45); pointer-events:none; white-space:normal; }
 .data-table th.num, .data-table td.num{ text-align:right; }
 .data-table th{ cursor:pointer; color:var(--text-dim); font-weight:600; user-select:none; }
@@ -613,7 +616,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     </div>
   </div>
   <div class="modal-overlay hidden" id="helpModal">
-    <div class="modal" style="width:460px; max-height:80vh; overflow-y:auto;">
+    <div class="modal" style="width:min(600px, 94vw); max-height:85vh; overflow-y:auto;">
       <h3 id="helpTitle" style="margin:0 0 10px;">Qué se puede hacer aquí</h3>
       <div id="helpBody" style="font-size:13px; line-height:1.6; color:var(--text);"></div>
       <div style="display:flex; justify-content:flex-end; margin-top:14px;">
@@ -2737,40 +2740,168 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
 
   const HELP_HTML = {
     es: `
-      <ul style="margin:0 0 10px; padding-left:18px;">
-        <li><strong>Menú superior:</strong> <em>Datos</em> (añadir rutas, exportar CSV, copia de seguridad, analizar terreno, vaciar todo), <em>Filtros</em> (mostrar/ocultar panel, restablecer), <em>Paneles</em> (gráficos, récords, calendario, tabla, resumen anual) e <em>Info</em> (esta ayuda y Quiénes somos). El botón ⚙ abre la <em>Configuración</em>: pestaña <em>Apariencia</em> (idioma, tema claro u oscuro, formato de fecha, e intensidad y grosor de las rutas), pestaña <em>Tipos de actividad</em> (color de cada tipo, renombrar o fusionar tipos —si pones el nombre de otro tipo existente, se juntan; con la casilla "Cambiar solo las rutas filtradas" el cambio afecta solo a las rutas que cumplen los filtros, por ejemplo las de ciertos años— y el tipo que se pone por defecto a los archivos que no lo traen) pestaña <em>Mapa</em> (mapa de fondo al abrir —uno fijo o el último usado—, capa de densidad encendida o apagada al abrir, y si el mapa se centra al pinchar una ruta) y pestaña <em>Cálculos</em> (los coeficientes del índice de dificultad, con el resultado al momento).</li>
-        <li><strong>Añadir rutas</strong> desde Datos → Añadir rutas, seleccionando varios archivos a la vez; se guardan en este navegador. Admite <strong>GPX</strong> y <strong>TCX</strong> (Garmin), también comprimidos en <strong>.gz</strong>. Si el archivo no trae el tipo, te lo pregunta (o pone el tipo por defecto de ⚙); ese tipo asignado a varios archivos de golpe solo se guarda en la aplicación. Si luego cambias el tipo o renombras una ruta concreta desde su ventana, con Chrome o Edge ese cambio se graba también en su archivo, pero solo si es un GPX sin comprimir; en TCX y .gz se guarda solo en la aplicación. Los archivos FIT todavía no se admiten.</li>
-        <li><strong>Filtros</strong> (panel izquierdo): nombre, fecha desde / hasta (ambos días incluidos; puedes rellenar solo uno), zona del mapa (pulsa "Dibujar zona" y arrastra un rectángulo: quedan las rutas que pasan por él y el mapa se ajusta a ellas; "Quitar zona" lo elimina), año, tipo (con su color; se cambia en ⚙ → Tipos de actividad), distancia, desnivel e índice de dificultad. Se combinan entre sí y afectan al mapa y a los totales de la cabecera. Al añadir rutas nuevas, los máximos de distancia, desnivel e índice se amplían solos, salvo que los hayas cambiado a mano.</li>
-        <li><strong>Una ruta en el mapa:</strong> al pincharla se resalta y se abre abajo su ventana: nombre, fecha y tipo; sus cifras (km, desnivel, tiempo, velocidad e índice de dificultad); el terreno; los botones para cambiar el tipo (se guarda al elegirlo), renombrar (✎), analizar el terreno (↻), borrar (🗑) y cerrar (✕); y su perfil de elevación. Arrastra sobre el perfil para ampliar un tramo y ver su pendiente coloreada por sectores; pasa el ratón para ver km, altitud, pendiente y tipo de terreno de cada punto. Si la ruta tiene el terreno analizado, una franja de colores bajo el perfil marca los tramos de asfalto, pista y senda.</li>
-        <li><strong>Mapa y capas:</strong> el icono de capas (arriba a la derecha) cambia el fondo del mapa y activa o desactiva las rutas y la capa de densidad (heatmap).</li>
-        <li><strong>Paneles:</strong> Gráficos (evolución mensual o anual), Récords y Top 10, Calendario de actividad (un cuadradito por día), Tabla de rutas y Resumen anual. Todos usan las rutas que cumplen los filtros activos. En el Top 10 y en la Tabla se ordena pulsando el título de la columna (otra vez para invertir); en los dos, si un nombre no cabe, se recorta con «…» y al pasar el ratón se ve entero. Marcando la casilla de dos rutas (en el Top 10 o en la Tabla) se activa <em>Comparar</em>, que las muestra lado a lado.</li>
-        <li><strong>En el móvil:</strong> el panel de filtros se abre y se cierra desde Filtros (o con ✕) y queda por encima del mapa; el idioma y el resto de ajustes, desde ⚙. En el perfil, toca un punto para ver sus datos o arrastra el dedo para seleccionar un tramo. Algunas columnas de la Tabla y del Top 10 se ocultan para que quepan.</li>
-        <li><strong>Resumen anual → Todos los años:</strong> en el selector de año, "Todos los años" muestra una tabla con una fila por año (rutas, días, km, desnivel, tiempo, velocidad media, km por ruta, índice medio, ruta más larga y más dura, mejor mes y racha) y una fila de total. Pincha un título para ordenar y un año para ver su resumen.</li>
-        <li><strong>Compartir el resumen anual:</strong> en Paneles → Resumen anual, "Compartir…" genera una imagen con las cifras del año (sin nombres de rutas) y ofrece WhatsApp, Telegram, X, email, copiar el texto o descargar la imagen; Facebook y LinkedIn solo aparecen si abres la app desde su dirección web. En el móvil, "Compartir (imagen + texto)" envía la imagen directamente a cualquier app; en los demás casos solo se envía el texto y la imagen hay que adjuntarla.</li>
-        <li><strong>Datos:</strong> exporta a CSV, o haz una copia de seguridad completa (y restáurala) desde el menú Datos. La copia es un archivo JSON legible que incluye las rutas, sus análisis de terreno, los colores de cada tipo y tu configuración. Si hay cambios sin copiar y la última copia tiene más de 7 días (o no hay ninguna), la app te lo recuerda al abrirla. "Vaciar todos los datos" borra todo lo guardado en este navegador.</li>
+      <p style="margin-top:0;">Hinterway muestra todas tus rutas en un mapa, como un mapa de calor de por dónde has pasado, y te ayuda a analizarlas. Todo se guarda en este navegador.</p>
+
+      <h4>1. Añadir rutas</h4>
+      <ul>
+        <li><strong>Datos → Añadir rutas</strong>: elige varios archivos a la vez. Admite <strong>GPX</strong> y <strong>TCX</strong> (Garmin), también comprimidos en <strong>.gz</strong>. Los FIT todavía no.</li>
+        <li>Si un archivo no trae el tipo de actividad, te lo pregunta (o pone el tipo por defecto de ⚙ → Tipos de actividad).</li>
+        <li>En la cabecera ves cuántas rutas se muestran y sus totales: km, desnivel, tiempo en movimiento y velocidad media.</li>
       </ul>
-      <p><strong>Cómo se calcula:</strong> el desnivel suma subidas de más de 2 m tras limpiar la altitud de aberraciones; el tiempo en movimiento descuenta los tramos a menos de 0,3 m/s; el índice de dificultad se mide en <em>km equivalentes</em> (los km llanos de asfalto que supondrían el mismo esfuerzo): km de asfalto + km de pista × 1,2 + km de senda × 1,5 + km sin datos × 1,2 + desnivel ÷ 40. El reparto por terreno sale del análisis de terreno; si una ruta aún no lo tiene, todos sus km cuentan × 1,2, y al analizarla el índice se recalcula solo. No depende del tiempo, así que todas las rutas tienen índice. Los coeficientes se pueden cambiar en ⚙ → Cálculos.</p>
-      <p><strong>Terreno:</strong> el botón ↻ de la ventana de la ruta (o Datos → Analizar terreno, para varias a la vez) descarga de OpenStreetMap los caminos de la zona, ajusta la traza a ellos y calcula qué parte va por asfalto, pista, senda o sin datos (a más de 25 m de cualquier camino). Para ello se envía la zona de la ruta (no la traza) a los servidores públicos de OpenStreetMap: el principal y, si está saturado, un espejo de VK Maps; las descargas se reparten entre ambos. Refleja los caminos tal como están hoy en OpenStreetMap, no cuando hiciste la ruta. El resultado se guarda con la ruta y entra en la copia de seguridad. Además se guarda una copia aparte, que se conserva al vaciar los datos (salvo que elijas borrarla) y se recupera sola al volver a cargar el mismo GPX. Los caminos descargados de cada zona también se guardan en el navegador durante 180 días, así que analizar otras rutas por zonas ya consultadas es casi instantáneo; la primera ruta de cada zona nueva es la que más tarda, y depende de lo cargado que esté el servidor público de OpenStreetMap.</p>
-      <p style="margin-bottom:0;"><strong>Privacidad:</strong> tus rutas se guardan solo en este navegador, nunca se suben a ningún servidor; solo sale lo que tú decidas compartir. Si cambias de navegador o lo limpias, haz antes una copia de seguridad.</p>
-      <p><strong>Navegadores:</strong> funciona en las versiones actuales de Chrome, Edge, Firefox y Safari, en ordenador y en móvil. Para abrir archivos <strong>.gz</strong> hace falta Chrome o Edge 80 o posterior, Firefox 113 o Safari 16.4. Grabar el nombre o el tipo dentro del propio archivo GPX solo es posible en Chrome, Edge u Opera de ordenador; en los demás, esos cambios se guardan solo en la aplicación. Se ha probado sobre todo en Chrome.</p>
+
+      <h4>2. El mapa y cada ruta</h4>
+      <ul>
+        <li>El <strong>icono de capas</strong> (arriba a la derecha) cambia el fondo del mapa y enciende o apaga las rutas y la capa de densidad (heatmap).</li>
+        <li><strong>Pincha una ruta</strong> y se abre abajo su ventana: nombre, fecha y tipo; km, desnivel, tiempo, velocidad e índice de dificultad; el terreno; y los botones para cambiar el tipo, renombrar (✎), analizar el terreno (↻), borrarla de la app (🗑) y cerrar (✕).</li>
+        <li>Debajo está su <strong>perfil de elevación</strong>: pasa el ratón para ver km, altitud, pendiente y terreno de cada punto; arrastra para ampliar un tramo, verlo en el mapa y ver su pendiente por sectores. Si la ruta tiene el terreno analizado, una franja de colores marca asfalto, pista y senda.</li>
+        <li>El tipo y el nombre que cambies se guardan en la app; con Chrome o Edge de ordenador también se graban en el propio archivo, si es un GPX sin comprimir.</li>
+      </ul>
+
+      <h4>3. Filtros (panel izquierdo)</h4>
+      <ul>
+        <li><strong>Nombre</strong>: busca un texto en el nombre.</li>
+        <li><strong>Fecha</strong> desde / hasta: ambos días incluidos; puedes rellenar solo uno.</li>
+        <li><strong>Zona del mapa</strong>: pulsa "Dibujar zona" y arrastra un rectángulo; quedan las rutas que pasan por él y el mapa se ajusta a ellas. "Quitar zona" lo elimina.</li>
+        <li><strong>Año</strong> y <strong>tipo de actividad</strong> (el cuadrito muestra su color).</li>
+        <li><strong>Distancia</strong>, <strong>desnivel</strong> e <strong>índice de dificultad</strong>: mínimo y máximo. Los máximos se amplían solos al añadir rutas, salvo que los hayas cambiado a mano.</li>
+        <li>Todos se combinan entre sí y afectan al mapa, a los totales y a los paneles. <strong>Filtros → Restablecer filtros</strong> los deja como al principio.</li>
+      </ul>
+
+      <h4>4. Paneles</h4>
+      <ul>
+        <li><strong>Gráficos</strong>: km, desnivel y horas por mes o por año, y velocidad media por tipo.</li>
+        <li><strong>Récords y Top 10</strong>: la ruta más larga, con más desnivel, más rápida, con más tiempo y más difícil; y las 10 mejores ordenables por cualquier columna.</li>
+        <li><strong>Calendario</strong>: un cuadradito por día, más intenso cuantos más km.</li>
+        <li><strong>Tabla de rutas</strong>: todas las rutas filtradas, ordenables por columna.</li>
+        <li><strong>Resumen anual</strong>: las cifras de un año. Con <em>Todos los años</em>, una tabla con una fila por año y el total; pincha un año para ver su resumen. <em>Compartir…</em> crea una imagen del año (sin nombres de rutas) para WhatsApp, Telegram, X, email, etc.</li>
+        <li><strong>Comparar</strong>: marca la casilla de dos rutas en el Top 10 o en la Tabla y pulsa Comparar para ver sus datos y sus perfiles superpuestos.</li>
+        <li>En el Top 10 y la Tabla, pulsa el título de una columna para ordenar (otra vez para invertir); los nombres largos se recortan con «…» y se ven enteros al pasar el ratón.</li>
+      </ul>
+
+      <h4>5. Menú Datos</h4>
+      <ul>
+        <li><strong>Exportar a CSV</strong> las rutas filtradas, para abrirlas en Excel.</li>
+        <li><strong>Copia de seguridad</strong>: descarga un JSON con las rutas, su terreno y tu configuración, y restáuralo cuando quieras. Si hay cambios sin copiar y la última copia tiene más de 7 días, la app te lo recuerda al abrirla.</li>
+        <li><strong>Analizar terreno</strong> de todas las rutas filtradas que aún no lo tienen (se puede detener).</li>
+        <li><strong>Vaciar todos los datos</strong> borra lo guardado en este navegador.</li>
+      </ul>
+
+      <h4>6. Configuración (⚙)</h4>
+      <ul>
+        <li><strong>Apariencia</strong>: idioma, tema claro u oscuro, formato de fecha, intensidad y grosor de las rutas.</li>
+        <li><strong>Tipos de actividad</strong>: color de cada tipo; renombrar o fusionar tipos (si pones el nombre de otro tipo existente, se juntan); con la casilla "Cambiar solo las rutas filtradas", el cambio afecta solo a las rutas que cumplen los filtros; y el tipo por defecto para los archivos que no lo traen.</li>
+        <li><strong>Mapa</strong>: mapa de fondo al abrir (uno fijo o el último usado), capa de densidad al abrir y si el mapa se centra al pinchar una ruta.</li>
+        <li><strong>Cálculos</strong>: los coeficientes del índice de dificultad, con el resultado al momento.</li>
+      </ul>
+
+      <h4>7. Cómo se calcula</h4>
+      <ul>
+        <li><strong>Desnivel</strong>: suma las subidas de más de 2 m, tras limpiar la altitud de saltos erróneos.</li>
+        <li><strong>Tiempo en movimiento</strong>: descuenta los tramos a menos de 0,3 m/s.</li>
+        <li><strong>Índice de dificultad</strong>, en <em>km equivalentes</em> (los km llanos de asfalto que supondrían el mismo esfuerzo): km de asfalto + km de pista × 1,2 + km de senda × 1,5 + km sin datos × 1,2 + desnivel ÷ 40. Si una ruta aún no tiene el terreno analizado, todos sus km cuentan × 1,2, y al analizarla el índice se recalcula solo. No depende del tiempo. Los coeficientes se cambian en ⚙ → Cálculos.</li>
+      </ul>
+
+      <h4>8. Análisis de terreno</h4>
+      <ul>
+        <li>El botón ↻ de la ventana de la ruta (o Datos → Analizar terreno) descarga de OpenStreetMap los caminos de la zona, ajusta la traza a ellos y calcula qué parte va por asfalto, pista, senda o sin datos (a más de 25 m de cualquier camino).</li>
+        <li>Se envía la zona de la ruta, no la traza, a los servidores públicos de OpenStreetMap (el principal y, si está saturado, un espejo de VK Maps). Refleja los caminos tal como están hoy, no cuando hiciste la ruta.</li>
+        <li>El resultado se guarda con la ruta y en la copia de seguridad, y también aparte: se conserva al vaciar los datos y se recupera solo al volver a cargar el mismo archivo. Los caminos de cada zona se guardan 180 días, así que otras rutas por la misma zona se analizan casi al instante.</li>
+      </ul>
+
+      <h4>9. En el móvil</h4>
+      <ul>
+        <li>El panel de filtros se abre y se cierra desde Filtros (o con ✕); el idioma y los ajustes, desde ⚙.</li>
+        <li>En el perfil, toca un punto para ver sus datos o arrastra el dedo para seleccionar un tramo. La zona del mapa se dibuja con el dedo.</li>
+        <li>Algunas columnas de la Tabla y del Top 10 se ocultan para que quepan. "Compartir (imagen + texto)" envía la imagen del resumen anual directamente a cualquier app.</li>
+      </ul>
+
+      <h4>10. Privacidad y navegadores</h4>
+      <ul style="margin-bottom:0;">
+        <li>Tus rutas se guardan solo en este navegador y no se suben a ningún servidor; el análisis de terreno solo envía la zona, no la traza. Si cambias de navegador o lo limpias, haz antes una copia de seguridad.</li>
+        <li>Funciona en las versiones actuales de Chrome, Edge, Firefox y Safari, en ordenador y en móvil. Para los archivos .gz hace falta Chrome o Edge 80 o posterior, Firefox 113 o Safari 16.4. Grabar el nombre o el tipo en el propio GPX solo es posible en Chrome, Edge u Opera de ordenador. Se ha probado sobre todo en Chrome.</li>
+      </ul>
     `,
     en: `
-      <ul style="margin:0 0 10px; padding-left:18px;">
-        <li><strong>Top menu:</strong> <em>Data</em> (add routes, export CSV, backup, analyze terrain, clear all), <em>Filters</em> (show/hide panel, reset), <em>Panels</em> (charts, records, calendar, table, year in review) and <em>Info</em> (this help and About). The ⚙ button opens <em>Settings</em>: the <em>Appearance</em> tab (language, light or dark theme, date format, and route intensity and thickness), the <em>Activity types</em> tab (each type's color, renaming or merging types —give one the name of another existing type and they are combined; with the "Change filtered routes only" box the change only affects the routes matching the filters, e.g. certain years— and the default type for files that don't include one) the <em>Map</em> tab (background map on open —a fixed one or the last used—, density layer on or off at start, and whether the map centers when you click a route) and the <em>Calculations</em> tab (the difficulty index coefficients, with live results).</li>
-        <li><strong>Add routes</strong> from Data → Add routes, picking several files at once; they're saved in this browser. <strong>GPX</strong> and <strong>TCX</strong> (Garmin) files are supported, also gzipped as <strong>.gz</strong>. If a file has no type, you'll be asked (or the default type from ⚙ is used); a type assigned to many files at once is only saved in the app. If you later change the type or rename one specific route from its panel, with Chrome or Edge that change is also written to its file, but only for uncompressed GPX; for TCX and .gz it's saved in the app only. FIT files aren't supported yet.</li>
-        <li><strong>Filters</strong> (left panel): name, date from / to (both days included; you can fill in just one), map area (press "Draw area" and drag a rectangle: the routes passing through it remain and the map zooms to them; "Clear area" removes it), year, type (with its color, which you change in ⚙ → Activity types), distance, elevation gain and difficulty index. They all combine and affect the map and the header totals. When you add new routes, the distance, gain and index maximums widen automatically unless you changed them by hand.</li>
-        <li><strong>A route on the map:</strong> clicking it highlights it and opens its panel at the bottom: name, date and type; its figures (km, gain, time, speed and difficulty index); the terrain; buttons to change the type (saved when chosen), rename (✎), analyze terrain (↻), delete (🗑) and close (✕); and its elevation profile. Drag over the profile to zoom into a section and see its gradient colored by sector; hover to see the km, altitude, gradient and terrain type at any point. If the route's terrain has been analyzed, a colored strip under the profile marks the paved, track and trail sections.</li>
-        <li><strong>Map and layers:</strong> the layers icon (top right) changes the map background and toggles the routes and density (heatmap) layers.</li>
-        <li><strong>Panels:</strong> Charts (monthly or yearly trends), Records & Top 10, Activity calendar (one square per day), Route table and Year in review. All of them use the routes matching the active filters. In the Top 10 and the Table, click a column title to sort (again to reverse); in both, a name that doesn't fit is cut with "…" and you can hover over it to see it in full. Ticking the box of two routes (in the Top 10 or the Table) enables <em>Compare</em>, which shows them side by side.</li>
-        <li><strong>On mobile:</strong> the filters panel opens and closes from Filters (or with ✕) and sits on top of the map; the language and other settings are in ⚙. On the profile, tap a point to see its data or drag your finger to select a section. Some columns of the Table and the Top 10 are hidden so they fit.</li>
-        <li><strong>Year in review → All years:</strong> in the year selector, "All years" shows a table with one row per year (routes, days, km, gain, time, average speed, km per route, average index, longest and hardest route, best month and streak) plus a total row. Click a title to sort and a year to see its summary.</li>
-        <li><strong>Sharing the year in review:</strong> in Panels → Year in review, "Share…" creates an image with the year's figures (no route names) and offers WhatsApp, Telegram, X, email, copy the text or download the image; Facebook and LinkedIn only appear when you open the app from its web address. On mobile, "Share (image + text)" sends the image straight to any app; otherwise only the text is sent and the image has to be attached.</li>
-        <li><strong>Data:</strong> export to CSV, or make a full backup (and restore it) from the Data menu. The backup is a readable JSON file with the routes, their terrain analyses, each type's color and your settings. If there are unsaved changes and the last backup is more than 7 days old (or there is none), the app reminds you when you open it. "Clear all data" deletes everything saved in this browser.</li>
+      <p style="margin-top:0;">Hinterway shows all your routes on one map, as a heatmap of where you have been, and helps you analyze them. Everything is stored in this browser.</p>
+
+      <h4>1. Adding routes</h4>
+      <ul>
+        <li><strong>Data → Add routes</strong>: pick several files at once. <strong>GPX</strong> and <strong>TCX</strong> (Garmin) are supported, also gzipped as <strong>.gz</strong>. FIT not yet.</li>
+        <li>If a file has no activity type, you'll be asked (or the default type from ⚙ → Activity types is used).</li>
+        <li>The header shows how many routes are displayed and their totals: km, gain, moving time and average speed.</li>
       </ul>
-      <p><strong>How it's calculated:</strong> elevation gain adds climbs of more than 2 m after cleaning up altitude glitches; moving time excludes sections under 0.3 m/s; the difficulty index is measured in <em>equivalent km</em> (the flat paved km that would take the same effort): paved km + track km × 1.2 + trail km × 1.5 + no-data km × 1.2 + gain ÷ 40. The terrain split comes from the terrain analysis; if a route doesn't have it yet, all its km count × 1.2, and the index updates by itself once it's analyzed. It doesn't depend on time, so every route has an index. The coefficients can be changed in ⚙ → Calculations.</p>
-      <p><strong>Terrain:</strong> the ↻ button in the route panel (or Data → Analyze terrain, for several at once) downloads the ways in the area from OpenStreetMap, matches the track to them and works out how much is paved, track, trail or no data (more than 25 m from any way). Only the route's area (not the track) is sent to public OpenStreetMap servers: the main one and, when it is busy, a VK Maps mirror; downloads are spread between both. It reflects the ways as they are in OpenStreetMap today, not when you rode. The result is saved with the route and included in the backup. A separate copy is also kept, which survives clearing the data (unless you choose to delete it) and comes back automatically when you load the same GPX again. The ways downloaded for each area are also kept in the browser for 180 days, so analyzing other routes in areas already queried is almost instant; the first route in each new area is the slowest, and it depends on how busy the public OpenStreetMap server is.</p>
-      <p style="margin-bottom:0;"><strong>Privacy:</strong> your routes are stored only in this browser and never uploaded to any server; only what you choose to share leaves it. If you switch or clear your browser, back up first.</p>
-      <p><strong>Browsers:</strong> it works in current versions of Chrome, Edge, Firefox and Safari, on desktop and mobile. Opening <strong>.gz</strong> files needs Chrome or Edge 80 or later, Firefox 113 or Safari 16.4. Writing the name or type into the GPX file itself is only possible in desktop Chrome, Edge or Opera; elsewhere those changes are saved in the app only. It has been tested mainly in Chrome.</p>
+
+      <h4>2. The map and each route</h4>
+      <ul>
+        <li>The <strong>layers icon</strong> (top right) changes the background map and turns the routes and the density layer (heatmap) on or off.</li>
+        <li><strong>Click a route</strong> to open its panel at the bottom: name, date and type; km, gain, time, speed and difficulty index; terrain; and buttons to change the type, rename (✎), analyze terrain (↻), remove it from the app (🗑) and close (✕).</li>
+        <li>Below is its <strong>elevation profile</strong>: hover to see km, altitude, gradient and terrain at each point; drag to zoom into a section, see it on the map and see its gradient by sector. If the terrain has been analyzed, a colored strip marks paved, track and trail.</li>
+        <li>Type and name changes are saved in the app; with desktop Chrome or Edge they're also written to the file itself, if it's an uncompressed GPX.</li>
+      </ul>
+
+      <h4>3. Filters (left panel)</h4>
+      <ul>
+        <li><strong>Name</strong>: searches for text in the name.</li>
+        <li><strong>Date</strong> from / to: both days included; you can fill in just one.</li>
+        <li><strong>Map area</strong>: press "Draw area" and drag a rectangle; the routes passing through it remain and the map zooms to them. "Clear area" removes it.</li>
+        <li><strong>Year</strong> and <strong>activity type</strong> (the small square shows its color).</li>
+        <li><strong>Distance</strong>, <strong>gain</strong> and <strong>difficulty index</strong>: minimum and maximum. Maximums widen automatically when you add routes, unless you changed them by hand.</li>
+        <li>They all combine and affect the map, the totals and the panels. <strong>Filters → Reset filters</strong> clears them.</li>
+      </ul>
+
+      <h4>4. Panels</h4>
+      <ul>
+        <li><strong>Charts</strong>: km, gain and hours by month or year, and average speed by type.</li>
+        <li><strong>Records & Top 10</strong>: the longest route, most gain, fastest, most time and hardest; and the top 10, sortable by any column.</li>
+        <li><strong>Calendar</strong>: one square per day, brighter the more km.</li>
+        <li><strong>Route table</strong>: every filtered route, sortable by column.</li>
+        <li><strong>Year in review</strong>: a year's figures. With <em>All years</em>, a table with one row per year plus the total; click a year to see its summary. <em>Share…</em> creates an image of the year (no route names) for WhatsApp, Telegram, X, email, etc.</li>
+        <li><strong>Compare</strong>: tick the box of two routes in the Top 10 or the Table and press Compare to see their figures and overlaid profiles.</li>
+        <li>In the Top 10 and the Table, click a column title to sort (again to reverse); long names are cut with "…" and shown in full on hover.</li>
+      </ul>
+
+      <h4>5. Data menu</h4>
+      <ul>
+        <li><strong>Export to CSV</strong> the filtered routes, to open them in Excel.</li>
+        <li><strong>Backup</strong>: download a JSON with the routes, their terrain and your settings, and restore it whenever you want. If there are unsaved changes and the last backup is more than 7 days old, the app reminds you when you open it.</li>
+        <li><strong>Analyze terrain</strong> of every filtered route that doesn't have it yet (can be stopped).</li>
+        <li><strong>Clear all data</strong> deletes what's stored in this browser.</li>
+      </ul>
+
+      <h4>6. Settings (⚙)</h4>
+      <ul>
+        <li><strong>Appearance</strong>: language, light or dark theme, date format, route intensity and thickness.</li>
+        <li><strong>Activity types</strong>: each type's color; rename or merge types (give one the name of another existing type and they're combined); with the "Change filtered routes only" box, the change only affects routes matching the filters; and the default type for files that don't include one.</li>
+        <li><strong>Map</strong>: background map on open (a fixed one or the last used), density layer on open, and whether the map centers when you click a route.</li>
+        <li><strong>Calculations</strong>: the difficulty index coefficients, with live results.</li>
+      </ul>
+
+      <h4>7. How it's calculated</h4>
+      <ul>
+        <li><strong>Elevation gain</strong>: adds climbs of more than 2 m, after cleaning up altitude glitches.</li>
+        <li><strong>Moving time</strong>: excludes sections under 0.3 m/s.</li>
+        <li><strong>Difficulty index</strong>, in <em>equivalent km</em> (the flat paved km that would take the same effort): paved km + track km × 1.2 + trail km × 1.5 + no-data km × 1.2 + gain ÷ 40. If a route's terrain hasn't been analyzed yet, all its km count × 1.2, and the index updates by itself once it is. It doesn't depend on time. The coefficients are changed in ⚙ → Calculations.</li>
+      </ul>
+
+      <h4>8. Terrain analysis</h4>
+      <ul>
+        <li>The ↻ button in the route panel (or Data → Analyze terrain) downloads the ways in the area from OpenStreetMap, snaps the track to them and works out how much is paved, track, trail or no data (more than 25 m from any way).</li>
+        <li>The route's area, not the track, is sent to the public OpenStreetMap servers (the main one and, when it's busy, a VK Maps mirror). It reflects the ways as they are today, not when you rode the route.</li>
+        <li>The result is saved with the route and in the backup, and also separately: it survives clearing the data and comes back by itself when you load the same file again. Each area's ways are kept for 180 days, so other routes in the same area are analyzed almost instantly.</li>
+      </ul>
+
+      <h4>9. On mobile</h4>
+      <ul>
+        <li>The filters panel opens and closes from Filters (or with ✕); language and settings are in ⚙.</li>
+        <li>On the profile, tap a point to see its data or drag your finger to select a section. The map area is drawn with your finger.</li>
+        <li>Some Table and Top 10 columns are hidden so they fit. "Share (image + text)" sends the year-in-review image straight to any app.</li>
+      </ul>
+
+      <h4>10. Privacy and browsers</h4>
+      <ul style="margin-bottom:0;">
+        <li>Your routes are stored only in this browser and are not uploaded to any server; terrain analysis only sends the area, not the track. If you switch or clear your browser, back up first.</li>
+        <li>It works in current versions of Chrome, Edge, Firefox and Safari, on desktop and mobile. .gz files need Chrome or Edge 80 or later, Firefox 113 or Safari 16.4. Writing the name or type into the GPX file itself is only possible in desktop Chrome, Edge or Opera. It has been tested mainly in Chrome.</li>
+      </ul>
     `,
   };
   function renderHelp(){
@@ -2783,7 +2914,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
   // ---------- Quiénes somos / About ----------
   // Versión de la app: se sube (0.4 → 0.5 → …) y se pone la fecha del día cada vez que se genera un HTML nuevo.
   // Versiones 0.x mientras la app no se publique.
-  const APP_VERSION = "0.17", APP_VERSION_DATE = "2026-10-13";
+  const APP_VERSION = "0.18", APP_VERSION_DATE = "2026-10-13";
   const APP_AUTHOR = "Angel Herrero", APP_EMAIL = "angelherreropla@gmail.com";
   const ABOUT_HTML = {
     es: () => `
