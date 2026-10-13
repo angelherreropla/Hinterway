@@ -84,6 +84,13 @@ aside input[type=text]{ background:var(--panel-2); border:1px solid var(--line);
 .date-clear{ font-size:11.5px; padding:2px 8px; margin-bottom:6px; }
 main{ position:relative; flex:1; min-width:0; }
 #map{ position:absolute; inset:0; background:var(--bg); }
+#map.zone-drawing, #map.zone-drawing .leaflet-interactive{ cursor:crosshair !important; }
+#map.zone-drawing{ touch-action:none; }
+.zone-hint{ position:absolute; top:12px; left:50%; transform:translateX(-50%); z-index:1000; background:var(--panel); color:var(--text); border:1px solid var(--accent); border-radius:8px; padding:7px 12px; font-size:13px; box-shadow:0 6px 18px rgba(0,0,0,.4); display:flex; gap:10px; align-items:center; white-space:nowrap; }
+.zone-hint button{ font-size:12px; padding:3px 9px; }
+.zone-actions{ display:flex; gap:6px; flex-wrap:wrap; margin-bottom:6px; }
+.zone-actions button{ font-size:12.5px; padding:5px 10px; }
+.zone-info{ font-size:11.5px; color:var(--text-dim); margin-bottom:6px; }
 .empty{ position:absolute; inset:0; z-index:1000; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; text-align:center; padding:24px; background:var(--bg); }
 .empty p{ color:var(--text-dim); max-width:360px; font-size:14px; line-height:1.5; margin:0; }
 .hidden{ display:none !important; }
@@ -421,6 +428,13 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       </div>
       <button class="ghost date-clear hidden" id="dateClear" data-i18n="date_clear">Quitar fechas</button>
 
+      <h2 data-i18n="filter_zone">Zona del mapa</h2>
+      <div class="zone-actions">
+        <button class="ghost" id="zoneDraw" data-i18n="zone_draw">▭ Dibujar zona</button>
+        <button class="ghost hidden" id="zoneClear" data-i18n="zone_clear">Quitar zona</button>
+      </div>
+      <div class="zone-info" id="zoneInfo" data-i18n="zone_info_none">Rutas que pasan por un rectángulo que dibujas en el mapa.</div>
+
       <h2 data-i18n="filter_year">Año</h2>
       <div class="filter-actions"><button data-all="year" data-i18n="all">Todos</button><button data-none="year" data-i18n="none">Ninguno</button></div>
       <div class="check-list" id="yearList"></div>
@@ -443,6 +457,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     </aside>
     <main>
       <div id="map"></div>
+      <div class="zone-hint hidden" id="zoneHint"><span data-i18n="zone_hint">Arrastra sobre el mapa para dibujar la zona</span><button class="ghost" id="zoneCancel" data-i18n="cancel">Cancelar</button></div>
       <div class="elev-panel hidden" id="elevPanel">
         <div class="elev-header" id="elevHeaderOld">
           <strong id="elevTitle"></strong>
@@ -852,6 +867,10 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       filter_name: "Nombre", filter_name_ph: "Buscar en el nombre…",
       filter_year: "Año", filter_type: "Tipo de actividad",
       filter_date: "Fecha", date_from: "Desde", date_to: "Hasta", date_clear: "Quitar fechas",
+      filter_zone: "Zona del mapa", zone_draw: "▭ Dibujar zona", zone_redraw: "▭ Cambiar zona", zone_clear: "Quitar zona",
+      zone_info_none: "Rutas que pasan por un rectángulo que dibujas en el mapa.",
+      zone_info_on: (w, h) => `Zona activa: ${w} × ${h} km. Solo se muestran las rutas que pasan por ella.`,
+      zone_hint: "Arrastra sobre el mapa para dibujar la zona",
       all: "Todos", none: "Ninguno",
       filter_km: "Distancia (km)", filter_gain: "Desnivel positivo (m)", filter_idx: "Índice de dificultad", route_intensity: "Intensidad de las rutas",
       range_to: "a",
@@ -1010,6 +1029,10 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       filter_name: "Name", filter_name_ph: "Search by name…",
       filter_year: "Year", filter_type: "Activity type",
       filter_date: "Date", date_from: "From", date_to: "To", date_clear: "Clear dates",
+      filter_zone: "Map area", zone_draw: "▭ Draw area", zone_redraw: "▭ Change area", zone_clear: "Clear area",
+      zone_info_none: "Routes that pass through a rectangle you draw on the map.",
+      zone_info_on: (w, h) => `Active area: ${w} × ${h} km. Only routes passing through it are shown.`,
+      zone_hint: "Drag on the map to draw the area",
       all: "All", none: "None",
       filter_km: "Distance (km)", filter_gain: "Elevation gain (m)", filter_idx: "Difficulty index", route_intensity: "Route intensity",
       range_to: "to",
@@ -1154,6 +1177,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     renderHelp();
     if(!els("aboutModal").classList.contains("hidden")) renderAbout();
     if(!els("settingsModal").classList.contains("hidden")) renderTypesPane();
+    updateZoneUi();
     rebuildFilterLists();
     if(!els("elevPanel").classList.contains("hidden") && elevTrack){ renderRouteHead(elevTrack); renderProfileView(); }
     if(selectedLine && selectedLine._id){
@@ -2411,6 +2435,40 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     els("dateClear").classList.toggle("hidden", !df && !dt);
   }
 
+  // ---------- filtro por zona del mapa (rectángulo) ----------
+  // Una ruta "pasa por" la zona si algún tramo entre dos puntos consecutivos corta el rectángulo
+  // (no basta con mirar los puntos: en rutas largas pueden estar a cientos de metros entre sí).
+  const trackBBox = new WeakMap();
+  function bboxOf(t){
+    let b = trackBBox.get(t);
+    if(!b){
+      b = [Infinity, Infinity, -Infinity, -Infinity];
+      for(const p of t.pts){ if(p[0]<b[0]) b[0]=p[0]; if(p[1]<b[1]) b[1]=p[1]; if(p[0]>b[2]) b[2]=p[0]; if(p[1]>b[3]) b[3]=p[1]; }
+      trackBBox.set(t, b);
+    }
+    return b;
+  }
+  function segHitsRect(a, c, z){        // z = [sur, oeste, norte, este]; Liang–Barsky
+    let t0 = 0, t1 = 1;
+    const dx = c[0]-a[0], dy = c[1]-a[1];
+    const test = (pp, q) => {
+      if(pp === 0) return q >= 0;
+      const r = q / pp;
+      if(pp < 0){ if(r > t1) return false; if(r > t0) t0 = r; }
+      else { if(r < t0) return false; if(r < t1) t1 = r; }
+      return true;
+    };
+    return test(-dx, a[0]-z[0]) && test(dx, z[2]-a[0]) && test(-dy, a[1]-z[1]) && test(dy, z[3]-a[1]);
+  }
+  function passesThroughZone(t, z){
+    const b = bboxOf(t);
+    if(b[2] < z[0] || b[0] > z[2] || b[3] < z[1] || b[1] > z[3]) return false;
+    const pts = t.pts;
+    if(pts.length === 1) return pts[0][0]>=z[0] && pts[0][0]<=z[2] && pts[0][1]>=z[1] && pts[0][1]<=z[3];
+    for(let i=1;i<pts.length;i++) if(segHitsRect(pts[i-1], pts[i], z)) return true;
+    return false;
+  }
+
   function filteredTracks(){
     const list = tracks.filter(t => {
       const idx = difficultyIndex(t);
@@ -2421,7 +2479,8 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
         (idx == null || (idx >= state.idxMin && idx <= state.idxMax)) &&
         (!state.dateFrom || (t.date && t.date.slice(0,10) >= state.dateFrom)) &&
         (!state.dateTo || (t.date && t.date.slice(0,10) <= state.dateTo)) &&
-        (!state.nombre || t.name.toLowerCase().includes(state.nombre));
+        (!state.nombre || t.name.toLowerCase().includes(state.nombre)) &&
+        (!state.zone || passesThroughZone(t, state.zone));
     });
     return list;
   }
@@ -2681,7 +2740,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       <ul style="margin:0 0 10px; padding-left:18px;">
         <li><strong>Menú superior:</strong> <em>Datos</em> (añadir rutas, exportar CSV, copia de seguridad, analizar terreno, vaciar todo), <em>Filtros</em> (mostrar/ocultar panel, restablecer), <em>Paneles</em> (gráficos, récords, calendario, tabla, resumen anual) e <em>Info</em> (esta ayuda y Quiénes somos). El botón ⚙ abre la <em>Configuración</em>: pestaña <em>Apariencia</em> (idioma, tema claro u oscuro, formato de fecha, e intensidad y grosor de las rutas), pestaña <em>Tipos de actividad</em> (color de cada tipo, renombrar o fusionar tipos —si pones el nombre de otro tipo existente, se juntan; con la casilla "Cambiar solo las rutas filtradas" el cambio afecta solo a las rutas que cumplen los filtros, por ejemplo las de ciertos años— y el tipo que se pone por defecto a los archivos que no lo traen) pestaña <em>Mapa</em> (mapa de fondo al abrir —uno fijo o el último usado—, capa de densidad encendida o apagada al abrir, y si el mapa se centra al pinchar una ruta) y pestaña <em>Cálculos</em> (los coeficientes del índice de dificultad, con el resultado al momento).</li>
         <li><strong>Añadir rutas</strong> desde Datos → Añadir rutas, seleccionando varios archivos a la vez; se guardan en este navegador. Admite <strong>GPX</strong> y <strong>TCX</strong> (Garmin), también comprimidos en <strong>.gz</strong>. Si el archivo no trae el tipo, te lo pregunta (o pone el tipo por defecto de ⚙); ese tipo asignado a varios archivos de golpe solo se guarda en la aplicación. Si luego cambias el tipo o renombras una ruta concreta desde su ventana, con Chrome o Edge ese cambio se graba también en su archivo, pero solo si es un GPX sin comprimir; en TCX y .gz se guarda solo en la aplicación. Los archivos FIT todavía no se admiten.</li>
-        <li><strong>Filtros</strong> (panel izquierdo): nombre, fecha desde / hasta (ambos días incluidos; puedes rellenar solo uno), año, tipo (con su color; se cambia en ⚙ → Tipos de actividad), distancia, desnivel e índice de dificultad. Se combinan entre sí y afectan al mapa y a los totales de la cabecera. Al añadir rutas nuevas, los máximos de distancia, desnivel e índice se amplían solos, salvo que los hayas cambiado a mano.</li>
+        <li><strong>Filtros</strong> (panel izquierdo): nombre, fecha desde / hasta (ambos días incluidos; puedes rellenar solo uno), zona del mapa (pulsa "Dibujar zona" y arrastra un rectángulo: quedan las rutas que pasan por él y el mapa se ajusta a ellas; "Quitar zona" lo elimina), año, tipo (con su color; se cambia en ⚙ → Tipos de actividad), distancia, desnivel e índice de dificultad. Se combinan entre sí y afectan al mapa y a los totales de la cabecera. Al añadir rutas nuevas, los máximos de distancia, desnivel e índice se amplían solos, salvo que los hayas cambiado a mano.</li>
         <li><strong>Una ruta en el mapa:</strong> al pincharla se resalta y se abre abajo su ventana: nombre, fecha y tipo; sus cifras (km, desnivel, tiempo, velocidad e índice de dificultad); el terreno; los botones para cambiar el tipo (se guarda al elegirlo), renombrar (✎), analizar el terreno (↻), borrar (🗑) y cerrar (✕); y su perfil de elevación. Arrastra sobre el perfil para ampliar un tramo y ver su pendiente coloreada por sectores; pasa el ratón para ver km, altitud, pendiente y tipo de terreno de cada punto. Si la ruta tiene el terreno analizado, una franja de colores bajo el perfil marca los tramos de asfalto, pista y senda.</li>
         <li><strong>Mapa y capas:</strong> el icono de capas (arriba a la derecha) cambia el fondo del mapa y activa o desactiva las rutas y la capa de densidad (heatmap).</li>
         <li><strong>Paneles:</strong> Gráficos (evolución mensual o anual), Récords y Top 10, Calendario de actividad (un cuadradito por día), Tabla de rutas y Resumen anual. Todos usan las rutas que cumplen los filtros activos. En el Top 10 y en la Tabla se ordena pulsando el título de la columna (otra vez para invertir); en los dos, si un nombre no cabe, se recorta con «…» y al pasar el ratón se ve entero. Marcando la casilla de dos rutas (en el Top 10 o en la Tabla) se activa <em>Comparar</em>, que las muestra lado a lado.</li>
@@ -2699,7 +2758,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       <ul style="margin:0 0 10px; padding-left:18px;">
         <li><strong>Top menu:</strong> <em>Data</em> (add routes, export CSV, backup, analyze terrain, clear all), <em>Filters</em> (show/hide panel, reset), <em>Panels</em> (charts, records, calendar, table, year in review) and <em>Info</em> (this help and About). The ⚙ button opens <em>Settings</em>: the <em>Appearance</em> tab (language, light or dark theme, date format, and route intensity and thickness), the <em>Activity types</em> tab (each type's color, renaming or merging types —give one the name of another existing type and they are combined; with the "Change filtered routes only" box the change only affects the routes matching the filters, e.g. certain years— and the default type for files that don't include one) the <em>Map</em> tab (background map on open —a fixed one or the last used—, density layer on or off at start, and whether the map centers when you click a route) and the <em>Calculations</em> tab (the difficulty index coefficients, with live results).</li>
         <li><strong>Add routes</strong> from Data → Add routes, picking several files at once; they're saved in this browser. <strong>GPX</strong> and <strong>TCX</strong> (Garmin) files are supported, also gzipped as <strong>.gz</strong>. If a file has no type, you'll be asked (or the default type from ⚙ is used); a type assigned to many files at once is only saved in the app. If you later change the type or rename one specific route from its panel, with Chrome or Edge that change is also written to its file, but only for uncompressed GPX; for TCX and .gz it's saved in the app only. FIT files aren't supported yet.</li>
-        <li><strong>Filters</strong> (left panel): name, date from / to (both days included; you can fill in just one), year, type (with its color, which you change in ⚙ → Activity types), distance, elevation gain and difficulty index. They all combine and affect the map and the header totals. When you add new routes, the distance, gain and index maximums widen automatically unless you changed them by hand.</li>
+        <li><strong>Filters</strong> (left panel): name, date from / to (both days included; you can fill in just one), map area (press "Draw area" and drag a rectangle: the routes passing through it remain and the map zooms to them; "Clear area" removes it), year, type (with its color, which you change in ⚙ → Activity types), distance, elevation gain and difficulty index. They all combine and affect the map and the header totals. When you add new routes, the distance, gain and index maximums widen automatically unless you changed them by hand.</li>
         <li><strong>A route on the map:</strong> clicking it highlights it and opens its panel at the bottom: name, date and type; its figures (km, gain, time, speed and difficulty index); the terrain; buttons to change the type (saved when chosen), rename (✎), analyze terrain (↻), delete (🗑) and close (✕); and its elevation profile. Drag over the profile to zoom into a section and see its gradient colored by sector; hover to see the km, altitude, gradient and terrain type at any point. If the route's terrain has been analyzed, a colored strip under the profile marks the paved, track and trail sections.</li>
         <li><strong>Map and layers:</strong> the layers icon (top right) changes the map background and toggles the routes and density (heatmap) layers.</li>
         <li><strong>Panels:</strong> Charts (monthly or yearly trends), Records & Top 10, Activity calendar (one square per day), Route table and Year in review. All of them use the routes matching the active filters. In the Top 10 and the Table, click a column title to sort (again to reverse); in both, a name that doesn't fit is cut with "…" and you can hover over it to see it in full. Ticking the box of two routes (in the Top 10 or the Table) enables <em>Compare</em>, which shows them side by side.</li>
@@ -2724,7 +2783,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
   // ---------- Quiénes somos / About ----------
   // Versión de la app: se sube (0.4 → 0.5 → …) y se pone la fecha del día cada vez que se genera un HTML nuevo.
   // Versiones 0.x mientras la app no se publique.
-  const APP_VERSION = "0.16", APP_VERSION_DATE = "2026-10-13";
+  const APP_VERSION = "0.17", APP_VERSION_DATE = "2026-10-13";
   const APP_AUTHOR = "Angel Herrero", APP_EMAIL = "angelherreropla@gmail.com";
   const ABOUT_HTML = {
     es: () => `
@@ -2949,6 +3008,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     els("kmMin").value=""; els("kmMax").value=""; els("elMin").value=""; els("elMax").value="";
     els("idxMin").value=""; els("idxMax").value=""; els("nameFilter").value="";
     els("dateFrom").value=""; els("dateTo").value=""; readRangeInputs();
+    if(state.zone){ state.zone = null; if(zoneRect){ map.removeLayer(zoneRect); zoneRect = null; } updateZoneUi(); }
     Object.keys(autoMax).forEach(k => delete autoMax[k]);
     rebuildFilterLists();
     applyFiltersAndRedraw();
@@ -2964,12 +3024,78 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     els("idxMax").value = idxs.length ? Math.ceil(Math.max(...idxs)) : "";
     els("nameFilter").value = "";
     els("dateFrom").value = ""; els("dateTo").value = "";
+    if(state.zone){ state.zone = null; if(zoneRect){ map.removeLayer(zoneRect); zoneRect = null; } updateZoneUi(); }
     ["kmMax","elMax","idxMax"].forEach(id => { autoMax[id] = els(id).value === "" ? null : parseFloat(els(id).value); });
     document.querySelectorAll("#yearList input[type=checkbox]").forEach(i=>{ i.checked=true; state.years.add(parseInt(i.dataset.year,10)); });
     document.querySelectorAll("#typeList input[type=checkbox]").forEach(i=>{ i.checked=true; state.types.add(i.dataset.type); });
     readRangeInputs();
     applyFiltersAndRedraw();
   });
+
+  // Dibujo del rectángulo: se desactiva el arrastre del mapa mientras se dibuja.
+  let zoneRect = null, zoneDrawing = false, zoneStart = null, zoneTemp = null;
+  const ZONE_STYLE = { color:"#ffd400", weight:2, dashArray:"6 5", fillColor:"#ffd400", fillOpacity:0.06, interactive:false };
+  function updateZoneUi(){
+    const z = state.zone;
+    els("zoneClear").classList.toggle("hidden", !z);
+    els("zoneDraw").textContent = tr(z ? "zone_redraw" : "zone_draw");
+    if(z){
+      const mid = (z[0]+z[2])/2;
+      const w = haversine([mid, z[1]], [mid, z[3]]) / 1000, h = haversine([z[0], z[1]], [z[2], z[1]]) / 1000;
+      const f = v => v.toLocaleString(LOC(), { maximumFractionDigits: v < 10 ? 1 : 0 });
+      els("zoneInfo").textContent = tr("zone_info_on", f(w), f(h));
+    } else els("zoneInfo").textContent = tr("zone_info_none");
+  }
+  function startZoneDraw(){
+    if(isMobile()) setSidebar(false);
+    zoneDrawing = true;
+    map.dragging.disable(); map.boxZoom.disable(); map.doubleClickZoom.disable();
+    els("map").classList.add("zone-drawing");
+    els("zoneHint").classList.remove("hidden");
+  }
+  function endZoneDraw(){
+    zoneDrawing = false; zoneStart = null;
+    if(zoneTemp){ map.removeLayer(zoneTemp); zoneTemp = null; }
+    map.dragging.enable(); map.boxZoom.enable(); map.doubleClickZoom.enable();
+    els("map").classList.remove("zone-drawing");
+    els("zoneHint").classList.add("hidden");
+  }
+  function setZone(bounds){
+    if(zoneRect){ map.removeLayer(zoneRect); zoneRect = null; }
+    state.zone = bounds ? [bounds.getSouth(), bounds.getWest(), bounds.getNorth(), bounds.getEast()] : null;
+    if(bounds) zoneRect = L.rectangle(bounds, ZONE_STYLE).addTo(map);
+    updateZoneUi();
+    applyFiltersAndRedraw();            // ya ajusta el mapa a las rutas que quedan (las que pasan por la zona)
+    if(bounds && !filteredTracks().length) map.fitBounds(bounds, { padding:[30,30] });   // sin rutas: se queda viendo la zona
+  }
+  const mapEl = els("map");
+  const evLatLng = e => map.mouseEventToLatLng(e);
+  mapEl.addEventListener("pointerdown", e => {
+    if(!zoneDrawing || e.button > 0) return;
+    e.preventDefault(); e.stopPropagation();
+    zoneStart = evLatLng(e);
+    try{ mapEl.setPointerCapture(e.pointerId); }catch(err){}
+  }, true);
+  mapEl.addEventListener("pointermove", e => {
+    if(!zoneDrawing || !zoneStart) return;
+    e.preventDefault(); e.stopPropagation();
+    const b = L.latLngBounds(zoneStart, evLatLng(e));
+    if(zoneTemp) zoneTemp.setBounds(b); else zoneTemp = L.rectangle(b, ZONE_STYLE).addTo(map);
+  }, true);
+  mapEl.addEventListener("pointerup", e => {
+    if(!zoneDrawing || !zoneStart) return;
+    e.preventDefault(); e.stopPropagation();
+    const a = map.latLngToContainerPoint(zoneStart), c = map.latLngToContainerPoint(evLatLng(e));
+    const b = L.latLngBounds(zoneStart, evLatLng(e));
+    endZoneDraw();
+    if(Math.abs(a.x-c.x) < 8 || Math.abs(a.y-c.y) < 8) return;   // un simple clic no crea zona
+    setZone(b);
+  }, true);
+  mapEl.addEventListener("click", e => { if(els("map").classList.contains("zone-drawing")) e.stopPropagation(); }, true);
+  els("zoneDraw").addEventListener("click", startZoneDraw);
+  els("zoneCancel").addEventListener("click", endZoneDraw);
+  els("zoneClear").addEventListener("click", () => setZone(null));
+  document.addEventListener("keydown", e => { if(e.key === "Escape" && zoneDrawing) endZoneDraw(); });
 
   els("dateClear").addEventListener("click", () => {
     els("dateFrom").value = ""; els("dateTo").value = "";
