@@ -319,7 +319,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
   header h1{ font-size:15px; white-space:nowrap; }
   header .count{ display:none; }
   .menubar{ gap:0; }
-  .menu-btn{ padding:6px 7px; font-size:13.5px; }
+  .menu-btn{ padding:6px 6px; font-size:13px; white-space:nowrap; }
   .lang-btn{ display:none !important; }
   .menu{ position:static; }
   .menu-dropdown{ position:fixed; left:8px; right:8px; top:52px; min-width:0; }
@@ -351,6 +351,11 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
   .yr-hero .yr-num{ font-size:30px; }
   .surf-status{ top:56px; font-size:12px; flex-wrap:wrap; justify-content:center; }
   .leaflet-control-attribution{ font-size:9px; }
+}
+@media (max-width:420px){
+  header{ gap:4px; padding:8px 6px; }
+  header h1{ font-size:14px; }
+  .menu-btn{ padding:6px 4px; font-size:12.5px; }
 }
 </style>
 </head>
@@ -810,6 +815,15 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
   // ---------- idioma ----------
   let LANG = (function(){ try{ return localStorage.getItem("heatmap-lang") || "es"; }catch(e){ return "es"; } })();
   function LOC(){ return LANG === "en" ? "en-US" : "es-ES"; }
+  // Números siempre con el formato del idioma (coma decimal en español, punto en inglés).
+  function nf(v, d = 0){
+    if(v == null || isNaN(v)) return "—";
+    return Number(v).toLocaleString(LOC(), { minimumFractionDigits:d, maximumFractionDigits:d });
+  }
+  const fmtKm = v => nf(v, 1);
+  const fmtSpeed = (km, sec) => sec ? nf(km/(sec/3600), 1) + " km/h" : "—";
+  // "Desconocido" es la clave interna de las rutas sin tipo; en pantalla se traduce.
+  const typeLabel = ty => (!ty || ty === "Desconocido") ? tr("unknown_type") : ty;
 
   // ---------- Configuración: apariencia ----------
   const lsGet = (k, d) => { try{ const v = localStorage.getItem(k); return v == null ? d : v; }catch(e){ return d; } };
@@ -887,6 +901,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       elev_segment: (dist,gain,loss,avg) => `Tramo seleccionado: ${dist} km · subida +${gain} m · bajada −${loss} m · ${avg}% de media &nbsp;·&nbsp; <a href="#" class="elev-reset-zoom" style="color:var(--accent-2);">Ver ruta completa</a>`,
       km_unit: "km",
       unknown_type: "Desconocido",
+      csv_header: ["Nombre","Archivo","Fecha","Tipo","Km","Desnivel (m)","Tiempo en movimiento (h)","Velocidad media (km/h)","Índice de dificultad","% Asfalto","% Pista","% Senda","% Sin datos (terreno)"],
       no_index: "Sin índice",
       index_label: "Índice de dificultad",
       save: "Guardar", cancel: "Cancelar", assign: "Asignar",
@@ -1049,6 +1064,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       elev_segment: (dist,gain,loss,avg) => `Selected section: ${dist} km · climb +${gain} m · descent −${loss} m · ${avg}% average &nbsp;·&nbsp; <a href="#" class="elev-reset-zoom" style="color:var(--accent-2);">View full route</a>`,
       km_unit: "km",
       unknown_type: "Unknown",
+      csv_header: ["Name","File","Date","Type","Km","Elevation gain (m)","Moving time (h)","Average speed (km/h)","Difficulty index","% Paved","% Track","% Trail","% No data (terrain)"],
       no_index: "No index",
       index_label: "Difficulty index",
       save: "Save", cancel: "Cancel", assign: "Assign",
@@ -1343,10 +1359,11 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
 
       let km = 0;
       const eleLimpia = hampelFilter(limpiarTramosPorVelocidad(pts));
-      const profileRaw = [{ km:0, ele:eleLimpia[0], lat:pts[0].lat, lon:pts[0].lon, time:pts[0].time }];
+      // El perfil no guarda la hora de cada punto: solo se usa al importar (tiempo en movimiento y fecha).
+      const profileRaw = [{ km:0, ele:eleLimpia[0], lat:pts[0].lat, lon:pts[0].lon }];
       for(let i=1;i<pts.length;i++){
         km += haversine([pts[i-1].lat,pts[i-1].lon],[pts[i].lat,pts[i].lon]) / 1000;
-        profileRaw.push({ km, ele:eleLimpia[i], lat:pts[i].lat, lon:pts[i].lon, time:pts[i].time });
+        profileRaw.push({ km, ele:eleLimpia[i], lat:pts[i].lat, lon:pts[i].lon });
       }
       const gain = computeGain(eleLimpia);
       const profile = decimate(profileRaw, 600);
@@ -1806,7 +1823,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
   }
 
   function popupHtml(t){
-    const vel = t.duration ? (t.km/(t.duration/3600)).toFixed(1) + " km/h" : "—";
+    const vel = fmtSpeed(t.km, t.duration);
     const tiempo = t.duration
       ? tr("time_moving", Math.floor(t.duration/3600), String(Math.round((t.duration%3600)/60)).padStart(2,"0"))
       : tr("time_no_time");
@@ -1814,7 +1831,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     return `<div style="font-family:inherit;">
       <strong class="route-name">${t.name}</strong><br>
       ${fmtDate(t.date)}${t.type ? " · " + t.type : ""}<br>
-      ${t.km} km · ${t.gain} m<br>
+      ${fmtKm(t.km)} km · ${nf(t.gain)} m<br>
       ${tiempo} · ${vel} ${LANG==="en"?"avg":"media"}<br>
       ${tr("index_label")}: ${idx != null ? idx : tr("no_index")}
       ${surfaceHtml(t)}
@@ -1911,7 +1928,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
           <input type="text" class="popup-rename-input" data-id="${t.id}" value="${String(t.name).replace(/"/g,"&quot;")}">
           <button class="ghost popup-rename-save" data-id="${t.id}">✓</button>
         </div>
-        <div class="rp-sub">${dateTxt ? `<span>${dateTxt}</span>·` : ""}<span class="dot" style="background:${color}"></span><span title="${t.type || ""}">${t.type || "Desconocido"}</span></div>
+        <div class="rp-sub">${dateTxt ? `<span>${dateTxt}</span>·` : ""}<span class="dot" style="background:${color}"></span><span title="${t.type || ""}">${typeLabel(t.type)}</span></div>
       </div>
       <div class="rp-stats">${st}</div>
       <div class="rp-terrain">${terrain}</div>
@@ -1993,11 +2010,11 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       const avgPct = distKm > 0 ? (valid[valid.length-1].ele - valid[0].ele) / (distKm*1000) * 100 : 0;
       // Bajada acumulada con el mismo método que la subida (umbral de 2 m), invirtiendo las altitudes.
       const lossTramo = computeGain(valid.map(p => p.ele == null ? null : -p.ele));
-      els("elevSlope").innerHTML = tr("elev_segment", distKm.toFixed(2), gainTramo, lossTramo, avgPct.toFixed(1));
+      els("elevSlope").innerHTML = tr("elev_segment", nf(distKm, 2), nf(gainTramo), nf(lossTramo), nf(avgPct, 1));
     } else {
       const slopes = slopeStats(allValid);
       els("elevSlope").innerHTML = (slopes
-        ? tr("elev_slope_full", slopes.avgUp != null ? slopes.avgUp + " %" : "—", slopes.maxUp, Math.abs(slopes.maxDown))
+        ? tr("elev_slope_full", slopes.avgUp != null ? nf(slopes.avgUp, 1) + " %" : "—", nf(slopes.maxUp, 1), nf(Math.abs(slopes.maxDown), 1))
         : "") + ` <span style="color:var(--text-dim);">· ${tr("elev_hint")}</span>`;
     }
 
@@ -2065,8 +2082,8 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       ${areaSvg}
       ${lineaSvg}
       ${bandSvg}
-      <text x="${padL}" y="${h-4}" fill="#8fa199" font-size="10">${kmFrom.toFixed(1)} km</text>
-      <text x="${w-padR}" y="${h-4}" fill="#8fa199" font-size="10" text-anchor="end">${kmTo.toFixed(1)} km</text>
+      <text x="${padL}" y="${h-4}" fill="#8fa199" font-size="10">${nf(kmFrom, 1)} km</text>
+      <text x="${w-padR}" y="${h-4}" fill="#8fa199" font-size="10" text-anchor="end">${nf(kmTo, 1)} km</text>
       <text x="2" y="${(y(maxE)+4).toFixed(1)}" fill="#8fa199" font-size="10">${Math.round(maxE)} m</text>
       <text x="2" y="${(y(minE)+4).toFixed(1)}" fill="#8fa199" font-size="10">${Math.round(minE)} m</text>
       <rect id="elevSelRect" x="0" y="0" width="0" height="${h}" fill="rgba(255,255,255,0.18)" style="display:none; pointer-events:none;"></rect>
@@ -2233,7 +2250,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     tip.style.left = (e.clientX - panelRect.left) + "px";
     tip.style.top = (svgRect.top - panelRect.top) + "px";
     const terr = elevTrack ? terrainAt(elevTrack, nearest.km, activeProfile.fullMaxD) : null;
-    tip.innerHTML = `${nearest.km.toFixed(2)} km · ${Math.round(nearest.ele)} m · ${slopeHere >= 0 ? "+" : ""}${slopeHere.toFixed(1)}%` + (terr ? ` · ${tr(SURF_I18N[terr])}` : "");
+    tip.innerHTML = `${nf(nearest.km, 2)} km · ${nf(nearest.ele)} m · ${slopeHere >= 0 ? "+" : ""}${nf(slopeHere, 1)}%` + (terr ? ` · ${tr(SURF_I18N[terr])}` : "");
     tip.classList.remove("hidden");
     if(!hoverMarker){
       hoverMarker = L.circleMarker([nearest.lat, nearest.lon], {
@@ -2339,6 +2356,18 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     Object.keys(CALC_DEFAULT).forEach(k => { if(typeof c[k] === "number" && c[k] > 0) CALC[k] = c[k]; });
   }catch(e){}
   function saveCalc(){ lsSet("heatmap-calc", JSON.stringify(CALC)); }
+  // Desde la 0.19 el perfil ya no guarda la hora de cada punto (no se usaba y ocupaba ~28 % de cada ruta).
+  // Quita esas horas de las rutas importadas con versiones anteriores o de copias de seguridad antiguas.
+  function stripProfileTimes(list){
+    const changed = [];
+    list.forEach(t => {
+      if(t.profile && t.profile.length && t.profile.some(p => p && "time" in p)){
+        t.profile.forEach(p => { if(p) delete p.time; });
+        changed.push(t);
+      }
+    });
+    return changed;
+  }
   function difficultyIndex(t){
     if(!t || !(t.km >= 0)) return null;
     let kmEq;
@@ -2403,7 +2432,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       }
       const lbl = document.createElement("label");
       lbl.innerHTML = `<input type="checkbox" data-type="${ty}" ${state.types.has(ty)?"checked":""}> `
-        + `<span class="type-dot" style="background:${typeColors.get(ty)}"></span> ${ty}`;   // el color se cambia en ⚙ → Tipos de actividad
+        + `<span class="type-dot" style="background:${typeColors.get(ty)}"></span> ${typeLabel(ty)}`;   // el color se cambia en ⚙ → Tipos de actividad
       typeList.appendChild(lbl);
     });
 
@@ -2498,9 +2527,9 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     const withDuration = list.filter(t=>t.duration);
     const sec = withDuration.reduce((s,t)=>s+t.duration,0);
     const kmConDuracion = withDuration.reduce((s,t)=>s+t.km,0);
-    const h = Math.floor(sec/3600), m = Math.round((sec%3600)/60);
+    const totMin = Math.round(sec/60), h = Math.floor(totMin/60), m = totMin % 60;
     const tiempo = sec ? tr("time_moving", h, String(m).padStart(2,"0")) : tr("time_no_time");
-    const vel = sec ? (kmConDuracion/(sec/3600)).toFixed(1) + " km/h" : "—";
+    const vel = fmtSpeed(kmConDuracion, sec);
     els("headerStats").textContent = tr("header_stats",
       Math.round(km).toLocaleString(LOC()), Math.round(gain).toLocaleString(LOC()), tiempo, vel);
   }
@@ -2914,7 +2943,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
   // ---------- Quiénes somos / About ----------
   // Versión de la app: se sube (0.4 → 0.5 → …) y se pone la fecha del día cada vez que se genera un HTML nuevo.
   // Versiones 0.x mientras la app no se publique.
-  const APP_VERSION = "0.18", APP_VERSION_DATE = "2026-10-13";
+  const APP_VERSION = "0.19", APP_VERSION_DATE = "2026-10-14";
   const APP_AUTHOR = "Angel Herrero", APP_EMAIL = "angelherreropla@gmail.com";
   const ABOUT_HTML = {
     es: () => `
@@ -2954,12 +2983,12 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
   }
   els("btnExport").addEventListener("click", () => {
     const list = filteredTracks();
-    const header = ["Nombre","Archivo","Fecha","Tipo","Km","Desnivel (m)","Tiempo en movimiento (h)","Velocidad media (km/h)","Índice de dificultad","% Asfalto","% Pista","% Senda","% Sin datos (terreno)"];
+    const header = tr("csv_header");
     const rows = list.map(t => {
       const idx = difficultyIndex(t);
       const horas = t.duration ? Math.round((t.duration/3600)*100)/100 : "";
       const vel = t.duration ? Math.round((t.km/(t.duration/3600))*10)/10 : "";
-      return [t.name, t.fileName || t.id, t.date || "", t.type || "Desconocido", t.km, t.gain, horas, vel, idx != null ? idx : "",
+      return [t.name, t.fileName || t.id, t.date || "", typeLabel(t.type), t.km, t.gain, horas, vel, idx != null ? idx : "",
         ...["asfalto","pista","senda","sinDatos"].map(k => t.surface ? surfacePct(t, k) : "")];
     });
     const csv = [header, ...rows].map(r => r.map(csvField).join(";")).join("\r\n");
@@ -3110,6 +3139,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
         els("routeIntensity").value = routeIntensity; els("routeIntensityVal").textContent = routeIntensity;
         try{ localStorage.setItem("heatmap-route-intensity", String(routeIntensity)); }catch(e){}
       }
+      stripProfileTimes(validas);
       await fillSurfacesFromCache(validas);
       await dbPutAll(validas);
       try{ await surfCachePut(validas); }catch(e){}
@@ -3385,7 +3415,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       sw.className = "sw";
       sw.style.background = colorDe(ty);
       chip.appendChild(sw);
-      chip.appendChild(document.createTextNode(ty));
+      chip.appendChild(document.createTextNode(typeLabel(ty)));
       chip.addEventListener("click", () => {
         if(statsHidden.has(ty)) statsHidden.delete(ty); else statsHidden.add(ty);
         renderStats();
@@ -3404,12 +3434,13 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
         conFecha.forEach(t => {
           if((t.type || "Desconocido") === ty) data[idx.get(periodKey(t.date, group))] += getter(t);
         });
-        return { label: ty, data: data.map(v => Math.round(v*10)/10), backgroundColor: colorDe(ty), stack: "total" };
+        return { label: typeLabel(ty), data: data.map(v => Math.round(v*10)/10), backgroundColor: colorDe(ty), stack: "total" };
       });
       statsCharts.push(new Chart(els(canvasId), {
         type: "bar",
         data: { labels, datasets },
         options: {
+          locale: LOC(),
           responsive: true, maintainAspectRatio: false,
           interaction: { mode: "index", intersect: false },
           scales: { x: { stacked: true, ticks: { maxRotation: 60, autoSkip: true } }, y: { stacked: true, beginAtZero: true } },
@@ -3417,8 +3448,8 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
             legend: { display: false },
             tooltip: {
               callbacks: {
-                label: c => c.parsed.y ? `${c.dataset.label}: ${c.parsed.y} ${unit}` : null,
-                footer: items => tr("total_label") + ": " + (Math.round(items.reduce((a,i) => a + i.parsed.y, 0)*10)/10) + " " + unit,
+                label: c => c.parsed.y ? `${c.dataset.label}: ${nf(c.parsed.y, c.parsed.y % 1 ? 1 : 0)} ${unit}` : null,
+                footer: items => { const tot = Math.round(items.reduce((a,i) => a + i.parsed.y, 0)*10)/10; return tr("total_label") + ": " + nf(tot, tot % 1 ? 1 : 0) + " " + unit; },
               },
             },
           },
@@ -3438,7 +3469,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
         kmDur[i] += t.km; hrs[i] += t.duration/3600;
       });
       return {
-        label: ty, spanGaps: true, pointRadius: 3, tension: 0.25,
+        label: typeLabel(ty), spanGaps: false, pointRadius: 3, tension: 0.25,
         borderColor: colorDe(ty), backgroundColor: colorDe(ty),
         data: hrs.map((h,i) => h > 0 ? Math.round(kmDur[i]/h*10)/10 : null),
       };
@@ -3447,12 +3478,13 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       type: "line",
       data: { labels, datasets: speedDatasets },
       options: {
+        locale: LOC(),
         responsive: true, maintainAspectRatio: false,
         interaction: { mode: "index", intersect: false },
         scales: { x: { ticks: { maxRotation: 60, autoSkip: true } }, y: { beginAtZero: true } },
         plugins: {
           legend: { display: false },
-          tooltip: { callbacks: { label: c => c.parsed.y != null ? `${c.dataset.label}: ${c.parsed.y} km/h` : null } },
+          tooltip: { callbacks: { label: c => c.parsed.y != null ? `${c.dataset.label}: ${nf(c.parsed.y, 1)} km/h` : null } },
         },
       },
     }));
@@ -3473,7 +3505,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
   function focusTrack(id){
     let found = null;
     routeLayer.eachLayer(l => { if(l._id === id) found = l; });
-    closeRecords();
+    closeRecords(); closeTable();
     if(found){
       found.fire("click");
       if(!FIT_ON_SELECT) zoomToRoute(found);   // desde listas siempre se centra, si no la ruta podría quedar fuera de la vista
@@ -3535,7 +3567,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     const withDur = list.filter(t => t.duration);
     const sec = withDur.reduce((s,t) => s+t.duration, 0);
     const kmDur = withDur.reduce((s,t) => s+t.km, 0);
-    const vel = sec ? (kmDur/(sec/3600)).toFixed(1) + " km/h" : "—";
+    const vel = fmtSpeed(kmDur, sec);
     const idxList = list.map(t => difficultyIndex(t)).filter(v => v != null);
     const avgIdx = idxList.length ? Math.round(idxList.reduce((a,b) => a+b, 0)/idxList.length) : null;
 
@@ -3556,7 +3588,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     const typeRows = [...byType.entries()].sort((a,b) => b[1]-a[1]).map(([ty,tkm]) => {
       const pct = km ? Math.round(tkm/km*100) : 0;
       const color = typeColors.get(ty) || "#ff8a69";
-      return `<div class="yr-type-row"><span class="sw" style="background:${color};"></span><span style="width:110px;">${ty}</span>
+      return `<div class="yr-type-row"><span class="sw" style="background:${color};"></span><span style="width:110px;">${typeLabel(ty)}</span>
         <div class="bar"><div style="width:${pct}%; background:${color};"></div></div><span class="pct">${pct}%</span></div>`;
     }).join("");
 
@@ -3575,7 +3607,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
         <div class="yr-card"><div class="yr-card-label">${tr("yr_avg_index")}</div><div class="yr-card-value">${avgIdx != null ? avgIdx : tr("no_index")}</div></div>
         <div class="yr-card"><div class="yr-card-label">${tr("yr_busiest_month")}</div><div class="yr-card-value" style="text-transform:capitalize;">${bestMonthLabel}</div><div class="yr-card-sub">${Math.round(bestMonthKm)} km</div></div>
         <div class="yr-card"><div class="yr-card-label">${tr("yr_streak")}</div><div class="yr-card-value">${tr("yr_streak_days", streak)}</div></div>
-        <div class="yr-card"><div class="yr-card-label">${tr("yr_longest_route")}</div><div class="yr-card-value">${longest ? longest.km+" km" : "—"}</div><div class="yr-card-sub">${longest ? longest.name : ""}</div></div>
+        <div class="yr-card"><div class="yr-card-label">${tr("yr_longest_route")}</div><div class="yr-card-value">${longest ? fmtKm(longest.km)+" km" : "—"}</div><div class="yr-card-sub">${longest ? longest.name : ""}</div></div>
         <div class="yr-card"><div class="yr-card-label">${tr("yr_hardest_route")}</div><div class="yr-card-value">${hardest ? difficultyIndex(hardest) : "—"}</div><div class="yr-card-sub">${hardest ? hardest.name : ""}</div></div>
       </div>
       <div class="yr-card-label" style="margin-bottom:8px;">${tr("yr_by_type")}</div>
@@ -3798,9 +3830,9 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
   function closeCompare(){ els("compareModal").classList.add("hidden"); }
 
   function compareStatsLine(t){
-    const vel = t.duration ? (t.km/(t.duration/3600)).toFixed(1) + " km/h" : "—";
+    const vel = fmtSpeed(t.km, t.duration);
     const tiempo = t.duration ? formatDuration(t.duration) : "—";
-    return `${t.km} km · ${t.gain} m · ${tiempo} · ${vel}`;
+    return `${fmtKm(t.km)} km · ${nf(t.gain)} m · ${tiempo} · ${vel}`;
   }
 
   function renderCompare(a, b){
@@ -3858,7 +3890,8 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     return null;
   }
   function formatDuration(sec){
-    return `${Math.floor(sec/3600)}h ${String(Math.round((sec%3600)/60)).padStart(2,"0")}m`;
+    const min = Math.round(sec/60);            // se redondea el total, para no dar nunca "2h 60m"
+    return `${Math.floor(min/60)}h ${String(min%60).padStart(2,"0")}m`;
   }
 
   function renderRecords(){
@@ -3875,14 +3908,14 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
 
     const maxBy = (arr, fn) => arr.reduce((a,b) => fn(b) > fn(a) ? b : a);
     const masLarga = maxBy(list, t => t.km);
-    grid.appendChild(recordCard(tr("rec_longest"), masLarga.km + " km", masLarga));
+    grid.appendChild(recordCard(tr("rec_longest"), fmtKm(masLarga.km) + " km", masLarga));
     const masDesnivel = maxBy(list, t => t.gain);
-    grid.appendChild(recordCard(tr("rec_most_gain"), masDesnivel.gain + " m", masDesnivel));
+    grid.appendChild(recordCard(tr("rec_most_gain"), nf(masDesnivel.gain) + " m", masDesnivel));
 
     const withSpeed = list.filter(t => t.duration);
     if(withSpeed.length){
       const masRapida = maxBy(withSpeed, t => t.km/(t.duration/3600));
-      grid.appendChild(recordCard(tr("rec_fastest"), (masRapida.km/(masRapida.duration/3600)).toFixed(1) + " km/h", masRapida));
+      grid.appendChild(recordCard(tr("rec_fastest"), fmtSpeed(masRapida.km, masRapida.duration), masRapida));
       const masTiempo = maxBy(withSpeed, t => t.duration);
       grid.appendChild(recordCard(tr("rec_most_time"), formatDuration(masTiempo.duration), masTiempo));
     }
@@ -3927,13 +3960,13 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     list.forEach((x,i) => {
       const t = x.t;
       const idx = difficultyIndex(t);
-      const vel = t.duration ? (t.km/(t.duration/3600)).toFixed(1) + " km/h" : "—";
+      const vel = fmtSpeed(t.km, t.duration);
       const tiempo = t.duration ? formatDuration(t.duration) : "—";
       const row = document.createElement("tr");
       row.innerHTML = `<td><input type="checkbox" class="cmp-check" data-id="${t.id}" ${compareSelection.has(t.id)?"checked":""}></td>
-        <td>${i+1}</td><td><span class="t10-name">${t.name}</span></td><td>${fmtDate(t.date) || "—"}</td><td class="t10-c-type"><span class="t10-type">${t.type || "Desconocido"}</span></td>
-        <td class="num">${t.km}</td><td class="num">${t.gain}</td><td class="num">${tiempo}</td><td class="num">${vel}</td>
-        <td class="num">${idx != null ? idx : "—"}</td>`;
+        <td>${i+1}</td><td><span class="t10-name">${t.name}</span></td><td>${fmtDate(t.date) || "—"}</td><td class="t10-c-type"><span class="t10-type">${typeLabel(t.type)}</span></td>
+        <td class="num">${fmtKm(t.km)}</td><td class="num">${nf(t.gain)}</td><td class="num">${tiempo}</td><td class="num">${vel}</td>
+        <td class="num">${idx != null ? nf(idx) : "—"}</td>`;
       row.querySelector(".cmp-check").addEventListener("click", e => { e.stopPropagation(); toggleCompare(t.id); });
       row.addEventListener("click", () => focusTrack(t.id));
       tbody.appendChild(row);
@@ -4193,12 +4226,12 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
         table.innerHTML = `<thead><tr><th>${tr("col_date")}</th><th>${tr("col_type")}</th><th class="num">${tr("col_km")}</th><th class="num">${tr("col_gain")}</th><th class="num">${tr("col_time")}</th><th class="num">${tr("col_speed")}</th></tr></thead>`;
         const tbody = document.createElement("tbody");
         g.forEach(t => {
-          const vel = t.duration ? (t.km/(t.duration/3600)).toFixed(1) + " km/h" : "—";
+          const vel = fmtSpeed(t.km, t.duration);
           const tiempo = t.duration ? formatDuration(t.duration) : "—";
           const row = document.createElement("tr");
           if(t.id === bestId) row.className = "best";
-          row.innerHTML = `<td>${fmtDate(t.date) || "—"}</td><td>${t.type || "Desconocido"}</td>
-            <td class="num">${t.km}</td><td class="num">${t.gain}</td><td class="num">${tiempo}</td><td class="num">${vel}</td>`;
+          row.innerHTML = `<td>${fmtDate(t.date) || "—"}</td><td>${typeLabel(t.type)}</td>
+            <td class="num">${fmtKm(t.km)}</td><td class="num">${nf(t.gain)}</td><td class="num">${tiempo}</td><td class="num">${vel}</td>`;
           row.addEventListener("click", () => focusTrack(t.id));
           tbody.appendChild(row);
         });
@@ -4246,11 +4279,13 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
   }
   function tableFormat(v, key){
     if(v == null || v === "") return "—";
-    if(key === "km") return v.toFixed(1);
+    if(key === "km") return fmtKm(v);
     if(key === "date") return fmtDate(v);
-    if(key === "gain") return Math.round(v);
+    if(key === "gain") return nf(v);
+    if(key === "type") return typeLabel(v);
+    if(key === "idx") return nf(v);
     if(key === "duration") return formatDuration(v);
-    if(key === "speed") return v.toFixed(1) + " km/h";
+    if(key === "speed") return nf(v, 1) + " km/h";
     return v;
   }
 
@@ -4555,6 +4590,9 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     applyFiltersAndRedraw();
     hideLoading();
     checkBackupReminder();
+    // Conversión única y en segundo plano de las rutas guardadas con el formato anterior.
+    const stale = stripProfileTimes(tracks);
+    if(stale.length){ try{ await dbPutAll(stale); }catch(e){} }
   })();
 })();
 </script>
