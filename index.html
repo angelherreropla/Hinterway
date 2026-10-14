@@ -45,6 +45,7 @@
 .set-check input{ margin-top:2px; accent-color:var(--accent); }
 .set-check .sub{ font-size:11.5px; color:var(--text-dim); margin-top:2px; }
 .type-row input[type=text]:disabled{ opacity:.45; }
+.calc-in.bad{ border-color:var(--danger) !important; }
 .calc-in{ width:80px; background:var(--panel); color:var(--text); border:1px solid var(--line); border-radius:6px; padding:6px 8px; font:inherit; font-size:13px; text-align:right; }
 .calc-formula{ font-size:12.5px; background:var(--panel); border:1px solid var(--line); border-radius:6px; padding:8px 10px; margin:8px 0 4px; line-height:1.5; }
 .type-row .cnt{ font-size:11.5px; color:var(--text-dim); white-space:nowrap; text-align:right; min-width:110px; }
@@ -101,11 +102,7 @@ main{ position:relative; flex:1; min-width:0; }
 @keyframes spin{ to{ transform:rotate(360deg); } }
 .leaflet-control-attribution{ background:rgba(12,21,18,.75) !important; color:var(--text-dim) !important; }
 .leaflet-control-attribution a{ color:var(--accent-2) !important; }
-.leaflet-popup-content-wrapper, .leaflet-popup-tip{ background:var(--panel-2) !important; color:var(--text) !important; }
-.leaflet-popup-content{ font-size:13px; line-height:1.5; margin:10px 12px; }
-.leaflet-popup-content .route-name{ font-family:'Fraunces',serif; font-weight:700; font-size:14.5px; }
 .modal h3, .modal h4{ font-family:'Fraunces',serif; font-weight:700; }
-#elevTitle{ font-family:'Fraunces',serif; font-weight:700; }
 .leaflet-control-layers{ background:var(--panel-2) !important; color:var(--text) !important; border:1px solid var(--line) !important; }
 .leaflet-control-layers label{ font-size:13px; }
 .leaflet-control-layers-selector{ accent-color:var(--accent); }
@@ -137,12 +134,6 @@ main{ position:relative; flex:1; min-width:0; }
 .lang-btn{ padding:6px 9px; line-height:1; opacity:.5; display:inline-flex; align-items:center; }
 .lang-btn svg{ display:block; border-radius:2px; }
 .lang-btn.lang-active{ opacity:1; border-color:var(--accent-2); background:var(--panel-2); }
-.leaflet-popup-content select, .leaflet-popup-content input[type=text]{
-  background:var(--panel); color:var(--text); border:1px solid var(--line); border-radius:6px;
-  padding:4px 6px; font:inherit; font-size:12.5px;
-}
-.leaflet-popup-content-wrapper{ cursor:grab; }
-.leaflet-popup-content-wrapper.dragging{ cursor:grabbing; }
 .elev-panel{
   position:absolute; left:0; right:0; bottom:0; z-index:900;
   background:var(--panel); border-top:1px solid var(--line); padding:8px 14px 6px;
@@ -467,11 +458,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       <div id="map"></div>
       <div class="zone-hint hidden" id="zoneHint"><span data-i18n="zone_hint">Arrastra sobre el mapa para dibujar la zona</span><button class="ghost" id="zoneCancel" data-i18n="cancel">Cancelar</button></div>
       <div class="elev-panel hidden" id="elevPanel">
-        <div class="elev-header" id="elevHeaderOld">
-          <strong id="elevTitle"></strong>
-          <button class="ghost" id="elevClose">✕</button>
-        </div>
-        <div class="rp-head hidden" id="routeHead"></div>
+        <div class="rp-head" id="routeHead"></div>
         <p id="elevSlope" class="stats-info" style="margin:0 0 4px;"></p>
         <svg id="elevSvg" width="100%" height="116"></svg>
         <div id="elevTooltip" class="elev-tooltip hidden"></div>
@@ -664,13 +651,13 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
         <div class="set-note" style="margin-top:0;" data-i18n-html="set_calc_note"></div>
         <div class="calc-formula" id="calcFormula"></div>
         <div class="set-row"><div><div class="lbl" data-i18n="set_calc_fp">Factor pista</div><div class="sub" data-i18n="set_calc_fp_sub">Cuánto cuesta 1 km de pista frente a 1 km de asfalto.</div></div>
-          <input type="number" class="calc-in" id="calcFp" min="0.5" max="5" step="0.1"></div>
+          <input type="text" inputmode="decimal" class="calc-in" id="calcFp" data-min="0.5" data-max="5" autocomplete="off"></div>
         <div class="set-row"><div><div class="lbl" data-i18n="set_calc_fs">Factor senda</div><div class="sub" data-i18n="set_calc_fs_sub">Cuánto cuesta 1 km de senda frente a 1 km de asfalto.</div></div>
-          <input type="number" class="calc-in" id="calcFs" min="0.5" max="5" step="0.1"></div>
+          <input type="text" inputmode="decimal" class="calc-in" id="calcFs" data-min="0.5" data-max="5" autocomplete="off"></div>
         <div class="set-row"><div><div class="lbl" data-i18n="set_calc_fn">Factor sin datos</div><div class="sub" data-i18n="set_calc_fn_sub">Para los tramos sin camino en OpenStreetMap y para las rutas sin terreno analizado.</div></div>
-          <input type="number" class="calc-in" id="calcFn" min="0.5" max="5" step="0.1"></div>
+          <input type="text" inputmode="decimal" class="calc-in" id="calcFn" data-min="0.5" data-max="5" autocomplete="off"></div>
         <div class="set-row"><div><div class="lbl" data-i18n="set_calc_dm">Metros de subida por km</div><div class="sub" data-i18n="set_calc_dm_sub">Cuántos metros de desnivel positivo equivalen a 1 km llano. Menos metros = el desnivel pesa más.</div></div>
-          <input type="number" class="calc-in" id="calcDm" min="5" max="300" step="5"></div>
+          <input type="text" inputmode="decimal" class="calc-in" id="calcDm" data-min="5" data-max="300" autocomplete="off"></div>
         <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:10px;">
           <span class="set-note" id="calcStats" style="margin:0;"></span>
           <button class="ghost" id="calcReset" style="font-size:13px; padding:6px 12px; white-space:nowrap;" data-i18n="set_calc_reset">Valores por defecto</button>
@@ -1199,10 +1186,6 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     updateZoneUi();
     rebuildFilterLists();
     if(!els("elevPanel").classList.contains("hidden") && elevTrack){ renderRouteHead(elevTrack); renderProfileView(); }
-    if(selectedLine && selectedLine._id){
-      const t = tracks.find(tr2 => tr2.id === selectedLine._id);
-      if(t) selectedLine.setPopupContent(popupHtml(t));
-    }
     if(!els("statsModal").classList.contains("hidden")) renderStats();
     if(!els("recordsModal").classList.contains("hidden")) renderRecords();
     if(!els("calModal").classList.contains("hidden")) renderCalendar();
@@ -1755,21 +1738,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
   }
 
   const surfBusy = new Set();
-  function surfaceHtml(t){
-    let html = "";
-    if(t.surface){
-      const pct = Object.fromEntries(SURF_KEYS.map(k => [k, surfacePct(t,k) || 0]));
-      html = `<div style="margin-top:6px;">${tr("surf_label")}:
-        <div class="surf-bar">${SURF_KEYS.map(k => pct[k] ? `<span style="width:${pct[k]}%;background:${SURF_COLORS[k]}"></span>` : "").join("")}</div>
-        <div class="surf-legend">${SURF_KEYS.filter(k => pct[k]).map(k => `<i style="background:${SURF_COLORS[k]}"></i>${tr(SURF_I18N[k])} ${pct[k]} %`).join(" ")}</div></div>`;
-    }
-    const busy = surfBusy.has(t.id);
-    html += `<button class="ghost popup-surf-btn" data-id="${t.id}" ${busy ? "disabled" : ""} style="width:100%; margin-top:6px; padding:5px 8px; font-size:12px;">${busy ? tr("surf_analyzing") + (surfProgress.has(t.id) ? ` (${surfProgress.get(t.id)})` : "") : tr(t.surface ? "surf_reanalyze" : "surf_analyze")}</button>`;
-    return html;
-  }
-
-  function refreshTrackPopup(t){
-    routeLayer.eachLayer(l => { if(l._id === t.id) l.setPopupContent(popupHtml(t)); });
+  function refreshTrackPopup(t){   // refresca la ventana de la ruta si está abierta
     if(elevTrack && elevTrack.id === t.id && !els("elevPanel").classList.contains("hidden")) renderRouteHead(t);
   }
 
@@ -1822,36 +1791,6 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     surfBatchRunning = false;
   }
 
-  function popupHtml(t){
-    const vel = fmtSpeed(t.km, t.duration);
-    const tiempo = t.duration
-      ? tr("time_moving", Math.floor(t.duration/3600), String(Math.round((t.duration%3600)/60)).padStart(2,"0"))
-      : tr("time_no_time");
-    const idx = difficultyIndex(t);
-    return `<div style="font-family:inherit;">
-      <strong class="route-name">${t.name}</strong><br>
-      ${fmtDate(t.date)}${t.type ? " · " + t.type : ""}<br>
-      ${fmtKm(t.km)} km · ${nf(t.gain)} m<br>
-      ${tiempo} · ${vel} ${LANG==="en"?"avg":"media"}<br>
-      ${tr("index_label")}: ${idx != null ? idx : tr("no_index")}
-      ${surfaceHtml(t)}
-      <div style="margin-top:8px; display:flex; gap:6px; align-items:center;">
-        <select class="popup-type-select" data-id="${t.id}" style="flex:1;">${typeOptionsHtml(t.type)}</select>
-        <button class="ghost popup-type-save" data-id="${t.id}" style="padding:6px 10px; font-size:12px;">${tr("save")}</button>
-      </div>
-      <input type="text" class="popup-type-new hidden" data-id="${t.id}" placeholder="${tr("new_type_ph")}" style="width:100%; margin-top:6px;">
-      <div style="margin-top:10px; display:flex; gap:6px;">
-        <button class="ghost popup-rename-btn" data-id="${t.id}" style="flex:1; padding:6px 8px; font-size:12px;">${tr("rename")}</button>
-        <button class="ghost popup-delete-btn" data-id="${t.id}" style="flex:1; padding:6px 8px; font-size:12px; color:var(--danger); border-color:var(--danger);">${tr("delete_route")}</button>
-      </div>
-
-      <div class="popup-rename-row hidden" data-id="${t.id}" style="margin-top:6px; display:flex; gap:6px;">
-        <input type="text" class="popup-rename-input" data-id="${t.id}" value="${String(t.name).replace(/"/g,"&quot;")}" style="flex:1;">
-        <button class="ghost popup-rename-save" data-id="${t.id}" style="padding:6px 10px; font-size:12px;">${tr("save")}</button>
-      </div>
-    </div>`;
-  }
-
   // Pendiente máxima y media (de subida), calculadas sobre tramos de ~200 m para no depender del ruido punto a punto.
   function slopeStats(valid, segmentM = 200){
     if(valid.length < 2) return null;
@@ -1891,11 +1830,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
   }
 
   // ---------- ventana de la ruta ----------
-  // "nuevo": al pinchar una ruta NO se abre el popup; sus datos y acciones van en la cabecera de
-  //          la ventana del perfil.
-  // "antiguo": comportamiento anterior (popup sobre el mapa + ventana del perfil solo con el nombre).
-  // El popup sigue existiendo (popupHtml) y se puede volver a usar cambiando este valor.
-  const ROUTE_PANEL_STYLE = "nuevo";
+  // Al pinchar una ruta, sus datos y acciones aparecen en la cabecera de la ventana del perfil.
 
   function routeHeadHtml(t){
     const idx = difficultyIndex(t);
@@ -1942,10 +1877,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       </div>`;
   }
   function renderRouteHead(t){
-    const nuevo = ROUTE_PANEL_STYLE === "nuevo";
-    els("elevHeaderOld").classList.toggle("hidden", nuevo);
-    els("routeHead").classList.toggle("hidden", !nuevo);
-    if(nuevo) els("routeHead").innerHTML = routeHeadHtml(t);
+    els("routeHead").innerHTML = routeHeadHtml(t);
   }
 
   function selectRoute(line, t, noZoom){
@@ -1965,12 +1897,12 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     map.fitBounds(b, { paddingTopLeft:[40, 40], paddingBottomRight:[40, bottom], maxZoom:16 });
   }
   function deselectRoute(){
-    if(selectedLine){ selectedLine.setStyle(selectedLine._baseStyle); selectedLine.closePopup(); selectedLine = null; }
+    if(selectedLine){ selectedLine.setStyle(selectedLine._baseStyle); selectedLine = null; }
     hideElevationProfile();
   }
   // Tras redibujar el mapa (renombrar, cambiar tipo…), vuelve a seleccionar la ruta que estaba abierta.
   function reselectById(id){
-    if(!id || ROUTE_PANEL_STYLE !== "nuevo") return;
+    if(!id) return;
     const t = tracks.find(x => x.id === id);
     let found = null;
     routeLayer.eachLayer(l => { if(l._id === id) found = l; });
@@ -1987,7 +1919,6 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
 
   function renderProfileView(){
     const t = elevTrack;
-    els("elevTitle").textContent = t.name;
     const svg = els("elevSvg");
     const allValid = t.profile ? t.profile.filter(p => p.ele != null) : [];
     activeProfile = null;
@@ -2164,10 +2095,6 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     try{ map.getContainer().style.cursor = ""; }catch(e){}
     setTimeout(() => map.invalidateSize(), 0);
   }
-  els("elevClose").addEventListener("click", () => {
-    hideElevationProfile();
-    if(selectedLine){ selectedLine.closePopup(); }
-  });
   els("routeHead").addEventListener("click", e => { if(e.target.closest(".elev-close-btn")) deselectRoute(); });
   document.body.addEventListener("click", e => {
     if(e.target.matches(".elev-reset-zoom")){
@@ -2302,7 +2229,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
   }
 
   let selectedLine = null;
-  function redrawMap(list){
+  function redrawMap(list, fit){
     routeLayer.clearLayers();
     selectedLine = null;
     hideElevationProfile();
@@ -2314,17 +2241,11 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       const line = L.polyline(t.pts, { ...baseStyle, renderer:sharedRenderer }).addTo(routeLayer);
       line._id = t.id;
       line._baseStyle = baseStyle;
-      line.bindPopup(popupHtml(t));
-      // Con la ventana "nueva" el popup sigue enlazado pero no se abre al pinchar.
-      if(ROUTE_PANEL_STYLE === "nuevo") line.off("click", line._openPopup, line);
       line.on("click", () => selectRoute(line, t));
-      line.on("popupclose", () => {
-        if(selectedLine === line){ line.setStyle(line._baseStyle); selectedLine = null; hideElevationProfile(); }
-      });
       line.on("mouseover", () => { if(line !== selectedLine) line.setStyle({ weight:routeWeight + 2.5, opacity:Math.min(1, line._baseStyle.opacity+0.3) }); });
       line.on("mouseout", () => { if(line !== selectedLine) line.setStyle(line._baseStyle); });
     });
-    if(list.length){
+    if(fit && list.length){
       const b = L.latLngBounds(list.flatMap(t=>t.pts));
       if(b.isValid()) map.fitBounds(b, { padding:[30,30] });
     }
@@ -2396,6 +2317,14 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
   }catch(e){}
   // Tipo que se pone sin preguntar a los GPX que no traen tipo ("" = preguntar cada vez).
   let DEFAULT_TYPE = lsGet("heatmap-default-type", "");
+  // Quita los colores de tipos que ya no tienen ninguna ruta (al abrir la app y al restaurar una copia).
+  function pruneTypeColors(){
+    if(!tracks.length) return;
+    const used = new Set(tracks.map(t => t.type || "Desconocido"));
+    let changed = false;
+    [...typeColors.keys()].forEach(k => { if(!used.has(k)){ typeColors.delete(k); changed = true; } });
+    if(changed) saveTypeColors();
+  }
   function saveTypeColors(){
     try{ localStorage.setItem("heatmap-type-colors", JSON.stringify(Object.fromEntries(typeColors))); }catch(e){}
   }
@@ -2541,19 +2470,19 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     const drawn = new Set(); routeLayer.eachLayer(l => drawn.add(l._id));
     if(list.length === drawn.size && list.every(t => drawn.has(t.id))){ updateHeaderTotals(list); return; }
     const openId = elevTrack && !els("elevPanel").classList.contains("hidden") ? elevTrack.id : null;
-    const center = map.getCenter(), zoom = map.getZoom();
     applyFiltersAndRedraw();
-    map.setView(center, zoom, { animate:false });
     if(openId){
       let found = null; routeLayer.eachLayer(l => { if(l._id === openId) found = l; });
       const t = tracks.find(x => x.id === openId);
       if(found && t) selectRoute(found, t, true);
     }
   }
-  function applyFiltersAndRedraw(){
+  // fit = true: el mapa se ajusta a las rutas que quedan. Solo al abrir, al añadir o restaurar rutas,
+  // al restablecer los filtros y al cambiar la zona o las fechas; con los demás filtros el mapa no se mueve.
+  function applyFiltersAndRedraw(fit){
     const list = filteredTracks();
     updateHeaderTotals(list);
-    redrawMap(list);
+    redrawMap(list, fit);
     els("emptyState").classList.toggle("hidden", tracks.length>0);
   }
 
@@ -2608,7 +2537,6 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     }
     rebuildFilterLists();
     applyFiltersAndRedraw();
-    if(selectedLine) selectedLine.setPopupContent(popupHtml(t));
     reselectById(id);
   }
 
@@ -2619,7 +2547,6 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     await dbDelete(id);
     tracks = tracks.filter(tr => tr.id !== id);
     fileHandles.delete(id);
-    map.closePopup();
     rebuildFilterLists();
     applyFiltersAndRedraw();
   }
@@ -2637,7 +2564,6 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     } else {
       alert(tr(isPlainGpx(t.fileName) ? "alert_type_saved_app_only" : "alert_saved_app_only_other"));
     }
-    map.closePopup();
     rebuildFilterLists();
     applyFiltersAndRedraw();
     reselectById(id);
@@ -2707,7 +2633,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       parsed.forEach(t => byId.set(t.id, t));
       tracks = [...byId.values()];
       rebuildFilterLists();
-      applyFiltersAndRedraw();
+      applyFiltersAndRedraw(true);
     } finally { hideLoading(); }
     checkBackupReminder();
   }
@@ -2793,7 +2719,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
         <li><strong>Zona del mapa</strong>: pulsa "Dibujar zona" y arrastra un rectángulo; quedan las rutas que pasan por él y el mapa se ajusta a ellas. "Quitar zona" lo elimina.</li>
         <li><strong>Año</strong> y <strong>tipo de actividad</strong> (el cuadrito muestra su color).</li>
         <li><strong>Distancia</strong>, <strong>desnivel</strong> e <strong>índice de dificultad</strong>: mínimo y máximo. Los máximos se amplían solos al añadir rutas, salvo que los hayas cambiado a mano.</li>
-        <li>Todos se combinan entre sí y afectan al mapa, a los totales y a los paneles. <strong>Filtros → Restablecer filtros</strong> los deja como al principio.</li>
+        <li>Todos se combinan entre sí y afectan al mapa, a los totales y a los paneles. Al cambiar la zona o las fechas, el mapa se ajusta a las rutas que quedan; con los demás filtros se queda donde estás. <strong>Filtros → Restablecer filtros</strong> los deja como al principio y vuelve a mostrar todas las rutas.</li>
       </ul>
 
       <h4>4. Paneles</h4>
@@ -2875,7 +2801,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
         <li><strong>Map area</strong>: press "Draw area" and drag a rectangle; the routes passing through it remain and the map zooms to them. "Clear area" removes it.</li>
         <li><strong>Year</strong> and <strong>activity type</strong> (the small square shows its color).</li>
         <li><strong>Distance</strong>, <strong>gain</strong> and <strong>difficulty index</strong>: minimum and maximum. Maximums widen automatically when you add routes, unless you changed them by hand.</li>
-        <li>They all combine and affect the map, the totals and the panels. <strong>Filters → Reset filters</strong> clears them.</li>
+        <li>They all combine and affect the map, the totals and the panels. When you change the area or the dates, the map zooms to the remaining routes; with the other filters it stays where you are. <strong>Filters → Reset filters</strong> clears them and shows all routes again.</li>
       </ul>
 
       <h4>4. Panels</h4>
@@ -2943,7 +2869,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
   // ---------- Quiénes somos / About ----------
   // Versión de la app: se sube (0.4 → 0.5 → …) y se pone la fecha del día cada vez que se genera un HTML nuevo.
   // Versiones 0.x mientras la app no se publique.
-  const APP_VERSION = "0.19", APP_VERSION_DATE = "2026-10-14";
+  const APP_VERSION = "0.21", APP_VERSION_DATE = "2026-10-14";
   const APP_AUTHOR = "Angel Herrero", APP_EMAIL = "angelherreropla@gmail.com";
   const ABOUT_HTML = {
     es: () => `
@@ -3146,8 +3072,10 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       const byId = new Map(tracks.map(t => [t.id, t]));
       validas.forEach(t => byId.set(t.id, t));
       tracks = [...byId.values()];
+      pruneTypeColors();
       rebuildFilterLists();
-      applyFiltersAndRedraw();
+      applyFiltersAndRedraw(true);
+      if(!els("settingsModal").classList.contains("hidden")) openSettings();   // muestra los ajustes restaurados
     }catch(err){
       alert(tr("alert_backup_unreadable"));
     } finally {
@@ -3190,7 +3118,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     document.querySelectorAll("#yearList input[type=checkbox]").forEach(i=>{ i.checked=true; state.years.add(parseInt(i.dataset.year,10)); });
     document.querySelectorAll("#typeList input[type=checkbox]").forEach(i=>{ i.checked=true; state.types.add(i.dataset.type); });
     readRangeInputs();
-    applyFiltersAndRedraw();
+    applyFiltersAndRedraw(true);
   });
 
   // Dibujo del rectángulo: se desactiva el arrastre del mapa mientras se dibuja.
@@ -3226,7 +3154,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     state.zone = bounds ? [bounds.getSouth(), bounds.getWest(), bounds.getNorth(), bounds.getEast()] : null;
     if(bounds) zoneRect = L.rectangle(bounds, ZONE_STYLE).addTo(map);
     updateZoneUi();
-    applyFiltersAndRedraw();            // ya ajusta el mapa a las rutas que quedan (las que pasan por la zona)
+    applyFiltersAndRedraw(true);        // el mapa se ajusta a las rutas que quedan (las que pasan por la zona)
     if(bounds && !filteredTracks().length) map.fitBounds(bounds, { padding:[30,30] });   // sin rutas: se queda viendo la zona
   }
   const mapEl = els("map");
@@ -3261,7 +3189,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
   els("dateClear").addEventListener("click", () => {
     els("dateFrom").value = ""; els("dateTo").value = "";
     readRangeInputs();
-    applyFiltersAndRedraw();
+    applyFiltersAndRedraw(true);
   });
   els("nameFilter").addEventListener("input", () => {
     readRangeInputs();
@@ -3279,12 +3207,6 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
         if(isAll) state[kind+"s"].add(val); else state[kind+"s"].delete(val);
       });
       applyFiltersAndRedraw();
-    } else if(e.target.matches(".popup-type-save")){
-      const id = e.target.dataset.id;
-      const select = document.querySelector(`.popup-type-select[data-id="${CSS.escape(id)}"]`);
-      const newInput = document.querySelector(`.popup-type-new[data-id="${CSS.escape(id)}"]`);
-      let val = select.value === "__new__" ? newInput.value.trim() : select.value;
-      applyTypeChange(id, val || "Desconocido");
     } else if(e.target.matches(".popup-surf-btn")){
       const t = tracks.find(x => x.id === e.target.dataset.id);
       if(t && !surfBusy.has(t.id)) analyzeAndStore(t).catch(() => alert(tr("surf_error")));
@@ -3316,7 +3238,10 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       const ty = e.target.dataset.type;
       e.target.checked ? state.types.add(ty) : state.types.delete(ty);
       applyFiltersAndRedraw();
-    } else if(e.target.matches("#kmMin,#kmMax,#elMin,#elMax,#idxMin,#idxMax,#dateFrom,#dateTo")){
+    } else if(e.target.matches("#dateFrom,#dateTo")){
+      readRangeInputs();
+      applyFiltersAndRedraw(true);
+    } else if(e.target.matches("#kmMin,#kmMax,#elMin,#elMax,#idxMin,#idxMax")){
       readRangeInputs();
       applyFiltersAndRedraw();
     } else if(e.target.matches(".popup-type-select")){
@@ -3329,28 +3254,6 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
         else applyTypeChange(id, e.target.value);
       }
     }
-  });
-
-  // ---------- arrastrar el popup ----------
-  let popupDrag = null;
-  document.addEventListener("pointerdown", e => {
-    const wrapper = e.target.closest(".leaflet-popup-content-wrapper");
-    if(!wrapper || e.target.closest("select, input, button, a")) return;
-    const popupEl = wrapper.closest(".leaflet-popup");
-    if(!popupEl) return;
-    const m = new DOMMatrixReadOnly(getComputedStyle(popupEl).transform);
-    popupDrag = { popupEl, startX:e.clientX, startY:e.clientY, origX:m.m41, origY:m.m42 };
-    wrapper.classList.add("dragging");
-    e.preventDefault();
-  });
-  document.addEventListener("pointermove", e => {
-    if(!popupDrag) return;
-    const dx = e.clientX - popupDrag.startX, dy = e.clientY - popupDrag.startY;
-    popupDrag.popupEl.style.transform = `translate3d(${popupDrag.origX+dx}px, ${popupDrag.origY+dy}px, 0)`;
-  });
-  document.addEventListener("pointerup", () => {
-    if(popupDrag) document.querySelectorAll(".leaflet-popup-content-wrapper.dragging").forEach(w=>w.classList.remove("dragging"));
-    popupDrag = null;
   });
 
   // ---------- gráficos ----------
@@ -4385,7 +4288,6 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
 
   function refreshDates(){
     if(elevTrack && !els("elevPanel").classList.contains("hidden")) renderRouteHead(elevTrack);
-    routeLayer.eachLayer(l => { const t = tracks.find(x => x.id === l._id); if(t) l.setPopupContent(popupHtml(t)); });
     if(!els("tableModal").classList.contains("hidden")) renderTable();
     if(!els("recordsModal").classList.contains("hidden")) renderRecords();
   }
@@ -4394,6 +4296,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     els("routeWeight").value = routeWeight; els("routeWeightVal").textContent = routeWeight;
     renderTypesPane();
     els("setBase").value = BASE_DEFAULT; els("setHeat").value = HEAT_ON_OPEN ? "1" : "0"; els("setFit").value = FIT_ON_SELECT ? "1" : "0";
+    renderCalcPane();
     els("settingsModal").classList.remove("hidden");
   }
   function showSetTab(tab){
@@ -4498,8 +4401,8 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
   // ---------- Configuración → Cálculos ----------
   const CALC_INPUTS = { fp:"calcFp", fs:"calcFs", fn:"calcFn", dm:"calcDm" };
   function renderCalcPane(){
-    Object.entries(CALC_INPUTS).forEach(([k, id]) => { if(document.activeElement !== els(id)) els(id).value = CALC[k]; });
-    const fmt = v => String(v).replace(".", LANG === "en" ? "." : ",");
+    const fmt = v => Number(v).toLocaleString(LOC(), { maximumFractionDigits:2, useGrouping:false });
+    Object.entries(CALC_INPUTS).forEach(([k, id]) => { if(document.activeElement !== els(id)){ els(id).value = fmt(CALC[k]); els(id).classList.remove("bad"); } });
     els("calcFormula").textContent = tr("set_calc_formula", { fp:fmt(CALC.fp), fs:fmt(CALC.fs), fn:fmt(CALC.fn), dm:fmt(CALC.dm) });
     const vals = tracks.map(difficultyIndex).filter(v => v != null).sort((a,b) => a-b);
     els("calcStats").textContent = vals.length
@@ -4518,16 +4421,34 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
   els("setPaneCalc").addEventListener("input", e => {
     const k = Object.keys(CALC_INPUTS).find(k => CALC_INPUTS[k] === e.target.id);
     if(!k) return;
-    const v = parseFloat(String(e.target.value).replace(",", "."));
-    if(!(v > 0)) return;
+    // Se admite coma o punto decimal ("1,5" o "1.5"). Fuera de rango o no numérico: borde rojo y no se guarda.
+    const raw = String(e.target.value).trim().replace(",", ".");
+    const v = /^\d*\.?\d+$|^\d+\.$/.test(raw) ? parseFloat(raw) : NaN;
+    const ok = v >= parseFloat(e.target.dataset.min) && v <= parseFloat(e.target.dataset.max);
+    e.target.classList.toggle("bad", !ok);
+    if(!ok) return;
     CALC[k] = v; saveCalc();
     clearTimeout(calcTimer);
     calcTimer = setTimeout(refreshIndexViews, 250);
     renderCalcPane();
   });
+  // Al salir de una casilla con un valor no válido, se recupera el valor que tenía al entrar en ella
+  // (mientras se escribe se van aplicando los valores intermedios válidos, p. ej. "99" al teclear "999").
+  let calcBefore = null;
+  els("setPaneCalc").addEventListener("focusin", e => {
+    const k = Object.keys(CALC_INPUTS).find(k => CALC_INPUTS[k] === e.target.id);
+    calcBefore = k ? { k, v: CALC[k] } : null;
+  });
+  els("setPaneCalc").addEventListener("focusout", e => {
+    if(calcBefore && e.target.classList.contains("bad") && CALC[calcBefore.k] !== calcBefore.v){
+      CALC[calcBefore.k] = calcBefore.v; saveCalc(); refreshIndexViews();
+    }
+    calcBefore = null;
+    setTimeout(renderCalcPane, 0);
+  });
   els("calcReset").addEventListener("click", () => {
     CALC = { ...CALC_DEFAULT }; saveCalc();
-    Object.entries(CALC_INPUTS).forEach(([k, id]) => { els(id).value = CALC[k]; });
+    Object.entries(CALC_INPUTS).forEach(([k, id]) => { els(id).blur(); });
     refreshIndexViews(); renderCalcPane();
   });
   els("setBase").addEventListener("change", e => {
@@ -4586,8 +4507,9 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       const filled = await fillSurfacesFromCache(tracks);
       if(filled.length) await dbPutAll(filled);
     }catch(e){}
+    pruneTypeColors();
     rebuildFilterLists();
-    applyFiltersAndRedraw();
+    applyFiltersAndRedraw(true);
     hideLoading();
     checkBackupReminder();
     // Conversión única y en segundo plano de las rutas guardadas con el formato anterior.
