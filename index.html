@@ -45,6 +45,15 @@
 .set-check input{ margin-top:2px; accent-color:var(--accent); }
 .set-check .sub{ font-size:11.5px; color:var(--text-dim); margin-top:2px; }
 .type-row input[type=text]:disabled{ opacity:.45; }
+.bk-check{ width:18px; height:18px; accent-color:var(--accent); cursor:pointer; flex:none; }
+.bk-foot{ display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:14px; flex-wrap:wrap; }
+.rs-info{ font-size:13px; line-height:1.6; background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:8px 12px; }
+.rs-info .no{ color:var(--text-dim); }
+.rs-opt{ display:flex; gap:10px; align-items:flex-start; padding:7px 0; cursor:pointer; font-size:13.5px; }
+.rs-opt input{ margin-top:3px; accent-color:var(--accent); flex:none; }
+.rs-opt b{ font-weight:600; }
+.rs-opt .sub{ display:block; font-size:11.5px; color:var(--text-dim); margin-top:2px; font-weight:400; }
+.rs-opt.disabled{ opacity:.45; cursor:default; }
 .calc-in.bad{ border-color:var(--danger) !important; }
 .calc-in{ width:80px; background:var(--panel); color:var(--text); border:1px solid var(--line); border-radius:6px; padding:6px 8px; font:inherit; font-size:13px; text-align:right; }
 .calc-formula{ font-size:12.5px; background:var(--panel); border:1px solid var(--line); border-radius:6px; padding:8px 10px; margin:8px 0 4px; line-height:1.5; }
@@ -452,7 +461,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       <div class="range-row"><input type="number" id="idxMin" min="0" step="5"><span data-i18n="range_to">a</span><input type="number" id="idxMax" min="0" step="5"></div>
 
 
-      <input type="file" id="restoreInput" accept=".json" class="hidden">
+      <input type="file" id="restoreInput" accept=".json,.gz" class="hidden">
     </aside>
     <main>
       <div id="map"></div>
@@ -613,6 +622,52 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       <div id="helpBody" style="font-size:13px; line-height:1.6; color:var(--text);"></div>
       <div style="display:flex; justify-content:flex-end; margin-top:14px;">
         <button class="primary" id="helpClose" data-i18n="understood">Entendido</button>
+      </div>
+    </div>
+  </div>
+  <div class="modal-overlay hidden" id="backupModal">
+    <div class="modal settings-modal">
+      <div class="stats-head">
+        <h3 style="margin:0;" data-i18n="bk_title">Copia de seguridad</h3>
+        <button class="ghost" id="bkClose">✕</button>
+      </div>
+      <div class="set-row"><div><div class="lbl" data-i18n="bk_routes">Rutas</div></div>
+        <select id="bkScope"></select></div>
+      <div class="set-row"><div><div class="lbl" data-i18n="bk_times">Tiempos de paso</div><div class="sub" data-i18n="bk_times_sub"></div></div>
+        <input type="checkbox" class="bk-check" id="bkTimes"></div>
+      <div class="set-row"><div><div class="lbl" data-i18n="bk_terrain">Análisis de terreno</div><div class="sub" data-i18n="bk_terrain_sub"></div></div>
+        <input type="checkbox" class="bk-check" id="bkTerrain"></div>
+      <div class="set-row"><div><div class="lbl" data-i18n="bk_settings">Configuración</div><div class="sub" data-i18n="bk_settings_sub"></div></div>
+        <input type="checkbox" class="bk-check" id="bkSettings"></div>
+      <div class="set-row"><div><div class="lbl" data-i18n="bk_gz">Comprimida (.json.gz)</div><div class="sub" id="bkGzSub" data-i18n="bk_gz_sub"></div></div>
+        <input type="checkbox" class="bk-check" id="bkGz"></div>
+      <div class="bk-foot">
+        <span class="set-note" id="bkSize" style="margin:0;"></span>
+        <div style="display:flex; gap:8px;">
+          <button class="ghost" id="bkCancel" data-i18n="cancel">Cancelar</button>
+          <button class="primary" id="bkGo" data-i18n="bk_download">Descargar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-overlay hidden" id="restoreModal">
+    <div class="modal settings-modal">
+      <div class="stats-head">
+        <h3 style="margin:0;" data-i18n="rs_title">Restaurar copia de seguridad</h3>
+        <button class="ghost" id="rsClose">✕</button>
+      </div>
+      <div class="rs-info" id="rsInfo"></div>
+      <div class="lbl" style="margin:12px 0 6px; font-size:13.5px;" data-i18n="rs_mode">Qué hacer con las rutas</div>
+      <label class="rs-opt"><input type="radio" name="rsMode" value="add" checked><span><b data-i18n="rs_mode_add">Añadir y actualizar</b><span class="sub" data-i18n="rs_mode_add_sub"></span></span></label>
+      <label class="rs-opt"><input type="radio" name="rsMode" value="replace"><span><b data-i18n="rs_mode_replace">Reemplazar todas</b><span class="sub" data-i18n="rs_mode_replace_sub"></span></span></label>
+      <label class="rs-opt" id="rsOptTimes"><input type="radio" name="rsMode" value="times"><span><b data-i18n="rs_mode_times">Solo completar tiempos de paso</b><span class="sub" data-i18n="rs_mode_times_sub"></span></span></label>
+      <label class="rs-opt" id="rsOptSettings" style="margin-top:10px;"><input type="checkbox" id="rsSettings" checked><span><b data-i18n="rs_apply_settings">Aplicar la configuración de la copia</b></span></label>
+      <div class="bk-foot">
+        <span></span>
+        <div style="display:flex; gap:8px;">
+          <button class="ghost" id="rsCancel" data-i18n="cancel">Cancelar</button>
+          <button class="primary" id="rsGo" data-i18n="rs_go">Restaurar</button>
+        </div>
       </div>
     </div>
   </div>
@@ -968,6 +1023,24 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       loading_reading_gpx: (n) => `Leyendo ${n} archivo(s)…`,
       loading_saving_routes: "Guardando rutas…",
       loading_reading_backup: "Leyendo copia de seguridad…",
+      elapsed_title: "Tiempo transcurrido desde la salida (incluye las paradas)",
+      bk_title: "Copia de seguridad", bk_routes: "Rutas", bk_download: "Descargar",
+      bk_scope_all: n => `Todas (${n})`, bk_scope_filtered: n => `Solo las filtradas (${n})`, bk_scope_none: "Ninguna (solo configuración)",
+      bk_times: "Tiempos de paso", bk_times_sub: "La hora de paso por cada punto del perfil, para cálculos futuros. Ocupa alrededor de un 12 % más.",
+      bk_terrain: "Análisis de terreno", bk_terrain_sub: "Sin él, al restaurar habría que volver a analizar el terreno, y eso tarda bastante.",
+      bk_settings: "Configuración", bk_settings_sub: "Idioma, tema, colores de los tipos, opciones del mapa y coeficientes del índice.",
+      bk_gz: "Comprimida (.json.gz)", bk_gz_sub: "Ocupa unas 5 veces menos. Sin comprimir es un JSON que se puede leer con cualquier editor.",
+      bk_gz_unsupported: "Este navegador no puede comprimir archivos.",
+      bk_size: s => `Tamaño aproximado: ${s}`, bk_nothing: "Con estas opciones no hay nada que guardar.", loading_compressing: "Preparando la copia…",
+      rs_title: "Restaurar copia de seguridad", rs_mode: "Qué hacer con las rutas", rs_go: "Restaurar",
+      rs_info_head: (date, ver) => `Copia del ${date}${ver ? ` (Hinterway ${ver})` : ""}`,
+      rs_info_routes: "Rutas", rs_info_times: "Tiempos de paso", rs_info_terrain: "Análisis de terreno", rs_info_settings: "Configuración",
+      rs_mode_add: "Añadir y actualizar", rs_mode_add_sub: "Se añaden las rutas de la copia; las que ya tienes con el mismo archivo se sustituyen y el resto no se toca.",
+      rs_mode_replace: "Reemplazar todas", rs_mode_replace_sub: "Se borran tus rutas actuales y quedan solo las de la copia.",
+      rs_mode_times: "Solo completar tiempos de paso", rs_mode_times_sub: "No cambia nada más: añade los tiempos de paso a tus rutas que no los tienen, si son la misma ruta (mismo archivo y misma distancia).",
+      rs_apply_settings: "Aplicar la configuración de la copia",
+      rs_confirm_replace: (n, m) => `Se borrarán tus ${n} rutas actuales y quedarán las ${m} de la copia. ¿Continuar?`,
+      rs_times_done: (ok, ya, no) => `Tiempos de paso completados en ${ok} ruta(s).` + (ya ? ` ${ya} ya los tenían.` : "") + (no ? ` ${no} no están en la app, no tienen tiempos en la copia o no coinciden.` : ""),
       loading_saved_routes: "Cargando rutas guardadas…",
       header_count_total: (n) => `${n} rutas cargadas`,
       header_count_partial: (n,total) => `${n} de ${total} rutas`,
@@ -1131,6 +1204,24 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       loading_reading_gpx: (n) => `Reading ${n} file(s)…`,
       loading_saving_routes: "Saving routes…",
       loading_reading_backup: "Reading backup…",
+      elapsed_title: "Time elapsed since the start (stops included)",
+      bk_title: "Backup", bk_routes: "Routes", bk_download: "Download",
+      bk_scope_all: n => `All (${n})`, bk_scope_filtered: n => `Filtered only (${n})`, bk_scope_none: "None (settings only)",
+      bk_times: "Pass times", bk_times_sub: "The time at each point of the profile, for future calculations. Takes about 12% more space.",
+      bk_terrain: "Terrain analysis", bk_terrain_sub: "Without it, the terrain would have to be analyzed again after restoring, which takes a while.",
+      bk_settings: "Settings", bk_settings_sub: "Language, theme, type colors, map options and index coefficients.",
+      bk_gz: "Compressed (.json.gz)", bk_gz_sub: "About 5 times smaller. Uncompressed it's a JSON you can read in any editor.",
+      bk_gz_unsupported: "This browser can't compress files.",
+      bk_size: s => `Approximate size: ${s}`, bk_nothing: "Nothing to save with these options.", loading_compressing: "Preparing the backup…",
+      rs_title: "Restore backup", rs_mode: "What to do with the routes", rs_go: "Restore",
+      rs_info_head: (date, ver) => `Backup from ${date}${ver ? ` (Hinterway ${ver})` : ""}`,
+      rs_info_routes: "Routes", rs_info_times: "Pass times", rs_info_terrain: "Terrain analysis", rs_info_settings: "Settings",
+      rs_mode_add: "Add and update", rs_mode_add_sub: "The backup's routes are added; ones you already have with the same file are replaced and the rest are untouched.",
+      rs_mode_replace: "Replace all", rs_mode_replace_sub: "Your current routes are deleted and only the backup's remain.",
+      rs_mode_times: "Only fill in pass times", rs_mode_times_sub: "Nothing else changes: adds pass times to your routes that lack them, if they're the same route (same file and same distance).",
+      rs_apply_settings: "Apply the backup's settings",
+      rs_confirm_replace: (n, m) => `Your ${n} current routes will be deleted and the backup's ${m} will remain. Continue?`,
+      rs_times_done: (ok, ya, no) => `Pass times filled in for ${ok} route(s).` + (ya ? ` ${ya} already had them.` : "") + (no ? ` ${no} aren't in the app, have no times in the backup or don't match.` : ""),
       loading_saved_routes: "Loading saved routes…",
       header_count_total: (n) => `${n} routes loaded`,
       header_count_partial: (n,total) => `${n} of ${total} routes`,
@@ -1343,10 +1434,16 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       let km = 0;
       const eleLimpia = hampelFilter(limpiarTramosPorVelocidad(pts));
       // El perfil no guarda la hora de cada punto: solo se usa al importar (tiempo en movimiento y fecha).
-      const profileRaw = [{ km:0, ele:eleLimpia[0], lat:pts[0].lat, lon:pts[0].lon }];
+      // Tiempo de paso de cada punto: segundos desde el primer punto con hora (campo t). Compacto:
+      // ocupa ~12 % de la ruta, frente al ~28 % que ocupaba guardar la hora completa.
+      const t0p = pts.find(p => p.time && !isNaN(new Date(p.time)));
+      const t0ms = t0p ? new Date(t0p.time).getTime() : null;
+      const secOf = p => { if(t0ms == null || !p.time) return undefined; const ms = new Date(p.time).getTime(); return isNaN(ms) ? undefined : Math.round((ms - t0ms)/1000); };
+      const mk = (i, kmv) => { const o = { km:kmv, ele:eleLimpia[i], lat:pts[i].lat, lon:pts[i].lon }; const ts = secOf(pts[i]); if(ts != null) o.t = ts; return o; };
+      const profileRaw = [mk(0, 0)];
       for(let i=1;i<pts.length;i++){
         km += haversine([pts[i-1].lat,pts[i-1].lon],[pts[i].lat,pts[i].lon]) / 1000;
-        profileRaw.push({ km, ele:eleLimpia[i], lat:pts[i].lat, lon:pts[i].lon });
+        profileRaw.push(mk(i, km));
       }
       const gain = computeGain(eleLimpia);
       const profile = decimate(profileRaw, 600);
@@ -2177,7 +2274,11 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     tip.style.left = (e.clientX - panelRect.left) + "px";
     tip.style.top = (svgRect.top - panelRect.top) + "px";
     const terr = elevTrack ? terrainAt(elevTrack, nearest.km, activeProfile.fullMaxD) : null;
-    tip.innerHTML = `${nf(nearest.km, 2)} km · ${nf(nearest.ele)} m · ${slopeHere >= 0 ? "+" : ""}${nf(slopeHere, 1)}%` + (terr ? ` · ${tr(SURF_I18N[terr])}` : "");
+    tip.innerHTML = `${nf(nearest.km, 2)} km · ${nf(nearest.ele)} m · ${slopeHere >= 0 ? "+" : ""}${nf(slopeHere, 1)}%` + (terr ? ` · ${tr(SURF_I18N[terr])}` : "")
+      + (nearest.t != null ? ` · <span title="${tr("elapsed_title")}">⏱ ${fmtHMS(nearest.t)}</span>` : "");
+    // Que no se salga por los lados de la ventana (va centrado sobre el cursor).
+    const half = tip.offsetWidth / 2, xIn = e.clientX - panelRect.left;
+    tip.style.left = Math.max(half + 4, Math.min(panelRect.width - half - 4, xIn)) + "px";
     tip.classList.remove("hidden");
     if(!hoverMarker){
       hoverMarker = L.circleMarker([nearest.lat, nearest.lon], {
@@ -2277,18 +2378,26 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     Object.keys(CALC_DEFAULT).forEach(k => { if(typeof c[k] === "number" && c[k] > 0) CALC[k] = c[k]; });
   }catch(e){}
   function saveCalc(){ lsSet("heatmap-calc", JSON.stringify(CALC)); }
-  // Desde la 0.19 el perfil ya no guarda la hora de cada punto (no se usaba y ocupaba ~28 % de cada ruta).
-  // Quita esas horas de las rutas importadas con versiones anteriores o de copias de seguridad antiguas.
-  function stripProfileTimes(list){
+  // Hasta la 0.18 el perfil guardaba la hora completa de cada punto ("time"); desde la 0.22 se guarda
+  // compacta, en segundos desde el primer punto ("t"). Convierte rutas y copias antiguas al formato nuevo.
+  function normalizeProfileTimes(list){
     const changed = [];
     list.forEach(t => {
-      if(t.profile && t.profile.length && t.profile.some(p => p && "time" in p)){
-        t.profile.forEach(p => { if(p) delete p.time; });
-        changed.push(t);
-      }
+      if(!t.profile || !t.profile.length || !t.profile.some(p => p && "time" in p)) return;
+      let base = null;
+      t.profile.forEach(p => {
+        if(!p) return;
+        if(p.time){
+          const ms = new Date(p.time).getTime();
+          if(!isNaN(ms)){ if(base == null) base = ms; p.t = Math.round((ms - base)/1000); }
+        }
+        delete p.time;
+      });
+      changed.push(t);
     });
     return changed;
   }
+  const hasTimes = t => !!(t && t.profile && t.profile.some(p => p && p.t != null));
   function difficultyIndex(t){
     if(!t || !(t.km >= 0)) return null;
     let kmEq;
@@ -2708,7 +2817,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       <ul>
         <li>El <strong>icono de capas</strong> (arriba a la derecha) cambia el fondo del mapa y enciende o apaga las rutas y la capa de densidad (heatmap).</li>
         <li><strong>Pincha una ruta</strong> y se abre abajo su ventana: nombre, fecha y tipo; km, desnivel, tiempo, velocidad e índice de dificultad; el terreno; y los botones para cambiar el tipo, renombrar (✎), analizar el terreno (↻), borrarla de la app (🗑) y cerrar (✕).</li>
-        <li>Debajo está su <strong>perfil de elevación</strong>: pasa el ratón para ver km, altitud, pendiente y terreno de cada punto; arrastra para ampliar un tramo, verlo en el mapa y ver su pendiente por sectores. Si la ruta tiene el terreno analizado, una franja de colores marca asfalto, pista y senda.</li>
+        <li>Debajo está su <strong>perfil de elevación</strong>: pasa el ratón para ver km, altitud, pendiente, terreno y tiempo transcurrido desde la salida (⏱ hh:mm:ss, si la ruta tiene tiempos de paso) de cada punto; arrastra para ampliar un tramo, verlo en el mapa y ver su pendiente por sectores. Si la ruta tiene el terreno analizado, una franja de colores marca asfalto, pista y senda.</li>
         <li>El tipo y el nombre que cambies se guardan en la app; con Chrome o Edge de ordenador también se graban en el propio archivo, si es un GPX sin comprimir.</li>
       </ul>
 
@@ -2736,7 +2845,8 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       <h4>5. Menú Datos</h4>
       <ul>
         <li><strong>Exportar a CSV</strong> las rutas filtradas, para abrirlas en Excel.</li>
-        <li><strong>Copia de seguridad</strong>: descarga un JSON con las rutas, su terreno y tu configuración, y restáuralo cuando quieras. Si hay cambios sin copiar y la última copia tiene más de 7 días, la app te lo recuerda al abrirla.</li>
+        <li><strong>Descargar copia de seguridad</strong>: eliges qué rutas (todas, solo las filtradas o ninguna), si incluir los tiempos de paso, el análisis de terreno y la configuración, y si comprimirla (.json.gz, unas 5 veces más pequeña). Te muestra el tamaño aproximado y recuerda tus opciones. Si hay cambios sin copiar y la última copia completa tiene más de 7 días, la app te lo recuerda al abrirla.</li>
+        <li><strong>Restaurar copia de seguridad</strong> (.json o .json.gz): te muestra qué trae la copia y eliges qué hacer: añadir y actualizar rutas, reemplazar todas, o solo completar los tiempos de paso de las rutas que no los tienen; y si aplicar su configuración.</li>
         <li><strong>Analizar terreno</strong> de todas las rutas filtradas que aún no lo tienen (se puede detener).</li>
         <li><strong>Vaciar todos los datos</strong> borra lo guardado en este navegador.</li>
       </ul>
@@ -2790,7 +2900,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       <ul>
         <li>The <strong>layers icon</strong> (top right) changes the background map and turns the routes and the density layer (heatmap) on or off.</li>
         <li><strong>Click a route</strong> to open its panel at the bottom: name, date and type; km, gain, time, speed and difficulty index; terrain; and buttons to change the type, rename (✎), analyze terrain (↻), remove it from the app (🗑) and close (✕).</li>
-        <li>Below is its <strong>elevation profile</strong>: hover to see km, altitude, gradient and terrain at each point; drag to zoom into a section, see it on the map and see its gradient by sector. If the terrain has been analyzed, a colored strip marks paved, track and trail.</li>
+        <li>Below is its <strong>elevation profile</strong>: hover to see the km, altitude, gradient, terrain and time elapsed since the start (⏱ hh:mm:ss, if the route has pass times) at each point; drag to zoom into a section, see it on the map and see its gradient by sector. If the terrain has been analyzed, a colored strip marks paved, track and trail.</li>
         <li>Type and name changes are saved in the app; with desktop Chrome or Edge they're also written to the file itself, if it's an uncompressed GPX.</li>
       </ul>
 
@@ -2818,7 +2928,8 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       <h4>5. Data menu</h4>
       <ul>
         <li><strong>Export to CSV</strong> the filtered routes, to open them in Excel.</li>
-        <li><strong>Backup</strong>: download a JSON with the routes, their terrain and your settings, and restore it whenever you want. If there are unsaved changes and the last backup is more than 7 days old, the app reminds you when you open it.</li>
+        <li><strong>Download backup</strong>: choose which routes (all, filtered only or none), whether to include pass times, terrain analysis and settings, and whether to compress it (.json.gz, about 5 times smaller). It shows the approximate size and remembers your choices. If there are unsaved changes and the last full backup is more than 7 days old, the app reminds you when you open it.</li>
+        <li><strong>Restore backup</strong> (.json or .json.gz): shows what the backup contains and lets you choose: add and update routes, replace all, or only fill in the pass times of routes that lack them; and whether to apply its settings.</li>
         <li><strong>Analyze terrain</strong> of every filtered route that doesn't have it yet (can be stopped).</li>
         <li><strong>Clear all data</strong> deletes what's stored in this browser.</li>
       </ul>
@@ -2869,7 +2980,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
   // ---------- Quiénes somos / About ----------
   // Versión de la app: se sube (0.4 → 0.5 → …) y se pone la fecha del día cada vez que se genera un HTML nuevo.
   // Versiones 0.x mientras la app no se publique.
-  const APP_VERSION = "0.21", APP_VERSION_DATE = "2026-10-14";
+  const APP_VERSION = "0.23", APP_VERSION_DATE = "2026-10-15";
   const APP_AUTHOR = "Angel Herrero", APP_EMAIL = "angelherreropla@gmail.com";
   const ABOUT_HTML = {
     es: () => `
@@ -2955,37 +3066,114 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     return tracks.length + ":" + h;
   }
 
-  async function downloadBackup(){
+  function collectSettings(){
+    let baseLayer = null;
+    try{ baseLayer = localStorage.getItem("heatmap-capa-base"); }catch(e){}
+    return { lang: LANG, theme: THEME, dateFmt: DATE_FMT, routeIntensity, routeWeight, typeColors: Object.fromEntries(typeColors), defaultType: DEFAULT_TYPE, baseLayer, baseDefault: BASE_DEFAULT, heatOnOpen: HEAT_ON_OPEN, fitOnSelect: FIT_ON_SELECT, calc: CALC };
+  }
+  // ---- ventana de opciones de la copia ----
+  const BK_DEFAULT = { scope:"all", times:true, terrain:true, settings:true, gz:true };
+  const canGzip = typeof CompressionStream === "function";
+  function readBkOpts(){
+    let o = { ...BK_DEFAULT };
+    try{ Object.assign(o, JSON.parse(localStorage.getItem("heatmap-backup-opts") || "{}")); }catch(e){}
+    if(!["all","filtered","none"].includes(o.scope)) o.scope = "all";
+    if(!canGzip) o.gz = false;
+    return o;
+  }
+  function bkOptsFromUi(){
+    return { scope: els("bkScope").value, times: els("bkTimes").checked, terrain: els("bkTerrain").checked, settings: els("bkSettings").checked, gz: els("bkGz").checked };
+  }
+  function bkTrackOut(t, o){
+    const out = { ...t };
+    if(!o.times && t.profile) out.profile = t.profile.map(p => { const q = { ...p }; delete q.t; return q; });
+    if(!o.terrain) delete out.surface;
+    return out;
+  }
+  function bkList(o){ return o.scope === "all" ? tracks : o.scope === "filtered" ? filteredTracks() : []; }
+  function fmtBytes(n){ return n >= 1e6 ? nf(n/1e6, n >= 1e7 ? 0 : 1) + " MB" : nf(Math.max(1, n/1e3)) + " KB"; }
+  function updateBkSize(){
+    const o = bkOptsFromUi();
+    const list = bkList(o);
+    els("bkTimes").disabled = els("bkTerrain").disabled = !list.length;
+    if(!list.length && !o.settings){ els("bkSize").textContent = tr("bk_nothing"); els("bkGo").disabled = true; return; }
+    els("bkGo").disabled = false;
+    // estimación con una muestra de rutas (serializarlas todas tardaría)
+    const step = Math.max(1, Math.floor(list.length / 40));
+    let sum = 0, n = 0;
+    for(let i=0;i<list.length;i+=step){ sum += JSON.stringify(bkTrackOut(list[i], o)).length; n++; }
+    let bytes = n ? sum / n * list.length : 0;
+    if(o.terrain && o.scope === "all") bytes += tracks.filter(t => t.surface).length * 1700;   // copia aparte del terreno
+    bytes = o.gz ? bytes * 0.27 : bytes * 1.22;   // JSON legible ≈ +22 %; comprimido ≈ 27 % del compacto
+    els("bkSize").textContent = tr("bk_size", fmtBytes(bytes + 2000));
+  }
+  function openBackupDialog(){
     if(!tracks.length){ alert(tr("alert_no_routes_yet")); return; }
-    showLoading(tr("loading_wait"));
+    const o = readBkOpts();
+    const nf_ = filteredTracks().length;
+    els("bkScope").innerHTML = `<option value="all">${tr("bk_scope_all", tracks.length)}</option>`
+      + `<option value="filtered">${tr("bk_scope_filtered", nf_)}</option>`
+      + `<option value="none">${tr("bk_scope_none")}</option>`;
+    els("bkScope").value = o.scope;
+    els("bkTimes").checked = o.times; els("bkTerrain").checked = o.terrain; els("bkSettings").checked = o.settings;
+    els("bkGz").checked = o.gz; els("bkGz").disabled = !canGzip;
+    if(!canGzip) els("bkGzSub").textContent = tr("bk_gz_unsupported");
+    updateBkSize();
+    els("backupModal").classList.remove("hidden");
+  }
+  const closeBackupDialog = () => els("backupModal").classList.add("hidden");
+  ["bkScope","bkTimes","bkTerrain","bkSettings","bkGz"].forEach(id => els(id).addEventListener("change", updateBkSize));
+  els("bkClose").addEventListener("click", closeBackupDialog);
+  els("bkCancel").addEventListener("click", closeBackupDialog);
+  els("backupModal").addEventListener("click", e => { if(e.target === els("backupModal")) closeBackupDialog(); });
+  els("bkGo").addEventListener("click", async () => {
+    const o = bkOptsFromUi();
+    try{ localStorage.setItem("heatmap-backup-opts", JSON.stringify({ ...o, scope:"all" })); }catch(e){}   // el alcance no se recuerda: por defecto, todas
+    closeBackupDialog();
+    await downloadBackup(o);
+  });
+
+  async function downloadBackup(o){
+    showLoading(tr("loading_compressing"));
     try{
+      const list = bkList(o);
       let surfaceCache = [];
-      try{ surfaceCache = [...(await surfCacheGetAll()).entries()].map(([key, surface]) => ({ key, surface })); }catch(e){}
-      let baseLayer = null;
-      try{ baseLayer = localStorage.getItem("heatmap-capa-base"); }catch(e){}
+      if(o.terrain && o.scope === "all"){
+        try{ surfaceCache = [...(await surfCacheGetAll()).entries()].map(([key, surface]) => ({ key, surface })); }catch(e){}
+      }
       const payload = {
-        app: "hinterway", version: 2, appVersion: APP_VERSION, exportedAt: new Date().toISOString(),
-        settings: { lang: LANG, theme: THEME, dateFmt: DATE_FMT, routeIntensity, routeWeight, typeColors: Object.fromEntries(typeColors), defaultType: DEFAULT_TYPE, baseLayer, baseDefault: BASE_DEFAULT, heatOnOpen: HEAT_ON_OPEN, fitOnSelect: FIT_ON_SELECT, calc: CALC },
-        counts: { tracks: tracks.length, surfaceCache: surfaceCache.length },
-        tracks,
-        surfaceCache,
+        app: "hinterway", version: 3, appVersion: APP_VERSION, exportedAt: new Date().toISOString(),
+        contents: { routes: o.scope, times: !!(list.length && o.times), terrain: !!(list.length && o.terrain), settings: !!o.settings },
       };
-      const blob = new Blob([prettyJson(payload) + "\n"], { type: "application/json" });
+      if(o.settings) payload.settings = collectSettings();
+      payload.counts = { tracks: list.length, surfaceCache: surfaceCache.length };
+      payload.tracks = list.map(t => bkTrackOut(t, o));
+      payload.surfaceCache = surfaceCache;
+      let blob;
+      if(o.gz){
+        const stream = new Blob([JSON.stringify(payload)]).stream().pipeThrough(new CompressionStream("gzip"));
+        blob = new Blob([await new Response(stream).arrayBuffer()], { type: "application/gzip" });
+      } else {
+        blob = new Blob([prettyJson(payload) + "\n"], { type: "application/json" });
+      }
+      const suffix = o.scope === "filtered" ? "_filtradas" : o.scope === "none" ? "_configuracion" : "";
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `backup_rutas_${new Date().toISOString().slice(0,10)}.json`;
+      a.download = `backup_rutas_${new Date().toISOString().slice(0,10)}${suffix}.json${o.gz ? ".gz" : ""}`;
       a.click();
-      setTimeout(() => URL.revokeObjectURL(url), 2000);
-      try{
-        localStorage.setItem("heatmap-backup-at", String(Date.now()));
-        localStorage.setItem("heatmap-backup-sig", dataSignature());
-        localStorage.setItem("heatmap-backup-count", String(tracks.length));
-      }catch(e){}
-      hideBackupReminder();
+      setTimeout(() => URL.revokeObjectURL(url), 4000);
+      if(o.scope === "all"){            // solo una copia completa cuenta para el recordatorio
+        try{
+          localStorage.setItem("heatmap-backup-at", String(Date.now()));
+          localStorage.setItem("heatmap-backup-sig", dataSignature());
+          localStorage.setItem("heatmap-backup-count", String(tracks.length));
+        }catch(e){}
+        hideBackupReminder();
+      }
     } finally { hideLoading(); }
   }
-  els("btnBackup").addEventListener("click", downloadBackup);
+  els("btnBackup").addEventListener("click", openBackupDialog);
 
   // ---------- recordatorio de copia de seguridad ----------
   // Aparece al abrir la app (y tras añadir rutas) si hay cambios sin copiar y la última copia
@@ -3010,29 +3198,128 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       : tr("backup_rem_old", days, nuevas);
     els("backupReminder").classList.remove("hidden");
   }
-  els("backupRemNow").addEventListener("click", downloadBackup);
+  els("backupRemNow").addEventListener("click", openBackupDialog);
   els("backupRemLater").addEventListener("click", () => {
     try{ localStorage.setItem("heatmap-backup-snooze", String(Date.now() + 3*86400000)); }catch(e){}
     hideBackupReminder();
   });
 
   els("btnRestore").addEventListener("click", () => els("restoreInput").click());
+  function applySettings(st){
+    if(!st || typeof st !== "object") return;
+    if(st.typeColors && typeof st.typeColors === "object"){
+      Object.entries(st.typeColors).forEach(([k,v]) => { if(/^#[0-9a-f]{6}$/i.test(v)) typeColors.set(k, v); });
+      saveTypeColors();
+    }
+    if(st.baseDefault === "last" || baseById[st.baseDefault]){ BASE_DEFAULT = st.baseDefault; lsSet("heatmap-base-default", BASE_DEFAULT); }
+    if(typeof st.baseLayer === "string") lsSet("heatmap-capa-base", baseById[st.baseLayer] ? st.baseLayer : baseIdOf(baseMaps[st.baseLayer]));
+    if(typeof st.heatOnOpen === "boolean"){ HEAT_ON_OPEN = st.heatOnOpen; lsSet("heatmap-heat-open", HEAT_ON_OPEN ? "1" : "0"); }
+    if(typeof st.fitOnSelect === "boolean"){ FIT_ON_SELECT = st.fitOnSelect; lsSet("heatmap-fit-select", FIT_ON_SELECT ? "1" : "0"); }
+    if(st.calc && typeof st.calc === "object"){
+      Object.keys(CALC_DEFAULT).forEach(k => { if(typeof st.calc[k] === "number" && st.calc[k] > 0) CALC[k] = st.calc[k]; });
+      saveCalc();
+    }
+    if(typeof st.defaultType === "string"){ DEFAULT_TYPE = st.defaultType; lsSet("heatmap-default-type", DEFAULT_TYPE); }
+    if(["dark","light","auto"].includes(st.theme)){ THEME = st.theme; lsSet("heatmap-theme", THEME); applyTheme(); }
+    if(["dmy","long","iso"].includes(st.dateFmt)){ DATE_FMT = st.dateFmt; lsSet("heatmap-date-fmt", DATE_FMT); }
+    if(st.routeWeight >= 1.5 && st.routeWeight <= 7){ routeWeight = st.routeWeight; lsSet("heatmap-route-weight", routeWeight); }
+    if(st.routeIntensity >= 1 && st.routeIntensity <= 10){
+      routeIntensity = st.routeIntensity;
+      els("routeIntensity").value = routeIntensity; els("routeIntensityVal").textContent = routeIntensity;
+      try{ localStorage.setItem("heatmap-route-intensity", String(routeIntensity)); }catch(e){}
+    }
+    if(st.lang && st.lang !== LANG && ["es","en"].includes(st.lang)) setLang(st.lang);
+  }
+
+  // Completa los tiempos de paso de las rutas que ya están en la app con los de la copia (misma ruta:
+  // mismo archivo y misma distancia). Si los perfiles tienen los mismos puntos se copian uno a uno;
+  // si no, se interpolan por km.
+  async function completeTimesFrom(incoming){
+    let ok = 0, ya = 0, no = 0;
+    const changed = [];
+    const byId = new Map(tracks.map(t => [t.id, t]));
+    incoming.forEach(inc => {
+      const ex = byId.get(inc.id);
+      if(!ex || !hasTimes(inc) || !ex.profile || Math.abs(ex.km - inc.km) > 0.1){ no++; return; }
+      if(hasTimes(ex)){ ya++; return; }
+      const src = inc.profile.filter(p => p && p.t != null);
+      if(inc.profile.length === ex.profile.length){
+        ex.profile.forEach((p, i) => { const q = inc.profile[i]; if(q && q.t != null) p.t = q.t; });
+      } else {
+        let j = 0;
+        ex.profile.forEach(p => {
+          while(j < src.length - 2 && src[j+1].km < p.km) j++;
+          const a = src[j], b = src[Math.min(j+1, src.length-1)];
+          const f = b.km > a.km ? Math.min(1, Math.max(0, (p.km - a.km) / (b.km - a.km))) : 0;
+          p.t = Math.round(a.t + (b.t - a.t) * f);
+        });
+      }
+      changed.push(ex); ok++;
+    });
+    if(changed.length) await dbPutAll(changed);
+    return { ok, ya, no };
+  }
+
+  let pendingRestore = null;
   els("restoreInput").addEventListener("change", async e => {
     const file = e.target.files[0];
     e.target.value = "";
     if(!file) return;
     showLoading(tr("loading_reading_backup"));
+    let data;
     try{
-      const data = JSON.parse(await file.text());
-      const incoming = Array.isArray(data) ? data : Array.isArray(data.tracks) ? data.tracks : null;
-      if(!incoming) throw new Error("formato no reconocido");
-      const validas = incoming.filter(t => t && t.id && Array.isArray(t.pts));
-      if(!validas.length) throw new Error("sin rutas válidas");
-      if(!confirm(tr("confirm_restore", validas.length))){
+      data = JSON.parse(await readRouteText(file));     // admite .json y .json.gz
+    }catch(err){ hideLoading(); alert(tr("alert_backup_unreadable")); return; }
+    hideLoading();
+    const incoming = Array.isArray(data) ? data : Array.isArray(data.tracks) ? data.tracks : [];
+    const validas = incoming.filter(t => t && t.id && Array.isArray(t.pts));
+    const st = Array.isArray(data) ? null : data.settings;
+    if(!validas.length && !st){ alert(tr("alert_backup_unreadable")); return; }
+    normalizeProfileTimes(validas);
+    pendingRestore = { data, validas, st };
+    const withTimes = validas.filter(hasTimes).length, withTerrain = validas.filter(t => t.surface).length;
+    const yes = tr("set_yes"), noTxt = tr("set_no");
+    const line = (lbl, val, has) => `<div${has ? "" : ' class="no"'}>${lbl}: <b>${val}</b></div>`;
+    const date = data.exportedAt ? fmtDate(String(data.exportedAt).slice(0,10)) : "?";
+    els("rsInfo").innerHTML = `<div style="font-weight:600; margin-bottom:2px;">${tr("rs_info_head", date, data.appVersion || "")}</div>`
+      + line(tr("rs_info_routes"), nf(validas.length), validas.length > 0)
+      + line(tr("rs_info_times"), withTimes ? (withTimes === validas.length ? yes : `${nf(withTimes)} / ${nf(validas.length)}`) : noTxt, withTimes > 0)
+      + line(tr("rs_info_terrain"), withTerrain ? (withTerrain === validas.length ? yes : `${nf(withTerrain)} / ${nf(validas.length)}`) : noTxt, withTerrain > 0)
+      + line(tr("rs_info_settings"), st ? yes : noTxt, !!st);
+    const setDis = (id, dis) => { const el = els(id); el.classList.toggle("disabled", dis); el.querySelector("input").disabled = dis; };
+    document.querySelectorAll('input[name="rsMode"]').forEach(r => { r.disabled = !validas.length; r.closest(".rs-opt").classList.toggle("disabled", !validas.length); });
+    setDis("rsOptTimes", !withTimes || !tracks.length);
+    document.querySelector('input[name="rsMode"][value="add"]').checked = true;
+    setDis("rsOptSettings", !st);
+    els("rsSettings").checked = !!st;
+    els("restoreModal").classList.remove("hidden");
+  });
+  document.querySelectorAll('input[name="rsMode"]').forEach(r => r.addEventListener("change", () => {
+    const times = document.querySelector('input[name="rsMode"]:checked').value === "times";
+    const noSt = !(pendingRestore && pendingRestore.st);
+    els("rsOptSettings").classList.toggle("disabled", times || noSt);
+    els("rsSettings").disabled = times || noSt;
+  }));
+  const closeRestoreDialog = () => { els("restoreModal").classList.add("hidden"); pendingRestore = null; };
+  els("rsClose").addEventListener("click", closeRestoreDialog);
+  els("rsCancel").addEventListener("click", closeRestoreDialog);
+  els("restoreModal").addEventListener("click", e => { if(e.target === els("restoreModal")) closeRestoreDialog(); });
+  els("rsGo").addEventListener("click", async () => {
+    if(!pendingRestore) return;
+    const { data, validas, st } = pendingRestore;
+    const checked = document.querySelector('input[name="rsMode"]:checked');
+    const mode = validas.length && checked ? checked.value : "none";
+    const applySt = !!st && els("rsSettings").checked && mode !== "times";
+    if(mode === "replace" && tracks.length && !confirm(tr("rs_confirm_replace", tracks.length, validas.length))) return;
+    closeRestoreDialog();
+    showLoading(tr("loading_saving_routes"));
+    try{
+      if(mode === "times"){
+        const r = await completeTimesFrom(validas);
         hideLoading();
+        alert(tr("rs_times_done", r.ok, r.ya, r.no));
         return;
       }
-      // Copia v2: análisis de terreno guardados aparte y ajustes.
       if(Array.isArray(data.surfaceCache) && data.surfaceCache.length){
         try{
           const db = await openDB();
@@ -3043,39 +3330,21 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
           });
         }catch(e){}
       }
-      const st = data.settings || {};
-      if(st.typeColors && typeof st.typeColors === "object"){
-        Object.entries(st.typeColors).forEach(([k,v]) => { if(/^#[0-9a-f]{6}$/i.test(v)) typeColors.set(k, v); });
-        saveTypeColors();
+      if(applySt) applySettings(st);
+      if(mode === "add" || mode === "replace"){
+        if(mode === "replace"){ await dbClear(); tracks = []; seenYears.clear(); seenTypes.clear(); state.years.clear(); state.types.clear(); }
+        await fillSurfacesFromCache(validas);
+        await dbPutAll(validas);
+        try{ await surfCachePut(validas); }catch(e){}
+        const byId = new Map(tracks.map(t => [t.id, t]));
+        validas.forEach(t => byId.set(t.id, t));
+        tracks = [...byId.values()];
+        pruneTypeColors();
       }
-      if(st.baseDefault === "last" || baseById[st.baseDefault]){ BASE_DEFAULT = st.baseDefault; lsSet("heatmap-base-default", BASE_DEFAULT); }
-      if(typeof st.baseLayer === "string") lsSet("heatmap-capa-base", baseById[st.baseLayer] ? st.baseLayer : baseIdOf(baseMaps[st.baseLayer]));
-      if(typeof st.heatOnOpen === "boolean"){ HEAT_ON_OPEN = st.heatOnOpen; lsSet("heatmap-heat-open", HEAT_ON_OPEN ? "1" : "0"); }
-      if(typeof st.fitOnSelect === "boolean"){ FIT_ON_SELECT = st.fitOnSelect; lsSet("heatmap-fit-select", FIT_ON_SELECT ? "1" : "0"); }
-      if(st.calc && typeof st.calc === "object"){
-        Object.keys(CALC_DEFAULT).forEach(k => { if(typeof st.calc[k] === "number" && st.calc[k] > 0) CALC[k] = st.calc[k]; });
-        saveCalc();
-      }
-      if(typeof st.defaultType === "string"){ DEFAULT_TYPE = st.defaultType; lsSet("heatmap-default-type", DEFAULT_TYPE); }
-      if(["dark","light","auto"].includes(st.theme)){ THEME = st.theme; lsSet("heatmap-theme", THEME); applyTheme(); }
-      if(["dmy","long","iso"].includes(st.dateFmt)){ DATE_FMT = st.dateFmt; lsSet("heatmap-date-fmt", DATE_FMT); }
-      if(st.routeWeight >= 1.5 && st.routeWeight <= 7){ routeWeight = st.routeWeight; lsSet("heatmap-route-weight", routeWeight); }
-      if(st.routeIntensity >= 1 && st.routeIntensity <= 10){
-        routeIntensity = st.routeIntensity;
-        els("routeIntensity").value = routeIntensity; els("routeIntensityVal").textContent = routeIntensity;
-        try{ localStorage.setItem("heatmap-route-intensity", String(routeIntensity)); }catch(e){}
-      }
-      stripProfileTimes(validas);
-      await fillSurfacesFromCache(validas);
-      await dbPutAll(validas);
-      try{ await surfCachePut(validas); }catch(e){}
-      const byId = new Map(tracks.map(t => [t.id, t]));
-      validas.forEach(t => byId.set(t.id, t));
-      tracks = [...byId.values()];
-      pruneTypeColors();
       rebuildFilterLists();
-      applyFiltersAndRedraw(true);
-      if(!els("settingsModal").classList.contains("hidden")) openSettings();   // muestra los ajustes restaurados
+      applyFiltersAndRedraw(mode !== "none");
+      if(applySt) refreshIndexViews();
+      if(!els("settingsModal").classList.contains("hidden")) openSettings();
     }catch(err){
       alert(tr("alert_backup_unreadable"));
     } finally {
@@ -3791,6 +4060,12 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     if(metric === "speed") return t.duration ? t.km/(t.duration/3600) : null;
     if(metric === "duration") return t.duration || null;
     return null;
+  }
+  // Tiempo transcurrido en formato hh:mm:ss (p. ej. 01:05:32).
+  function fmtHMS(sec){
+    sec = Math.max(0, Math.round(sec));
+    const h = Math.floor(sec/3600), m = Math.floor((sec%3600)/60), s2 = sec%60;
+    return [h, m, s2].map(v => String(v).padStart(2, "0")).join(":");
   }
   function formatDuration(sec){
     const min = Math.round(sec/60);            // se redondea el total, para no dar nunca "2h 60m"
@@ -4513,7 +4788,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     hideLoading();
     checkBackupReminder();
     // Conversión única y en segundo plano de las rutas guardadas con el formato anterior.
-    const stale = stripProfileTimes(tracks);
+    const stale = normalizeProfileTimes(tracks);
     if(stale.length){ try{ await dbPutAll(stale); }catch(e){} }
   })();
 })();
