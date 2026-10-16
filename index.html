@@ -95,6 +95,8 @@ aside input[type=text]{ background:var(--panel-2); border:1px solid var(--line);
 main{ position:relative; flex:1; min-width:0; }
 #map{ position:absolute; inset:0; background:var(--bg); }
 #map.zone-drawing, #map.zone-drawing .leaflet-interactive{ cursor:crosshair !important; }
+/* el lienzo de densidad es solo dibujo: que no tape a las rutas ni a los altos (que van en otro lienzo debajo) */
+.leaflet-heatmap-layer{ pointer-events:none; }
 #map.zone-drawing{ touch-action:none; }
 .zone-hint{ position:absolute; top:12px; left:50%; transform:translateX(-50%); z-index:1000; background:var(--panel); color:var(--text); border:1px solid var(--accent); border-radius:8px; padding:7px 12px; font-size:13px; box-shadow:0 6px 18px rgba(0,0,0,.4); display:flex; gap:10px; align-items:center; white-space:nowrap; }
 .zone-hint button{ font-size:12px; padding:3px 9px; }
@@ -249,6 +251,59 @@ main{ position:relative; flex:1; min-width:0; }
 .repeat-table tbody tr{ cursor:pointer; }
 .repeat-table tbody tr:hover{ background:var(--panel-2); }
 .repeat-table tr.best td{ color:var(--accent); font-weight:600; }
+.sites-modal{ width:min(1120px, 96vw); max-height:90vh; overflow-y:auto; }
+.sites-grid{ display:grid; grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr); gap:16px; align-items:start; }
+@media (max-width:800px){ .sites-grid{ grid-template-columns:minmax(0,1fr); } .sites-list{ max-height:38vh; } }
+.sites-list{ max-height:68vh; overflow-y:auto; border:1px solid var(--line); border-radius:8px; }
+.sites-table{ margin-top:0; table-layout:fixed; }
+.sites-table th{ cursor:pointer; user-select:none; position:sticky; top:0; background:var(--panel-2); color:var(--text-dim); font-weight:600; }
+.sites-table th:nth-child(2){ width:68px; } .sites-table th:nth-child(3){ width:54px; } .sites-table th:nth-child(4){ width:62px; } .sites-table th:nth-child(5){ width:92px; }
+.sites-table td.sites-name{ overflow:hidden; text-overflow:ellipsis; }
+.sites-table tr.on td{ background:var(--panel-2); color:var(--accent); font-weight:600; }
+.sites-detail{ display:flex; flex-direction:column; gap:12px; min-width:0; }
+.sites-namebox{ display:flex; flex-direction:column; gap:4px; }
+.sites-namebox input, .sites-vhead input{ background:transparent; border:0; border-bottom:1px dashed var(--line); color:var(--text); font:inherit; padding:2px 0; }
+.sites-namebox input:focus, .sites-vhead input:focus{ outline:none; border-bottom-color:var(--accent); }
+.sites-namebox input{ font-size:18px; font-weight:600; width:100%; }
+.sites-facts{ color:var(--text-dim); font-size:12.5px; font-variant-numeric:tabular-nums; }
+.sites-actions{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; font-size:12px; }
+.sites-osm{ color:var(--text-dim); }
+.sites-var{ border-top:1px solid var(--line); padding-top:10px; display:flex; flex-direction:column; gap:6px; }
+.sites-vhead{ display:flex; gap:8px; align-items:center; }
+.sites-vhead input{ flex:1; min-width:0; font-size:14px; font-weight:600; }
+.sites-tag{ background:var(--accent); color:#1a1420; font-weight:700; font-size:12px; border-radius:4px; padding:1px 7px; }
+.sites-tag.plain{ background:var(--line); color:var(--text-dim); }
+.sites-vdel, .sites-vshow{ padding:2px 8px; font-size:12px; flex:none; }
+.sites-var.sites-var-removed > *:not(.sites-vhead){ display:none; }
+.sites-var.sites-var-removed .sites-vhead input, .sites-var.sites-var-removed .sites-tag{ opacity:.45; text-decoration:line-through; }
+.sites-vsub{ color:var(--text-dim); font-size:12.5px; }
+.sites-vsub b{ color:var(--text); font-weight:600; }
+.sites-stats{ display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:8px; }
+@media (max-width:480px){ .sites-stats{ grid-template-columns:repeat(2, minmax(0,1fr)); } }
+.sites-stats div{ display:flex; flex-direction:column; min-width:0; }
+.sites-stats span{ font-size:10.5px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.05em; }
+.sites-stats b{ font-size:18px; font-weight:600; font-variant-numeric:tabular-nums; }
+.sites-stats em{ font-style:normal; font-size:11px; color:var(--text-dim); }
+.sites-spark{ width:100%; height:74px; display:block; }
+.sites-spark text{ font-size:11px; fill:var(--text-dim); }
+.sites-legend{ display:flex; flex-wrap:wrap; gap:10px; font-size:11px; color:var(--text-dim); }
+.sites-legend i{ display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:4px; vertical-align:-1px; }
+.sites-passes summary{ cursor:pointer; color:var(--text-dim); font-size:12.5px; }
+.sites-stale{ color:var(--accent); }
+.sites-table tr.sites-removed td{ opacity:.45; text-decoration:line-through; }
+button.linklike{ background:none; border:0; padding:0; color:var(--accent); text-decoration:underline; cursor:pointer; font:inherit; }
+.sites-bar{ display:inline-block; width:160px; max-width:40vw; height:6px; background:var(--line); border-radius:3px; vertical-align:middle; overflow:hidden; margin:0 6px; }
+.sites-bar i{ display:block; height:100%; background:var(--accent); }
+.site-label{ background:var(--panel); color:var(--text); border:1px solid var(--accent); font-weight:600; box-shadow:none; }
+.site-label::before{ display:none; }
+.site-pop{ font-size:12.5px; line-height:1.45; }
+.site-pop-sub{ color:#6b7488; margin-bottom:4px; }
+.site-pop-row{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:270px; cursor:pointer; border-radius:4px; padding:1px 3px; margin:0 -3px; }
+.site-pop-row:hover{ background:rgba(127,127,127,.18); }
+.site-gate{ cursor:pointer; }
+.site-pop-tag{ display:inline-block; background:var(--accent); color:#1a1420; font-weight:700; font-size:11px; border-radius:3px; padding:0 5px; }
+.site-pop-open{ margin-top:6px; padding:4px 10px; font-size:12px; background:var(--accent); color:#1a1420; border:0; font-weight:600; }
+.site-gate{ background:var(--panel); border:2px solid var(--accent); border-radius:50%; color:var(--text); font:700 11px/16px sans-serif; text-align:center; }
 .table-modal{ width:min(1120px, 96vw); max-height:90vh; overflow-y:auto; }
 .table-wrap{ overflow-x:hidden; }
 .data-table{ width:100%; border-collapse:collapse; font-size:12.5px; table-layout:fixed; }
@@ -349,10 +404,19 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
   .yr-hero{ gap:18px; }
   .yr-all-table .c-kmr, .yr-all-table .c-idx, .yr-all-table .c-month, .yr-all-table .c-streak, .yr-all-table .c-hardest{ display:none; }
   .yr-hero .yr-num{ font-size:30px; }
+  /* cabeceras de las ventanas: los botones bajan a otra línea en vez de salirse (el ✕ quedaba fuera) */
+  .stats-head{ flex-wrap:wrap; }
+  .stats-head > h3{ flex:1 1 auto; min-width:0; }
+  .stats-controls{ flex-wrap:wrap; justify-content:flex-end; gap:8px; margin-left:auto; }
+  /* Rutas repetidas: sin Tipo ni Velocidad para que quepa sin desplazar a los lados */
+  .repeats-modal .repeat-table th:nth-child(2), .repeats-modal .repeat-table td:nth-child(2),
+  .repeats-modal .repeat-table th:nth-child(6), .repeats-modal .repeat-table td:nth-child(6){ display:none; }
   .surf-status{ top:56px; font-size:12px; flex-wrap:wrap; justify-content:center; }
   .leaflet-control-attribution{ font-size:9px; }
 }
 @media (max-width:420px){
+  .top10-table .t10-name{ max-width:84px; }
+  .top10-table th, .top10-table td{ padding:6px 3px; }
   header{ gap:4px; padding:8px 6px; }
   header h1{ font-size:14px; }
   .menu-btn{ padding:6px 4px; font-size:12.5px; }
@@ -395,6 +459,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
           <button class="menu-item" id="btnCalendar" data-i18n="panel_calendar">Calendario</button>
           <button class="menu-item" id="btnTable" data-i18n="panel_table">Tabla de rutas</button>
           <button class="menu-item" id="btnYearReview" data-i18n="panel_year_review">Resumen anual</button>
+          <button class="menu-item" id="btnSites" data-i18n="panel_sites">Sitios (altos y subidas)</button>
           <button class="menu-item hidden" id="btnRepeats" data-i18n="panel_repeats">Rutas repetidas</button>
         </div>
       </div>
@@ -543,6 +608,22 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       </div>
       <div id="compareInfo" class="compare-info"></div>
       <svg id="compareSvg" width="100%" height="280"></svg>
+    </div>
+  </div>
+  <div class="modal-overlay hidden" id="sitesModal">
+    <div class="modal sites-modal">
+      <div class="stats-head">
+        <h3 style="margin:0;" data-i18n="panel_sites">Sitios (altos y subidas)</h3>
+        <div class="stats-controls">
+          <button class="ghost hidden" id="sitesMapBtn" data-i18n="sites_map">Ver en el mapa</button>
+          <button class="ghost hidden" id="sitesOsmBtn" data-i18n="sites_osm">Buscar nombres</button>
+          <button class="ghost hidden" id="sitesStopBtn" data-i18n="sites_stop">Detener</button>
+          <button class="primary" id="sitesRun">Buscar sitios</button>
+          <button class="ghost" id="sitesClose">✕</button>
+        </div>
+      </div>
+      <p id="sitesInfo" class="stats-info"></p>
+      <div id="sitesBody"></div>
     </div>
   </div>
   <div class="modal-overlay hidden" id="repeatsModal">
@@ -763,15 +844,16 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
   // ---------- IndexedDB ----------
   // "tracks": las rutas. "surfaces": copia aparte de los análisis de terreno (clave = archivo|km),
   // que sobrevive a "Vaciar todos los datos" para no tener que volver a consultar OpenStreetMap.
-  const DB_NAME = "gpx-heatmap", STORE = "tracks", SURF_STORE = "surfaces", TILE_STORE = "osmTiles";
+  const DB_NAME = "gpx-heatmap", STORE = "tracks", SURF_STORE = "surfaces", TILE_STORE = "osmTiles", SITE_STORE = "sites";
   function openDB(){
     return new Promise((res, rej) => {
-      const req = indexedDB.open(DB_NAME, 3);
+      const req = indexedDB.open(DB_NAME, 4);
       req.onupgradeneeded = () => {
         const db = req.result;
         if(!db.objectStoreNames.contains(STORE)) db.createObjectStore(STORE, { keyPath: "id" });
         if(!db.objectStoreNames.contains(SURF_STORE)) db.createObjectStore(SURF_STORE, { keyPath: "key" });
         if(!db.objectStoreNames.contains(TILE_STORE)) db.createObjectStore(TILE_STORE, { keyPath: "key" });
+        if(!db.objectStoreNames.contains(SITE_STORE)) db.createObjectStore(SITE_STORE, { keyPath: "key" });
       };
       req.onblocked = () => alert(tr("alert_db_blocked"));
       req.onsuccess = () => { const db = req.result; db.onversionchange = () => db.close(); res(db); };
@@ -993,6 +1075,40 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       repeats_add_routes: "Añade rutas para poder detectar repeticiones.",
       repeats_found: (n) => `${n} ruta(s) repetida(s) detectada(s) entre las que cumplen los filtros actuales (comparando los recorridos por su forma, no por el nombre).`,
       repeats_times: (n,d1,d2) => `${n} veces · ${d1} → ${d2}`,
+      panel_sites: "Sitios (altos y subidas)", leyenda_sitios: "Sitios (altos)",
+      sites_run: "Buscar sitios", sites_rerun: "Volver a buscar", sites_stop: "Detener", sites_map: "Ver en el mapa",
+      sites_empty: "Busca los altos por los que pasas a menudo (en al menos 5 rutas) y los que tienen una subida de 200 m o más aunque solo hayas pasado una vez; en cada uno, los caminos por los que llegas, con el tiempo en movimiento desde el inicio de cada subida hasta el alto. Con muchas rutas tarda alrededor de un minuto. Pulsa <b>Buscar sitios</b>.",
+      sites_no_routes: "Añade rutas para poder buscar sitios.",
+      sites_info: (n,d,nt,nv) => `${n} sitios, buscados el ${d} con ${nt} rutas. Con los filtros actuales se ven ${nv}.`,
+      sites_stale: "Has añadido o borrado rutas desde entonces: pulsa «Volver a buscar» para actualizarlos.",
+      sites_none_filtered: "Ningún sitio tiene pasos con los filtros actuales.",
+      sites_col_site: "Sitio", sites_col_ele: "Altitud", sites_col_passes: "Pasos", sites_col_climbs: "Subidas", sites_col_last: "Último paso", sites_col_time: "Tiempo",
+      sites_auto_name: (e) => `Alto ${e} m`,
+      sites_var_climb: (l,e) => `Subida${l ? " " + l : ""} · desde ${e} m`, sites_var_down: "De bajada", sites_var_pass: "De paso",
+      sites_name_label: "Nombre del sitio", sites_var_label: "Nombre de la subida",
+      sites_facts: (n,r) => `${n} pasos en ${r} rutas`, sites_facts_short: (n) => `${n} pasos`,
+      sites_on_map: "Ver en el mapa",
+      sites_var_sub: (n,c,km,e) => `${n} veces · sube ${c} m en ${km} km, desde ${e} m`,
+      sites_best: "Mejor", sites_median: "Mediana", sites_last: "Última", sites_vam: "Vel. de subida", sites_best_by_type: "Mejor por tipo",
+      sites_var_n: (n) => `${n} veces`, sites_var_climb_only: (c) => `sube ${c} m (sin tiempos de paso)`,
+      sites_show_passes: (n) => `Ver los ${n} pasos`,
+      sites_other: (n) => `Y ${n} pasos más por caminos poco repetidos.`,
+      sites_spark_note: "Tiempo en movimiento de cada subida; más arriba, más rápido.",
+      sites_phase_read: "Leyendo rutas…", sites_phase_peaks: "Buscando altos…", sites_phase_climbs: "Agrupando subidas y midiendo tiempos…",
+      sites_stopped: "Búsqueda detenida; no se ha cambiado nada.", sites_error: "No se ha podido completar la búsqueda.",
+      sites_osm: "Buscar nombres", sites_osm_src: "OpenStreetMap",
+      sites_remove: "Quitar este sitio", sites_restore: "Recuperar este sitio", sites_open_card: "Abrir ficha",
+      sites_var_show: "Ver", sites_var_show_tip_best: "Ver en el mapa el camino de esta subida (la vez más rápida)", sites_var_show_tip_last: "Ver en el mapa este camino (la última vez)",
+      sites_var_remove: "Quitar", sites_var_restore: "Recuperar", sites_var_remove_tip: "Quitar este inicio de subida (no se borra ninguna ruta; se puede recuperar)",
+      sites_var_show_removed: (n) => n == 1 ? "Ver el inicio quitado" : `Ver los ${n} inicios quitados`, sites_var_hide_removed: (n) => n == 1 ? "Ocultar el inicio quitado" : `Ocultar los ${n} inicios quitados`,
+      sites_show_removed: (n) => `Ver los ${n} quitados`, sites_hide_removed: (n) => `Ocultar los ${n} quitados`,
+      sites_var_from: (l,p) => `Subida${l ? " " + l : ""} · desde ${p}`,
+      sites_osm_confirm: (n,m) => `Se buscarán en OpenStreetMap los nombres de ${n} altos (puertos, collados, cimas, miradores o parajes) y de los pueblos donde empiezan ${m} subidas.\n\nSe envían solo las coordenadas de esos puntos, no tus rutas. Los nombres que hayas escrito tú no se tocan.\n\n¿Continuar?`,
+      sites_osm_progress: (d,n) => `Buscando nombres en OpenStreetMap… ${d} / ${n} altos`,
+      sites_osm_done: (n,f,stop) => `${stop ? "Detenido. " : ""}Consultados ${n} altos; ${f} tienen nombre en OpenStreetMap. Los demás siguen con su nombre provisional: puedes escribirlo tú.`,
+      sites_osm_failed: (n) => `OpenStreetMap no responde ahora (consultados ${n} altos). Prueba más tarde: lo ya consultado se conserva.`,
+      sites_osm_none: "Ya se han buscado los nombres de todos los altos.",
+      sites_osm_zone: (k,n) => `zona ${k} de ${n}`, sites_osm_wait: (w) => `OpenStreetMap ocupado, reintentando en ${w} s…`,
       recalc: "Recalcular",
       table_count: (n) => `${n} ruta(s) con los filtros actuales.`,
       table_page: (p,total) => `Página ${p} de ${total}`,
@@ -1034,7 +1150,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       bk_size: s => `Tamaño aproximado: ${s}`, bk_nothing: "Con estas opciones no hay nada que guardar.", loading_compressing: "Preparando la copia…",
       rs_title: "Restaurar copia de seguridad", rs_mode: "Qué hacer con las rutas", rs_go: "Restaurar",
       rs_info_head: (date, ver) => `Copia del ${date}${ver ? ` (Hinterway ${ver})` : ""}`,
-      rs_info_routes: "Rutas", rs_info_times: "Tiempos de paso", rs_info_terrain: "Análisis de terreno", rs_info_settings: "Configuración",
+      rs_info_routes: "Rutas", rs_info_times: "Tiempos de paso", rs_info_terrain: "Análisis de terreno", rs_info_settings: "Configuración", rs_info_sites: "Sitios",
       rs_mode_add: "Añadir y actualizar", rs_mode_add_sub: "Se añaden las rutas de la copia; las que ya tienes con el mismo archivo se sustituyen y el resto no se toca.",
       rs_mode_replace: "Reemplazar todas", rs_mode_replace_sub: "Se borran tus rutas actuales y quedan solo las de la copia.",
       rs_mode_times: "Solo completar tiempos de paso", rs_mode_times_sub: "No cambia nada más: añade los tiempos de paso a tus rutas que no los tienen, si son la misma ruta (mismo archivo y misma distancia).",
@@ -1174,6 +1290,40 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       repeats_add_routes: "Add routes to detect repeats.",
       repeats_found: (n) => `${n} repeated route(s) detected among those matching the current filters (comparing the tracks' shape, not the name).`,
       repeats_times: (n,d1,d2) => `${n} times · ${d1} → ${d2}`,
+      panel_sites: "Places (climbs)", leyenda_sitios: "Places (tops)",
+      sites_run: "Find places", sites_rerun: "Search again", sites_stop: "Stop", sites_map: "Show on map",
+      sites_empty: "Finds the tops you ride over often (in at least 5 routes) and those with a climb of 200 m or more even if you have been there only once; for each one, the ways you get there, with the moving time from the start of each climb to the top. With many routes it takes about a minute. Press <b>Find places</b>.",
+      sites_no_routes: "Add routes to find places.",
+      sites_info: (n,d,nt,nv) => `${n} places, found on ${d} from ${nt} routes. ${nv} shown with the current filters.`,
+      sites_stale: "You have added or deleted routes since then: press “Search again” to update them.",
+      sites_none_filtered: "No place has passes with the current filters.",
+      sites_col_site: "Place", sites_col_ele: "Altitude", sites_col_passes: "Passes", sites_col_climbs: "Climbs", sites_col_last: "Last pass", sites_col_time: "Time",
+      sites_auto_name: (e) => `Top ${e} m`,
+      sites_var_climb: (l,e) => `Climb${l ? " " + l : ""} · from ${e} m`, sites_var_down: "Descending", sites_var_pass: "Passing",
+      sites_name_label: "Place name", sites_var_label: "Climb name",
+      sites_facts: (n,r) => `${n} passes in ${r} routes`, sites_facts_short: (n) => `${n} passes`,
+      sites_on_map: "Show on map",
+      sites_var_sub: (n,c,km,e) => `${n} times · climbs ${c} m in ${km} km, from ${e} m`,
+      sites_best: "Best", sites_median: "Median", sites_last: "Last", sites_vam: "Climb rate", sites_best_by_type: "Best by type",
+      sites_var_n: (n) => `${n} times`, sites_var_climb_only: (c) => `climbs ${c} m (no pass times)`,
+      sites_show_passes: (n) => `Show the ${n} passes`,
+      sites_other: (n) => `And ${n} more passes along rarely repeated ways.`,
+      sites_spark_note: "Moving time of each climb; higher up means faster.",
+      sites_phase_read: "Reading routes…", sites_phase_peaks: "Looking for tops…", sites_phase_climbs: "Grouping climbs and timing them…",
+      sites_stopped: "Search stopped; nothing was changed.", sites_error: "The search could not be completed.",
+      sites_osm: "Find names", sites_osm_src: "OpenStreetMap",
+      sites_remove: "Remove this place", sites_restore: "Bring this place back", sites_open_card: "Open details",
+      sites_var_show: "Show", sites_var_show_tip_best: "Show this climb's path on the map (the fastest time)", sites_var_show_tip_last: "Show this path on the map (the last time)",
+      sites_var_remove: "Remove", sites_var_restore: "Bring back", sites_var_remove_tip: "Remove this climb start (no route is deleted; you can bring it back)",
+      sites_var_show_removed: (n) => n == 1 ? "Show the removed start" : `Show the ${n} removed starts`, sites_var_hide_removed: (n) => n == 1 ? "Hide the removed start" : `Hide the ${n} removed starts`,
+      sites_show_removed: (n) => `Show the ${n} removed`, sites_hide_removed: (n) => `Hide the ${n} removed`,
+      sites_var_from: (l,p) => `Climb${l ? " " + l : ""} · from ${p}`,
+      sites_osm_confirm: (n,m) => `Names will be looked up in OpenStreetMap for ${n} tops (passes, saddles, peaks, viewpoints or named places) and for the villages where ${m} climbs start.\n\nOnly the coordinates of those points are sent, not your routes. Names you have typed yourself are not changed.\n\nContinue?`,
+      sites_osm_progress: (d,n) => `Looking up names in OpenStreetMap… ${d} / ${n} tops`,
+      sites_osm_done: (n,f,stop) => `${stop ? "Stopped. " : ""}${n} tops checked; ${f} have a name in OpenStreetMap. The rest keep their provisional name: you can type your own.`,
+      sites_osm_failed: (n) => `OpenStreetMap is not responding right now (${n} tops checked). Try later: what was checked is kept.`,
+      sites_osm_none: "Names have already been looked up for all tops.",
+      sites_osm_zone: (k,n) => `area ${k} of ${n}`, sites_osm_wait: (w) => `OpenStreetMap busy, retrying in ${w} s…`,
       recalc: "Recalculate",
       table_count: (n) => `${n} route(s) with the current filters.`,
       table_page: (p,total) => `Page ${p} of ${total}`,
@@ -1215,7 +1365,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       bk_size: s => `Approximate size: ${s}`, bk_nothing: "Nothing to save with these options.", loading_compressing: "Preparing the backup…",
       rs_title: "Restore backup", rs_mode: "What to do with the routes", rs_go: "Restore",
       rs_info_head: (date, ver) => `Backup from ${date}${ver ? ` (Hinterway ${ver})` : ""}`,
-      rs_info_routes: "Routes", rs_info_times: "Pass times", rs_info_terrain: "Terrain analysis", rs_info_settings: "Settings",
+      rs_info_routes: "Routes", rs_info_times: "Pass times", rs_info_terrain: "Terrain analysis", rs_info_settings: "Settings", rs_info_sites: "Places",
       rs_mode_add: "Add and update", rs_mode_add_sub: "The backup's routes are added; ones you already have with the same file are replaced and the rest are untouched.",
       rs_mode_replace: "Replace all", rs_mode_replace_sub: "Your current routes are deleted and only the backup's remain.",
       rs_mode_times: "Only fill in pass times", rs_mode_times_sub: "Nothing else changes: adds pass times to your routes that lack them, if they're the same route (same file and same distance).",
@@ -1282,6 +1432,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     if(!els("calModal").classList.contains("hidden")) renderCalendar();
     if(!els("tableModal").classList.contains("hidden")) renderTable();
     if(!els("repeatsModal").classList.contains("hidden")) renderRepeats(false);
+    if(!els("sitesModal").classList.contains("hidden")) renderSites();
     if(!els("yearReviewModal").classList.contains("hidden")) renderYearReview();
     applyFiltersAndRedraw();
   }
@@ -1298,6 +1449,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     const s = Math.sin(dLat/2)**2 + Math.cos(toRad(a[0]))*Math.cos(toRad(b[0]))*Math.sin(dLon/2)**2;
     return 2*R*Math.asin(Math.sqrt(s));
   }
+  const PROFILE_MIN_PTS = 600, PROFILE_MAX_STEP_M = 100;
   function decimate(pts, max){
     if(pts.length <= max) return pts;
     const step = pts.length/max, out = [];
@@ -1433,7 +1585,6 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
 
       let km = 0;
       const eleLimpia = hampelFilter(limpiarTramosPorVelocidad(pts));
-      // El perfil no guarda la hora de cada punto: solo se usa al importar (tiempo en movimiento y fecha).
       // Tiempo de paso de cada punto: segundos desde el primer punto con hora (campo t). Compacto:
       // ocupa ~12 % de la ruta, frente al ~28 % que ocupaba guardar la hora completa.
       const t0p = pts.find(p => p.time && !isNaN(new Date(p.time)));
@@ -1446,7 +1597,9 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
         profileRaw.push(mk(i, km));
       }
       const gain = computeGain(eleLimpia);
-      const profile = decimate(profileRaw, 600);
+      // Perfil: al menos PROFILE_MIN_PTS puntos y, en rutas largas, como mínimo uno cada PROFILE_MAX_STEP_M metros
+      // (con 600 fijos, una ruta de 200 km quedaría con un punto cada ~330 m).
+      const profile = decimate(profileRaw, Math.max(PROFILE_MIN_PTS, Math.ceil(km * 1000 / PROFILE_MAX_STEP_M)));
 
       let duration = null;
       let movSec = 0;
@@ -1523,6 +1676,8 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     await writable.close();
   }
 
+  // Texto (nombres de ruta, tipos…) que va dentro de HTML: sin esto, un nombre con "<" o "&" se rompe o se interpreta.
+  function escH(v){ return String(v == null ? "" : v).replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c])); }
   function setNameInGpxText(xml, name){
     const esc = String(name).replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
     if(/<trk>[\s\S]*?<name>[\s\S]*?<\/name>/.test(xml)){
@@ -1577,7 +1732,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
   });
   if(HEAT_ON_OPEN) heatLayer.addTo(map);
   const sharedRenderer = L.canvas();
-  L.control.layers(baseMaps, { [tr("leyenda_rutas")]: routeLayer, [tr("leyenda_densidad")]: heatLayer }, { position:"topright", collapsed:true }).addTo(map);
+  const layerControl = L.control.layers(baseMaps, { [tr("leyenda_rutas")]: routeLayer, [tr("leyenda_densidad")]: heatLayer }, { position:"topright", collapsed:true }).addTo(map);
   map.on("baselayerchange", e => {
     lsSet("heatmap-capa-base", baseIdOf(e.layer));
   });
@@ -1667,7 +1822,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       return { status:0 };   // sin conexión o tiempo agotado
     }finally{ clearTimeout(timer); }
   }
-  async function overpassQuery(q, prefer = 0){
+  async function overpassQuery(q, prefer = 0, onWait = null){
     const waits = [5, 15, 30, 60];
     const n = OVERPASS_ENDPOINTS.length;
     let last = 0;
@@ -1681,6 +1836,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       if(round >= waits.length) throw new Error("Overpass " + (last || "sin conexión"));
       let w = waits[round];
       if(last === 429){ const ws = await overpassWaitSeconds(); if(ws != null) w = Math.max(w, ws + 2); }
+      if(onWait) onWait(w, last);
       await sleep(w * 1000);
     }
   }
@@ -2593,6 +2749,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     updateHeaderTotals(list);
     redrawMap(list, fit);
     els("emptyState").classList.toggle("hidden", tracks.length>0);
+    try{ if(map.hasLayer(siteLayer)) drawSiteLayer(); }catch(e){}   // la capa de sitios se crea más abajo
   }
 
   // ---------- modal de tipo ----------
@@ -2712,6 +2869,12 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     const unread = items.filter((x, i) => !results[i]).map(x => x.file.name);
     if(unread.length) alert(tr("alert_some_unread", unread.length, unread.slice(0, 8).join(", ") + (unread.length > 8 ? "…" : "")));
 
+    // Si el archivo ya estaba importado, la ruta se actualiza (perfil, tiempos) pero conserva el nombre y el tipo
+    // que tenía en la app: pueden haberse cambiado solo aquí, sin grabarlos en el GPX.
+    valid.forEach(x => {
+      const old = tracks.find(o => o.id === x.t.id);
+      if(old){ x.t.name = old.name; x.t.type = old.type; }
+    });
     const sinTipo = valid.filter(x => !x.t.type);
     if(sinTipo.length && DEFAULT_TYPE){
       sinTipo.forEach(x => { x.t.type = DEFAULT_TYPE; });   // tipo por defecto de Configuración: sin preguntar
@@ -2811,6 +2974,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
         <li><strong>Datos → Añadir rutas</strong>: elige varios archivos a la vez. Admite <strong>GPX</strong> y <strong>TCX</strong> (Garmin), también comprimidos en <strong>.gz</strong>. Los FIT todavía no.</li>
         <li>Si un archivo no trae el tipo de actividad, te lo pregunta (o pone el tipo por defecto de ⚙ → Tipos de actividad).</li>
         <li>En la cabecera ves cuántas rutas se muestran y sus totales: km, desnivel, tiempo en movimiento y velocidad media.</li>
+        <li>De cada ruta se guarda un perfil de al menos 600 puntos y, en las rutas largas, como mínimo un punto cada 100 m. Si vuelves a añadir un archivo que ya tienes, la ruta se actualiza y conserva su nombre, su tipo y su terreno analizado; así las rutas importadas antes de la 0.24 ganan el perfil más detallado.</li>
       </ul>
 
       <h4>2. El mapa y cada ruta</h4>
@@ -2838,6 +3002,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
         <li><strong>Calendario</strong>: un cuadradito por día, más intenso cuantos más km.</li>
         <li><strong>Tabla de rutas</strong>: todas las rutas filtradas, ordenables por columna.</li>
         <li><strong>Resumen anual</strong>: las cifras de un año. Con <em>Todos los años</em>, una tabla con una fila por año y el total; pincha un año para ver su resumen. <em>Compartir…</em> crea una imagen del año (sin nombres de rutas) para WhatsApp, Telegram, X, email, etc.</li>
+        <li><strong>Sitios (altos y subidas)</strong>: pulsa <em>Buscar sitios</em> y la app encuentra los altos por los que pasas a menudo, y también los de subidas grandes aunque los hayas pasado una sola vez, y, en cada uno, los caminos por los que llegas (subida A, B…, de bajada o de paso). De cada subida ves cuántas veces la has hecho, el mejor tiempo, la mediana, la última, la velocidad de subida, el mejor por tipo y un gráfico de tus tiempos por fecha; pincha un paso para abrir esa ruta. <em>Buscar nombres</em> toma de OpenStreetMap el nombre del puerto, collado, cima o mirador de cada alto (o, si no hay, el del pueblo o paraje que esté en el propio alto) y el del pueblo donde empieza cada subida («Subida A · desde Talledo»); los que no estén en OpenStreetMap quedan como «Alto 373 m». Escribe encima tus propios nombres: mandan sobre los de OpenStreetMap, se guardan y se conservan al volver a buscar. <em>Quitar este sitio</em> lo oculta de la lista y del mapa, también al volver a buscar; con <em>Ver los quitados</em> puedes recuperarlo. Del mismo modo, <em>Quitar</em> junto a una subida quita ese inicio (las que quedan se renombran A, B, C… y ya no salen en el mapa); se recupera con <em>Ver los inicios quitados</em>, al final de la ficha. No se borra ninguna ruta. <em>Ver</em>, junto a cada subida, marca en el mapa el camino que sigue, desde su inicio hasta el alto, tomado de la vez más rápida (en «de bajada» y «de paso», 1,5 km antes y después del alto, de la última vez); en el mapa, pinchar una subida en la ventanita del alto o la letra de su inicio hace lo mismo. <em>Ver en el mapa</em> muestra los altos de la zona (también desde el icono de capas, casilla «Sitios»), con el seleccionado resaltado, su nombre y el inicio de cada subida. En el mapa, pincha un alto para resaltarlo y ver sus mejores tiempos; <em>Abrir ficha</em> vuelve al panel. Respeta los filtros. Si añades o borras rutas, avisa para que vuelvas a buscar.</li>
         <li><strong>Comparar</strong>: marca la casilla de dos rutas en el Top 10 o en la Tabla y pulsa Comparar para ver sus datos y sus perfiles superpuestos.</li>
         <li>En el Top 10 y la Tabla, pulsa el título de una columna para ordenar (otra vez para invertir); los nombres largos se recortan con «…» y se ven enteros al pasar el ratón.</li>
       </ul>
@@ -2863,6 +3028,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       <ul>
         <li><strong>Desnivel</strong>: suma las subidas de más de 2 m, tras limpiar la altitud de saltos erróneos.</li>
         <li><strong>Tiempo en movimiento</strong>: descuenta los tramos a menos de 0,3 m/s.</li>
+        <li><strong>Sitios</strong>: un alto es un punto con una bajada de al menos 40 m a ambos lados a lo largo de la ruta, repetido en 5 rutas o más, con alguna subida de 80 m o más hecha al menos 3 veces; o, aunque lo hayas pasado menos veces, con una subida de 200 m o más. Las llegadas se agrupan por el camino de los últimos 3 km. El inicio de cada subida es el primer punto común a la mayoría de esas llegadas, ya por encima del valle; el tiempo es el tiempo en movimiento desde ahí hasta el alto. Hace falta que la ruta tenga tiempos de paso.</li>
         <li><strong>Índice de dificultad</strong>, en <em>km equivalentes</em> (los km llanos de asfalto que supondrían el mismo esfuerzo): km de asfalto + km de pista × 1,2 + km de senda × 1,5 + km sin datos × 1,2 + desnivel ÷ 40. Si una ruta aún no tiene el terreno analizado, todos sus km cuentan × 1,2, y al analizarla el índice se recalcula solo. No depende del tiempo. Los coeficientes se cambian en ⚙ → Cálculos.</li>
       </ul>
 
@@ -2882,7 +3048,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
 
       <h4>10. Privacidad y navegadores</h4>
       <ul style="margin-bottom:0;">
-        <li>Tus rutas se guardan solo en este navegador y no se suben a ningún servidor; el análisis de terreno solo envía la zona, no la traza. Si cambias de navegador o lo limpias, haz antes una copia de seguridad.</li>
+        <li>Tus rutas se guardan solo en este navegador y no se suben a ningún servidor; el análisis de terreno solo envía la zona, no la traza, y la búsqueda de nombres de Sitios, solo las coordenadas de los altos y del inicio de sus subidas. Si cambias de navegador o lo limpias, haz antes una copia de seguridad.</li>
         <li>Funciona en las versiones actuales de Chrome, Edge, Firefox y Safari, en ordenador y en móvil. Para los archivos .gz hace falta Chrome o Edge 80 o posterior, Firefox 113 o Safari 16.4. Grabar el nombre o el tipo en el propio GPX solo es posible en Chrome, Edge u Opera de ordenador. Se ha probado sobre todo en Chrome.</li>
       </ul>
     `,
@@ -2894,6 +3060,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
         <li><strong>Data → Add routes</strong>: pick several files at once. <strong>GPX</strong> and <strong>TCX</strong> (Garmin) are supported, also gzipped as <strong>.gz</strong>. FIT not yet.</li>
         <li>If a file has no activity type, you'll be asked (or the default type from ⚙ → Activity types is used).</li>
         <li>The header shows how many routes are displayed and their totals: km, gain, moving time and average speed.</li>
+        <li>Each route keeps a profile of at least 600 points and, on long routes, at least one point every 100 m. If you add a file you already have, the route is updated and keeps its name, type and analyzed terrain; that way routes imported before 0.24 get the more detailed profile.</li>
       </ul>
 
       <h4>2. The map and each route</h4>
@@ -2921,6 +3088,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
         <li><strong>Calendar</strong>: one square per day, brighter the more km.</li>
         <li><strong>Route table</strong>: every filtered route, sortable by column.</li>
         <li><strong>Year in review</strong>: a year's figures. With <em>All years</em>, a table with one row per year plus the total; click a year to see its summary. <em>Share…</em> creates an image of the year (no route names) for WhatsApp, Telegram, X, email, etc.</li>
+        <li><strong>Places (climbs)</strong>: press <em>Find places</em> and the app finds the tops you ride over often, and also big climbs you have done only once, and, for each one, the ways you get there (climb A, B…, descending or passing). For each climb you see how many times you've done it, the best time, the median, the last one, the climb rate, the best by type and a chart of your times by date; click a pass to open that route. <em>Find names</em> takes from OpenStreetMap the name of the pass, saddle, peak or viewpoint at each top (or, failing that, of the village or named place on the top itself) and of the village where each climb starts ("Climb A · from Talledo"); those not in OpenStreetMap stay as "Top 373 m". Type your own names over them: they take priority over OpenStreetMap, are saved and are kept when you search again. <em>Remove this place</em> hides it from the list and the map, also when you search again; <em>Show the removed</em> lets you bring it back. In the same way, <em>Remove</em> next to a climb removes that start (the remaining ones are relettered A, B, C… and no longer appear on the map); bring it back with <em>Show the removed starts</em>, at the end of the details. No route is deleted. <em>Show</em>, next to each climb, marks its path on the map, from its start to the top, taken from the fastest time (for "descending" and "passing", 1.5 km before and after the top, from the last time); on the map, clicking a climb in the top's pop-up or the letter of its start does the same. <em>Show on map</em> shows the tops in the area (also from the layers icon, "Places" box), with the selected one highlighted, its name and where each climb starts. On the map, click a top to highlight it and see its best times; <em>Open details</em> goes back to the panel. It follows the filters. If you add or delete routes, it reminds you to search again.</li>
         <li><strong>Compare</strong>: tick the box of two routes in the Top 10 or the Table and press Compare to see their figures and overlaid profiles.</li>
         <li>In the Top 10 and the Table, click a column title to sort (again to reverse); long names are cut with "…" and shown in full on hover.</li>
       </ul>
@@ -2946,6 +3114,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       <ul>
         <li><strong>Elevation gain</strong>: adds climbs of more than 2 m, after cleaning up altitude glitches.</li>
         <li><strong>Moving time</strong>: excludes sections under 0.3 m/s.</li>
+        <li><strong>Places</strong>: a top is a point with a drop of at least 40 m on both sides along the route, repeated in 5 routes or more, with some climb of 80 m or more done at least 3 times; or, even if you have passed it fewer times, with a climb of 200 m or more. Arrivals are grouped by the way they follow over the last 3 km. Each climb starts at the first point shared by most of those arrivals, already above the valley; its time is the moving time from there to the top. The route needs pass times.</li>
         <li><strong>Difficulty index</strong>, in <em>equivalent km</em> (the flat paved km that would take the same effort): paved km + track km × 1.2 + trail km × 1.5 + no-data km × 1.2 + gain ÷ 40. If a route's terrain hasn't been analyzed yet, all its km count × 1.2, and the index updates by itself once it is. It doesn't depend on time. The coefficients are changed in ⚙ → Calculations.</li>
       </ul>
 
@@ -2965,7 +3134,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
 
       <h4>10. Privacy and browsers</h4>
       <ul style="margin-bottom:0;">
-        <li>Your routes are stored only in this browser and are not uploaded to any server; terrain analysis only sends the area, not the track. If you switch or clear your browser, back up first.</li>
+        <li>Your routes are stored only in this browser and are not uploaded to any server; terrain analysis only sends the area, not the track, and the Places name lookup only the coordinates of the tops and of where their climbs start. If you switch or clear your browser, back up first.</li>
         <li>It works in current versions of Chrome, Edge, Firefox and Safari, on desktop and mobile. .gz files need Chrome or Edge 80 or later, Firefox 113 or Safari 16.4. Writing the name or type into the GPX file itself is only possible in desktop Chrome, Edge or Opera. It has been tested mainly in Chrome.</li>
       </ul>
     `,
@@ -2980,7 +3149,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
   // ---------- Quiénes somos / About ----------
   // Versión de la app: se sube (0.4 → 0.5 → …) y se pone la fecha del día cada vez que se genera un HTML nuevo.
   // Versiones 0.x mientras la app no se publique.
-  const APP_VERSION = "0.23", APP_VERSION_DATE = "2026-10-15";
+  const APP_VERSION = "0.38", APP_VERSION_DATE = "2026-10-16";
   const APP_AUTHOR = "Angel Herrero", APP_EMAIL = "angelherreropla@gmail.com";
   const ABOUT_HTML = {
     es: () => `
@@ -3149,6 +3318,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       payload.counts = { tracks: list.length, surfaceCache: surfaceCache.length };
       payload.tracks = list.map(t => bkTrackOut(t, o));
       payload.surfaceCache = surfaceCache;
+      if(o.scope === "all" && sitesData){ payload.sites = sitesData; payload.contents.sites = true; }
       let blob;
       if(o.gz){
         const stream = new Blob([JSON.stringify(payload)]).stream().pipeThrough(new CompressionStream("gzip"));
@@ -3285,7 +3455,8 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       + line(tr("rs_info_routes"), nf(validas.length), validas.length > 0)
       + line(tr("rs_info_times"), withTimes ? (withTimes === validas.length ? yes : `${nf(withTimes)} / ${nf(validas.length)}`) : noTxt, withTimes > 0)
       + line(tr("rs_info_terrain"), withTerrain ? (withTerrain === validas.length ? yes : `${nf(withTerrain)} / ${nf(validas.length)}`) : noTxt, withTerrain > 0)
-      + line(tr("rs_info_settings"), st ? yes : noTxt, !!st);
+      + line(tr("rs_info_settings"), st ? yes : noTxt, !!st)
+      + (sitesValid(data.sites) ? line(tr("rs_info_sites"), nf(data.sites.sites.length), true) : "");
     const setDis = (id, dis) => { const el = els(id); el.classList.toggle("disabled", dis); el.querySelector("input").disabled = dis; };
     document.querySelectorAll('input[name="rsMode"]').forEach(r => { r.disabled = !validas.length; r.closest(".rs-opt").classList.toggle("disabled", !validas.length); });
     setDis("rsOptTimes", !withTimes || !tracks.length);
@@ -3340,6 +3511,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
         validas.forEach(t => byId.set(t.id, t));
         tracks = [...byId.values()];
         pruneTypeColors();
+        if(sitesValid(data.sites)){ sitesData = data.sites; await sitesSave(); sitesSel = 0; try{ siteFocusIdx = null; clearSiteVar(); }catch(e){} }
       }
       rebuildFilterLists();
       applyFiltersAndRedraw(mode !== "none");
@@ -3360,6 +3532,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     try{ nCache = (await surfCacheGetAll()).size; }catch(e){}
     if(nCache && confirm(tr("confirm_clear_surf_cache", nCache))){ try{ await surfCacheClear(); }catch(e){} }
     await dbClear();
+    sitesData = null; try{ await sitesDbPut(null); }catch(e){} siteLayer.clearLayers(); try{ siteFocusIdx = null; clearSiteVar(); }catch(e){}
     tracks = [];
     seenYears.clear(); seenTypes.clear();
     state.years.clear(); state.types.clear();
@@ -3779,8 +3952,8 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
         <div class="yr-card"><div class="yr-card-label">${tr("yr_avg_index")}</div><div class="yr-card-value">${avgIdx != null ? avgIdx : tr("no_index")}</div></div>
         <div class="yr-card"><div class="yr-card-label">${tr("yr_busiest_month")}</div><div class="yr-card-value" style="text-transform:capitalize;">${bestMonthLabel}</div><div class="yr-card-sub">${Math.round(bestMonthKm)} km</div></div>
         <div class="yr-card"><div class="yr-card-label">${tr("yr_streak")}</div><div class="yr-card-value">${tr("yr_streak_days", streak)}</div></div>
-        <div class="yr-card"><div class="yr-card-label">${tr("yr_longest_route")}</div><div class="yr-card-value">${longest ? fmtKm(longest.km)+" km" : "—"}</div><div class="yr-card-sub">${longest ? longest.name : ""}</div></div>
-        <div class="yr-card"><div class="yr-card-label">${tr("yr_hardest_route")}</div><div class="yr-card-value">${hardest ? difficultyIndex(hardest) : "—"}</div><div class="yr-card-sub">${hardest ? hardest.name : ""}</div></div>
+        <div class="yr-card"><div class="yr-card-label">${tr("yr_longest_route")}</div><div class="yr-card-value">${longest ? fmtKm(longest.km)+" km" : "—"}</div><div class="yr-card-sub">${longest ? escH(longest.name) : ""}</div></div>
+        <div class="yr-card"><div class="yr-card-label">${tr("yr_hardest_route")}</div><div class="yr-card-value">${hardest ? difficultyIndex(hardest) : "—"}</div><div class="yr-card-sub">${hardest ? escH(hardest.name) : ""}</div></div>
       </div>
       <div class="yr-card-label" style="margin-bottom:8px;">${tr("yr_by_type")}</div>
       <div class="yr-types">${typeRows}</div>
@@ -4010,8 +4183,8 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
   function renderCompare(a, b){
     const colorA = "#ff8a69", colorB = "#7fae8e";
     els("compareInfo").innerHTML = `
-      <div class="cmp-col"><div class="cmp-name"><span class="sw" style="background:${colorA};"></span>${a.name}</div><div style="color:var(--text-dim);">${a.date||"—"} · ${compareStatsLine(a)}</div></div>
-      <div class="cmp-col"><div class="cmp-name"><span class="sw" style="background:${colorB};"></span>${b.name}</div><div style="color:var(--text-dim);">${b.date||"—"} · ${compareStatsLine(b)}</div></div>
+      <div class="cmp-col"><div class="cmp-name"><span class="sw" style="background:${colorA};"></span>${escH(a.name)}</div><div style="color:var(--text-dim);">${a.date||"—"} · ${compareStatsLine(a)}</div></div>
+      <div class="cmp-col"><div class="cmp-name"><span class="sw" style="background:${colorB};"></span>${escH(b.name)}</div><div style="color:var(--text-dim);">${b.date||"—"} · ${compareStatsLine(b)}</div></div>
     `;
     const svg = els("compareSvg");
     const validA = (a.profile||[]).filter(p=>p.ele!=null), validB = (b.profile||[]).filter(p=>p.ele!=null);
@@ -4048,7 +4221,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
   function recordCard(label, value, t){
     const card = document.createElement("div");
     card.className = "record-card";
-    card.innerHTML = `<div class="label">${label}</div><div class="value">${value}</div><div class="name">${t.name}${t.date ? " · "+fmtDate(t.date) : ""}</div>`;
+    card.innerHTML = `<div class="label">${label}</div><div class="value">${value}</div><div class="name">${escH(t.name)}${t.date ? " · "+fmtDate(t.date) : ""}</div>`;
     card.addEventListener("click", () => focusTrack(t.id));
     return card;
   }
@@ -4142,7 +4315,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       const tiempo = t.duration ? formatDuration(t.duration) : "—";
       const row = document.createElement("tr");
       row.innerHTML = `<td><input type="checkbox" class="cmp-check" data-id="${t.id}" ${compareSelection.has(t.id)?"checked":""}></td>
-        <td>${i+1}</td><td><span class="t10-name">${t.name}</span></td><td>${fmtDate(t.date) || "—"}</td><td class="t10-c-type"><span class="t10-type">${typeLabel(t.type)}</span></td>
+        <td>${i+1}</td><td><span class="t10-name">${escH(t.name)}</span></td><td>${fmtDate(t.date) || "—"}</td><td class="t10-c-type"><span class="t10-type">${typeLabel(t.type)}</span></td>
         <td class="num">${fmtKm(t.km)}</td><td class="num">${nf(t.gain)}</td><td class="num">${tiempo}</td><td class="num">${vel}</td>
         <td class="num">${idx != null ? nf(idx) : "—"}</td>`;
       row.querySelector(".cmp-check").addEventListener("click", e => { e.stopPropagation(); toggleCompare(t.id); });
@@ -4396,7 +4569,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
         card.className = "repeat-group";
         const head = document.createElement("div");
         head.className = "repeat-group-head";
-        head.innerHTML = `<h4>${g[0].name}</h4><span>${tr("repeats_times", g.length, fmtDate(g[0].date) || "?", fmtDate(g[g.length-1].date) || "?")}</span>`;
+        head.innerHTML = `<h4>${escH(g[0].name)}</h4><span>${tr("repeats_times", g.length, fmtDate(g[0].date) || "?", fmtDate(g[g.length-1].date) || "?")}</span>`;
         card.appendChild(head);
 
         const table = document.createElement("table");
@@ -4426,6 +4599,761 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
   els("repeatsClose").addEventListener("click", closeRepeats);
   els("repeatsRecalc").addEventListener("click", () => renderRepeats(true));
   els("repeatsModal").addEventListener("click", e => { if(e.target === els("repeatsModal")) closeRepeats(); });
+
+  // ---------- sitios: altos repetidos y sus subidas ----------
+  // Busca los altos por los que se pasa a menudo, agrupa las llegadas por el camino que siguen
+  // ("desde…"), pone un punto de inicio común a cada subida y mide el tiempo en movimiento desde
+  // ese punto hasta el alto. Trabaja con el perfil guardado de cada ruta (lat, lon, ele, km, t).
+  const SITES_CFG = { step:20, prom:40, clusterR:250, clusterTake:300, minRoutes:5, passR:120, passGap:50,
+    b1:30, b2:75, b3:150, pathBack:175, near:80, gateNear:50, gateShare:0.7, gateFrac:0.05,
+    mergeGate:100, mergeSite:450, minClimb:80, minPassesClimb:3, rareClimb:200, kmTol:0.2, moveMs:0.3 };
+  const SITES_K = 111195;
+  function sitesResample(t){
+    const p = t.profile;
+    if(!p || p.length < 2 || p[0].lat == null) return null;
+    const n = p.length, S = new Float64Array(n);
+    for(let i=0;i<n;i++) S[i] = (p[i].km || 0) * 1000;
+    const total = S[n-1];
+    if(!(total >= 500)) return null;
+    const m = Math.floor(total / SITES_CFG.step) + 1;
+    const lat = new Float64Array(m), lon = new Float64Array(m), ele = new Float64Array(m), tt = new Float64Array(m);
+    let j = 0;
+    for(let i=0;i<m;i++){
+      const s = i * SITES_CFG.step;
+      while(j < n-2 && S[j+1] < s) j++;
+      const a = p[j], b = p[j+1], d = S[j+1] - S[j];
+      const f = d > 0 ? Math.min(1, Math.max(0, (s - S[j]) / d)) : 0;
+      lat[i] = a.lat + (b.lat - a.lat) * f;
+      lon[i] = a.lon + (b.lon - a.lon) * f;
+      const ea = a.ele != null ? a.ele : b.ele, eb = b.ele != null ? b.ele : a.ele;
+      ele[i] = ea == null ? NaN : ea + (eb - ea) * f;
+      tt[i] = (a.t != null && b.t != null) ? a.t + (b.t - a.t) * f : NaN;
+    }
+    // altitud suavizada (media de 5) y huecos rellenados
+    let last = NaN; for(let i=0;i<m;i++){ if(isNaN(ele[i])) ele[i] = last; else last = ele[i]; }
+    last = NaN; for(let i=m-1;i>=0;i--){ if(isNaN(ele[i])) ele[i] = last; else last = ele[i]; }
+    if(isNaN(ele[0])) return null;
+    const es = new Float64Array(m);
+    for(let i=0;i<m;i++){
+      let s = 0; for(let k=-2;k<=2;k++) s += ele[Math.min(m-1, Math.max(0, i+k))];
+      es[i] = s / 5;
+    }
+    const x = new Float64Array(m), y = new Float64Array(m);
+    let minX=Infinity, maxX=-Infinity, minY=Infinity, maxY=-Infinity;
+    for(let i=0;i<m;i++){
+      y[i] = lat[i] * SITES_K; x[i] = lon[i] * SITES_K * Math.cos(lat[i] * Math.PI / 180);
+      if(x[i]<minX) minX=x[i]; if(x[i]>maxX) maxX=x[i]; if(y[i]<minY) minY=y[i]; if(y[i]>maxY) maxY=y[i];
+    }
+    return { t, lat, lon, ele: es, tt, x, y, m, S, bb:[minX,maxX,minY,maxY] };
+  }
+  function sitesMaxima(R, ri, out){
+    const e = R.ele, n = R.m, P = SITES_CFG.prom;
+    for(let i=1;i<n-1;i++){
+      const v = e[i];
+      if(!(v >= e[i-1] && v >= e[i+1])) continue;
+      let ok = false;
+      for(let j=i-1;j>=0;j--){ if(e[j] > v) break; if(v - e[j] >= P){ ok = true; break; } }
+      if(!ok) continue;
+      ok = false;
+      for(let j=i+1;j<n;j++){ if(e[j] > v) break; if(v - e[j] >= P){ ok = true; break; } }
+      if(ok) out.push({ ri, i, x:R.x[i], y:R.y[i], lat:R.lat[i], lon:R.lon[i], ele:v, climb: v - e[sitesClimbStart(e, i)] });
+    }
+  }
+  function sitesGrid(points, cell){
+    const g = new Map();
+    points.forEach((p, k) => {
+      const key = Math.floor(p.x/cell) + "," + Math.floor(p.y/cell);
+      let a = g.get(key); if(!a){ a = []; g.set(key, a); } a.push(k);
+    });
+    return { g, cell, near(x, y, r, fn){
+      const c0 = Math.floor((x-r)/cell), c1 = Math.floor((x+r)/cell), d0 = Math.floor((y-r)/cell), d1 = Math.floor((y+r)/cell);
+      for(let cx=c0;cx<=c1;cx++) for(let cy=d0;cy<=d1;cy++){ const a = g.get(cx+","+cy); if(a) a.forEach(fn); }
+    }};
+  }
+  const median = a => { if(!a.length) return NaN; const s = [...a].sort((p,q) => p-q); return s[Math.floor(s.length/2)]; };
+  function sitesCluster(M){
+    const C = SITES_CFG, grid = sitesGrid(M, C.clusterTake);
+    const dens = M.map(p => { const rs = new Set(); grid.near(p.x, p.y, C.clusterR, k => { const q = M[k]; if(Math.hypot(q.x-p.x, q.y-p.y) < C.clusterR) rs.add(q.ri); }); return rs.size; });
+    const order = M.map((_, i) => i).sort((a, b) => dens[b] - dens[a]);
+    const left = new Uint8Array(M.length).fill(1), out = [];
+    order.forEach(i => {
+      if(!left[i]) return;
+      const p = M[i], mem = [];
+      grid.near(p.x, p.y, C.clusterTake, k => { if(left[k] && Math.hypot(M[k].x-p.x, M[k].y-p.y) < C.clusterTake) mem.push(k); });
+      mem.forEach(k => left[k] = 0);
+      const routes = new Set(mem.map(k => M[k].ri));
+      // sitio frecuente (≥ 5 rutas) o, aunque se haya pasado pocas veces, con una subida grande (≥ 200 m)
+      const maxClimb = Math.max(...mem.map(k => M[k].climb));
+      if(routes.size >= C.minRoutes || maxClimb >= C.rareClimb) out.push({ lat: median(mem.map(k => M[k].lat)), lon: median(mem.map(k => M[k].lon)), ele: median(mem.map(k => M[k].ele)), n: routes.size });
+    });
+    return out.sort((a, b) => b.n - a.n);
+  }
+  function sitesXY(lat, lon){ return [lon * SITES_K * Math.cos(lat * Math.PI / 180), lat * SITES_K]; }
+  function sitesPasses(RS, site){
+    const C = SITES_CFG, [cx, cy] = sitesXY(site.lat, site.lon), P = [];
+    RS.forEach((R, ri) => {
+      if(!R) return;
+      const bb = R.bb;
+      if(cx < bb[0]-C.passR || cx > bb[1]+C.passR || cy < bb[2]-C.passR || cy > bb[3]+C.passR) return;
+      let gStart = -1, gLast = -1, best = -1, bestD = Infinity;
+      const flush = () => { if(best >= 0) P.push({ ri, b: best }); best = -1; bestD = Infinity; };
+      for(let i=0;i<R.m;i++){
+        const d = Math.hypot(R.x[i]-cx, R.y[i]-cy);
+        if(d >= C.passR) continue;
+        if(gLast >= 0 && i - gLast > C.passGap) flush();
+        if(d < bestD){ bestD = d; best = i; }
+        gLast = i;
+      }
+      flush();
+    });
+    return P;
+  }
+  function sitesClimbStart(e, b0){
+    let b = b0; for(let i=Math.max(0, b0-25); i<=b0; i++) if(e[i] > e[b]) b = i;
+    let k = b, mn = b;
+    while(k > 0 && b - k < 1500){
+      k--;
+      if(e[k] < e[mn]) mn = k;
+      if(e[k] > e[mn] + Math.max(12, 0.10 * (e[b] - e[mn]))) break;
+    }
+    return mn;
+  }
+  function sitesMinDist(R, a, b, qx, qy){
+    let best = Infinity;
+    for(let i=Math.max(0,a);i<=b;i++){ const d = Math.hypot(R.x[i]-qx, R.y[i]-qy); if(d < best) best = d; }
+    return best;
+  }
+  // tiempo en movimiento (y total) entre dos distancias de la ruta, con el perfil original
+  function sitesMoving(t, s0, s1){
+    const p = t.profile; let mov = 0, t0 = null, t1 = null;
+    for(let i=1;i<p.length;i++){
+      const a = p[i-1], b = p[i], sa = a.km*1000, sb = b.km*1000;
+      if(sb <= s0 || sa >= s1) continue;
+      if(a.t == null || b.t == null) continue;
+      const d = sb - sa, dt = b.t - a.t;
+      if(dt <= 0) continue;
+      const f = d > 0 ? (Math.min(sb, s1) - Math.max(sa, s0)) / d : 1;
+      if(d / dt >= SITES_CFG.moveMs) mov += dt * f;
+      if(t0 == null && sa <= s0 && sb >= s0) t0 = a.t + dt * (d > 0 ? (s0 - sa)/d : 0);
+      if(sa <= s1 && sb >= s1) t1 = a.t + dt * (d > 0 ? (s1 - sa)/d : 0);
+    }
+    return { mov, tot: (t0 != null && t1 != null) ? t1 - t0 : null };
+  }
+  function sitesVariants(RS, P){
+    const C = SITES_CFG;
+    const items = P.map(({ ri, b }) => {
+      const R = RS[ri], e = R.ele;
+      if(b < C.b2) return { ri, b, ap:null };
+      const st = sitesClimbStart(e, b), cg = e[b] - e[st];
+      const gain = cg >= 40 ? cg : e[b] - e[b - C.b2];
+      const idx = [b - C.b1, b - C.b2]; const back3 = Math.max(st, b - C.b3); if(back3 < b - C.b2) idx.push(back3);
+      return { ri, b, ap:true, gain, st, stE: e[st], samp: idx.filter(j => j >= 0).map(j => [R.x[j], R.y[j]]),
+        pa: Math.max(0, b - C.pathBack), pb: b };
+    });
+    const nearPath = (q, it) => sitesMinDist(RS[it.ri], it.pa, it.pb, q[0], q[1]) < C.near;
+    const nearClimb = (q, it) => sitesMinDist(RS[it.ri], it.st, it.b, q[0], q[1]) < C.near;
+    const inside = (a, b) => a.samp.every(q => nearPath(q, b));
+    const cl = [];
+    items.forEach(it => {
+      if(!it.ap) return;
+      const k = cl.find(k => inside(it, k.rep) && inside(k.rep, it));
+      if(k) k.m.push(it); else cl.push({ rep: it, m:[it] });
+    });
+    let changed = true;
+    while(changed){
+      changed = false;
+      for(let i=0;i<cl.length && !changed;i++) for(let j=0;j<cl.length && !changed;j++){
+        if(i === j) continue;
+        const a = cl[i].rep, b = cl[j].rep;
+        if(a.samp.slice(0,2).every(q => nearPath(q, b)) && b.samp.slice(0,2).every(q => nearPath(q, a))
+           && (nearClimb(a.samp[a.samp.length-1], b) || nearClimb(b.samp[b.samp.length-1], a)) && Math.abs(a.stE - b.stE) < 40){
+          const [big, small] = cl[i].m.length >= cl[j].m.length ? [i, j] : [j, i];
+          cl[big].m.push(...cl[small].m); cl.splice(small, 1); changed = true;
+        }
+      }
+    }
+    return cl.sort((a, b) => b.m.length - a.m.length).map(k => {
+      const g = median(k.m.map(it => it.gain));
+      const kind = g >= 40 ? "subida" : g <= -30 ? "bajada" : "paso";
+      const v = { kind, members: k.m.map(it => ({ ri: it.ri, b: it.b })) };
+      if(kind === "subida") sitesGate(RS, k.m, v);
+      return v;
+    });
+  }
+  function sitesGate(RS, mem, v){
+    const C = SITES_CFG;
+    const starts = mem.map(it => sitesClimbStart(RS[it.ri].ele, it.b));
+    const order = mem.map((_, i) => i).sort((a, b) => (mem[a].b - starts[a]) - (mem[b].b - starts[b]));
+    const refi = order[Math.floor(order.length/2)], ref = mem[refi], RR = RS[ref.ri];
+    // rejilla de los últimos 30 km de cada miembro para buscar rápido
+    // ventana de cada miembro: su subida y 1 km antes (no todo el recorrido previo, que pasa por el pueblo de salida)
+    const win = mem.map((it, k) => Math.max(0, starts[k] - 50));
+    const grids = mem.map((it, k) => {
+      const R = RS[it.ri], a = win[k], pts = [];
+      for(let i=a;i<it.b;i++) pts.push({ x:R.x[i], y:R.y[i] });
+      return pts.length ? sitesGrid(pts, C.gateNear) : null;
+    });
+    const memPts = mem.map((it, k) => ({ R: RS[it.ri], a: win[k] }));
+    let gate = null;
+    for(let j=starts[refi]; j<ref.b-10; j++){
+      const qx = RR.x[j], qy = RR.y[j]; let cnt = 0;
+      grids.forEach((g, k) => {
+        if(!g) return; let hit = false; const { R, a } = memPts[k];
+        g.near(qx, qy, C.gateNear, idx => { if(!hit && Math.hypot(R.x[a+idx]-qx, R.y[a+idx]-qy) < C.gateNear) hit = true; });
+        if(hit) cnt++;
+      });
+      if(cnt >= C.gateShare * mem.length){ gate = j; break; }
+    }
+    if(gate == null) gate = starts[refi];
+    const ee = RR.ele, mn = ee[starts[refi]], thr = mn + C.gateFrac * (ee[ref.b] - mn);
+    for(let j=ref.b-1;j>=starts[refi];j--){ if(ee[j] <= thr){ gate = Math.max(gate, j); break; } }
+    const gx = RR.x[gate], gy = RR.y[gate];
+    v.gate = [RR.lat[gate], RR.lon[gate], ee[gate]];
+    v.times = [];
+    mem.forEach((it, k) => {
+      const R = RS[it.ri], a0 = win[k];
+      let bj = -1, bd = Infinity;
+      for(let i=a0;i<it.b;i++){ const d = Math.hypot(R.x[i]-gx, R.y[i]-gy); if(d < bd){ bd = d; bj = i; } }
+      if(bj < 0 || bd > 60) return;
+      const s0 = bj * C.step, s1 = it.b * C.step, r = sitesMoving(R.t, s0, s1);
+      v.times.push({ ri: it.ri, b: it.b, mov: r.mov, tot: r.tot, km: (it.b - bj) * C.step / 1000, gain: R.ele[it.b] - R.ele[bj] });
+    });
+  }
+  function sitesDist(a, b){ return Math.hypot((a[0]-b[0])*SITES_K, (a[1]-b[1])*SITES_K*Math.cos(a[0]*Math.PI/180)); }
+  // Calcula todo. progress(fase, hecho, total); stop() → true para cortar.
+  async function computeSites(list, progress, stop){
+    const C = SITES_CFG, tick = () => new Promise(r => setTimeout(r, 0));
+    const RS = [];
+    for(let i=0;i<list.length;i++){
+      RS.push(sitesResample(list[i]));
+      if(i % 40 === 0){ progress && progress(1, i, list.length); await tick(); if(stop && stop()) return null; }
+    }
+    const M = [];
+    RS.forEach((R, ri) => { if(R) sitesMaxima(R, ri, M); });
+    progress && progress(2, 0, 1); await tick();
+    const cand = sitesCluster(M);
+    const sites = [];
+    for(let si=0; si<cand.length; si++){
+      const c = cand[si];
+      const P = sitesPasses(RS, c);
+      const vars = sitesVariants(RS, P);
+      // variantes con el mismo punto de inicio → una sola
+      const vv = [];
+      vars.forEach(v => {
+        const o = v.gate && vv.find(o => o.gate && o.kind === v.kind && sitesDist(o.gate, v.gate) < C.mergeGate);
+        if(o){ o.members.push(...v.members); o.times.push(...v.times); } else vv.push(v);
+      });
+      vv.sort((a, b) => b.members.length - a.members.length);
+      sites.push({ lat:c.lat, lon:c.lon, ele:c.ele, P, vars: vv, nRoutes: new Set(P.map(p => p.ri)).size });
+      if(si % 3 === 0){ progress && progress(3, si, cand.length); await tick(); if(stop && stop()) return null; }
+    }
+    const isRare = s => s.nRoutes < C.minRoutes;
+    const good = s => isRare(s)
+      ? s.vars.some(v => v.kind === "subida" && v.gate && (s.ele - v.gate[2]) >= C.rareClimb)
+      : s.vars.some(v => v.kind === "subida" && v.members.length >= C.minPassesClimb && v.gate && (s.ele - v.gate[2]) >= C.minClimb);
+    const keep = [];
+    sites.filter(good).sort((a, b) => b.nRoutes - a.nRoutes).forEach(s => {
+      if(keep.some(k => sitesDist([s.lat, s.lon], [k.lat, k.lon]) < C.mergeSite)) return;
+      // zona de salida: la mayoría de pasos en el primer o último 1,5 km
+      const nearEnd = s.P.filter(p => p.b < 75 || p.b > RS[p.ri].m - 75).length;
+      if(nearEnd / s.P.length > 0.5) return;
+      keep.push(s);
+    });
+    // salida compacta: ids de ruta en vez de índices
+    return keep.map(s => {
+      // orden: subidas (más repetidas primero), de bajada y, al final, todos los pasos en llano juntos
+      const rank = { subida:0, bajada:1, paso:2 };
+      const sv = s.vars.filter(v => v.members.length >= 2 || v.kind === "bajada" || isRare(s)).sort((a, b) => rank[a.kind] - rank[b.kind] || b.members.length - a.members.length);
+      const flat = sv.filter(v => v.kind === "paso");
+      if(flat.length > 1){ flat[0].members = flat.flatMap(v => v.members); sv.splice(sv.indexOf(flat[1]), flat.length - 1); }
+      const vars = sv.map(v => {
+        let times = (v.times || []).filter(x => x.mov > 0);
+        if(times.length){
+          const mk = median(times.map(x => x.km));
+          times = times.filter(x => x.km >= (1-C.kmTol)*mk && x.km <= (1+C.kmTol)*mk);
+        }
+        const timed = new Set(times.map(x => x.ri + ":" + x.b));
+        return {
+          kind: v.kind,
+          gate: v.gate ? [+v.gate[0].toFixed(6), +v.gate[1].toFixed(6), Math.round(v.gate[2])] : null,
+          climb: v.gate ? Math.round(s.ele - v.gate[2]) : null,
+          passes: v.members.map(m => {
+            const tm = times.find(x => x.ri === m.ri && x.b === m.b);
+            const o = { id: RS[m.ri].t.id };
+            if(tm){ o.mov = Math.round(tm.mov); if(tm.tot != null) o.tot = Math.round(tm.tot); o.km = +tm.km.toFixed(2); o.g = Math.round(tm.gain); }
+            return o;
+          }),
+        };
+      });
+      const kept = new Set();
+      sv.forEach(v => v.members.forEach(m => kept.add(m.ri + ":" + m.b)));
+      return { lat:+s.lat.toFixed(6), lon:+s.lon.toFixed(6), ele:Math.round(s.ele), vars,
+        other: s.P.filter(p => !kept.has(p.ri + ":" + p.b)).map(p => RS[p.ri].t.id) };
+    });
+  }
+
+  // ---------- panel Sitios ----------
+  // Los sitios se guardan en IndexedDB (almacén "sites", un solo registro) y van en la copia de seguridad
+  // completa. Los nombres que pone el usuario se conservan al volver a buscar (por cercanía).
+  let sitesData = null, sitesSel = 0, sitesRunning = false, sitesStop = false, sitesShowHidden = false;
+  const sitesEsc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]));
+  function sitesSig(list){
+    let h = 0; const str = list.map(t => t.id + "|" + t.km).sort().join("\n");
+    for(let i=0;i<str.length;i++){ h = ((h << 5) - h + str.charCodeAt(i)) | 0; }
+    return list.length + ":" + h;
+  }
+  async function sitesDbGet(){
+    const db = await openDB();
+    return new Promise((res, rej) => {
+      const req = db.transaction(SITE_STORE, "readonly").objectStore(SITE_STORE).get("main");
+      req.onsuccess = () => res(req.result || null); req.onerror = () => rej(req.error);
+    });
+  }
+  async function sitesDbPut(data){
+    const db = await openDB();
+    return new Promise((res, rej) => {
+      const tx = db.transaction(SITE_STORE, "readwrite");
+      if(data) tx.objectStore(SITE_STORE).put({ ...data, key:"main" }); else tx.objectStore(SITE_STORE).delete("main");
+      tx.oncomplete = res; tx.onerror = () => rej(tx.error);
+    });
+  }
+  function sitesValid(d){ return d && Array.isArray(d.sites) ? d : null; }
+  const fmtClimb = sec => {
+    if(sec == null || isNaN(sec)) return "—";
+    sec = Math.round(sec);
+    const h = Math.floor(sec/3600), m = Math.floor(sec%3600/60), s = sec%60;
+    return (h ? h + ":" + String(m).padStart(2,"0") : m) + ":" + String(s).padStart(2,"0");
+  };
+  const siteAutoName = s => tr("sites_auto_name", nf(s.ele));
+  const siteName = s => s.name || s.osmName || siteAutoName(s);
+  const varLetter = i => i < 0 ? "–" : String.fromCharCode(65 + i);
+  function varAutoName(v, i){
+    const l = i < 0 ? "" : varLetter(i);   // una subida quitada no tiene letra
+    if(v.kind === "subida") return v.osmFrom ? tr("sites_var_from", l, v.osmFrom) : tr("sites_var_climb", l, nf(v.gate ? v.gate[2] : 0));
+    return v.kind === "bajada" ? tr("sites_var_down") : tr("sites_var_pass");
+  }
+  // Pasos visibles con los filtros actuales
+  function sitesView(){
+    if(!sitesData) return [];
+    const byId = new Map(filteredTracks().map(t => [t.id, t]));
+    return sitesData.sites.map((s, idx) => {
+      let k = 0;
+      const vars = s.vars.map(v => {
+        // las quitadas no llevan letra: las que quedan se llaman A, B, C… seguidas (y no salen en el mapa)
+        const letterIdx = v.kind === "subida" && !v.hidden ? k++ : -1;
+        const passes = v.passes.map(p => ({ ...p, t: byId.get(p.id) })).filter(p => p.t)
+          .sort((a, b) => (a.t.date || "").localeCompare(b.t.date || ""));
+        return { v, letterIdx, passes };
+      });
+      const other = (s.other || []).map(id => byId.get(id)).filter(Boolean);
+      const dates = [...vars.flatMap(x => x.passes.map(p => p.t.date)), ...other.map(t => t.date)].filter(Boolean).sort();
+      const routes = new Set([...vars.flatMap(x => x.passes.map(p => p.id)), ...other.map(t => t.id)]);
+      return { s, idx, vars, other, n: vars.reduce((a, x) => a + x.passes.length, 0) + other.length, routes: routes.size,
+        nClimbs: vars.filter(x => x.v.kind === "subida" && !x.v.hidden && x.passes.some(p => p.mov)).length,
+        first: dates[0], last: dates[dates.length-1] };
+    }).filter(x => x.n > 0 && (!x.s.hidden || sitesShowHidden));
+  }
+  let sitesSortK = "n", sitesSortDir = -1, siteVarsShowHidden = false;
+  function renderSites(){
+    const info = els("sitesInfo"), body = els("sitesBody");
+    els("sitesRun").textContent = tr(sitesData ? "sites_rerun" : "sites_run");
+    els("sitesRun").disabled = sitesRunning || sitesOsmRunning || !tracks.length;
+    els("sitesMapBtn").classList.toggle("hidden", !sitesData);
+    els("sitesOsmBtn").classList.toggle("hidden", !sitesData);
+    els("sitesOsmBtn").disabled = sitesRunning || sitesOsmRunning;
+    if(sitesRunning || sitesOsmRunning) return;
+    if(!sitesData){
+      info.innerHTML = tracks.length ? tr("sites_empty") : tr("sites_no_routes");
+      body.innerHTML = "";
+      return;
+    }
+    const stale = sitesData.sig !== sitesSig(tracks);
+    const view = sitesView();
+    const nHidden = sitesData.sites.filter(s => s.hidden).length;
+    info.innerHTML = tr("sites_info", nf(sitesData.sites.length - nHidden), fmtDate((sitesData.computedAt || "").slice(0,10)), nf(sitesData.nTracks || 0), nf(view.filter(x => !x.s.hidden).length))
+      + (nHidden ? ` <button class="linklike" id="sitesHiddenToggle">${tr(sitesShowHidden ? "sites_hide_removed" : "sites_show_removed", nf(nHidden))}</button>` : "")
+      + (stale ? ` <span class="sites-stale">${tr("sites_stale")}</span>` : "");
+    const ht = els("sitesHiddenToggle"); if(ht) ht.addEventListener("click", () => { sitesShowHidden = !sitesShowHidden; renderSites(); });
+    if(!view.length){ body.innerHTML = `<p class="stats-info">${tr("sites_none_filtered")}</p>`; return; }
+    const key = x => sitesSortK === "name" ? siteName(x.s).toLocaleLowerCase() : sitesSortK === "ele" ? x.s.ele
+      : sitesSortK === "nClimbs" ? x.nClimbs : sitesSortK === "last" ? (x.last || "") : x.n;
+    view.sort((a, b) => { const p = key(a), q = key(b); return (typeof p === "string" ? p.localeCompare(q) : p - q) * sitesSortDir; });
+    if(!view.some(x => x.idx === sitesSel)) sitesSel = view[0].idx;
+    const th = (k, lbl, cls) => `<th data-k="${k}" class="${cls || ""}">${lbl}${sitesSortK === k ? (sitesSortDir < 0 ? " ▾" : " ▴") : ""}</th>`;
+    body.innerHTML = `<div class="sites-grid">
+      <div class="sites-list"><table class="repeat-table sites-table"><thead><tr>${th("name", tr("sites_col_site"))}${th("ele", tr("sites_col_ele"), "num")}${th("n", tr("sites_col_passes"), "num")}${th("nClimbs", tr("sites_col_climbs"), "num")}${th("last", tr("sites_col_last"))}</tr></thead><tbody>
+      ${view.map(x => `<tr data-i="${x.idx}" class="${x.idx === sitesSel ? "on" : ""}${x.s.hidden ? " sites-removed" : ""}"><td class="sites-name" title="${sitesEsc(siteName(x.s))}">${sitesEsc(siteName(x.s))}</td><td class="num">${nf(x.s.ele)} m</td><td class="num">${nf(x.n)}</td><td class="num">${x.nClimbs}</td><td>${fmtDate(x.last) || "—"}</td></tr>`).join("")}
+      </tbody></table></div>
+      <div class="sites-detail" id="sitesDetail"></div></div>`;
+    body.querySelectorAll(".sites-table th").forEach(h => h.addEventListener("click", () => {
+      const k = h.dataset.k; if(sitesSortK === k) sitesSortDir *= -1; else { sitesSortK = k; sitesSortDir = (k === "name") ? 1 : -1; } renderSites();
+    }));
+    body.querySelectorAll(".sites-table tbody tr").forEach(r => r.addEventListener("click", () => {
+      sitesSel = +r.dataset.i; siteVarsShowHidden = false; renderSites();
+      if(window.matchMedia("(max-width:800px)").matches){ const d = els("sitesDetail"); if(d) d.scrollIntoView({ block:"start", behavior:"smooth" }); }
+    }));
+    renderSiteDetail(view.find(x => x.idx === sitesSel));
+  }
+  function sitesSpark(passes){
+    const T = passes.filter(p => p.mov && p.t.date);
+    if(T.length < 2) return "";
+    const W = 520, H = 74, pl = 40, pr = 8;
+    const xs = T.map(p => Date.parse(p.t.date)), ys = T.map(p => p.mov);
+    const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
+    const X = v => pl + (x1 === x0 ? 0.5 : (v - x0)/(x1 - x0)) * (W - pl - pr), Y = v => 8 + (y1 === y0 ? 0.5 : (v - y0)/(y1 - y0)) * (H - 26);
+    const types = [...new Set(T.map(p => p.t.type || "Desconocido"))];
+    let s = `<svg class="sites-spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img"><line x1="${pl}" y1="${H-16}" x2="${W-pr}" y2="${H-16}" stroke="var(--line)"/>`;
+    s += `<text x="0" y="13">${fmtClimb(y0)}</text><text x="0" y="${H-19}">${fmtClimb(y1)}</text>`;
+    s += `<text x="${pl}" y="${H-3}">${new Date(x0).getFullYear()}</text><text x="${W-pr}" y="${H-3}" text-anchor="end">${new Date(x1).getFullYear()}</text>`;
+    T.forEach((p, i) => {
+      const col = typeColors.get(p.t.type || "Desconocido") || "var(--accent)";
+      s += `<circle cx="${X(xs[i]).toFixed(1)}" cy="${Y(ys[i]).toFixed(1)}" r="3.2" fill="${col}" fill-opacity=".85"><title>${fmtDate(p.t.date)} · ${fmtClimb(p.mov)} · ${sitesEsc(typeLabel(p.t.type))}</title></circle>`;
+    });
+    return s + `</svg><div class="sites-legend">${types.map(ty => `<span><i style="background:${typeColors.get(ty) || "var(--accent)"}"></i>${sitesEsc(typeLabel(ty))}</span>`).join("")}<span>${tr("sites_spark_note")}</span></div>`;
+  }
+  function renderSiteDetail(x){
+    const d = els("sitesDetail"); if(!d || !x) return;
+    const s = x.s;
+    let h = `<div class="sites-namebox"><input id="siteNameIn" type="text" value="${sitesEsc(s.name || "")}" placeholder="${sitesEsc(s.osmName || siteAutoName(s))}" aria-label="${tr("sites_name_label")}">
+      <div class="sites-facts">${nf(s.ele)} m · ${tr("sites_facts", nf(x.n), nf(x.routes))} · ${fmtDate(x.first)} → ${fmtDate(x.last)}${s.osmName ? ` · ${tr("sites_osm_src")}: ${sitesEsc(s.osmName)}` : ""}</div>
+      <div class="sites-actions"><button class="ghost" id="siteOnMap">${tr("sites_on_map")}</button>
+      <button class="ghost" id="siteHide">${tr(s.hidden ? "sites_restore" : "sites_remove")}</button>
+      <a class="sites-osm" href="https://www.openstreetmap.org/?mlat=${s.lat}&mlon=${s.lon}#map=15/${s.lat}/${s.lon}" target="_blank" rel="noopener">${s.lat.toFixed(5)}, ${s.lon.toFixed(5)}</a></div></div>`;
+    const nVarHidden = x.vars.filter(xv => xv.v.hidden && xv.passes.length).length;
+    x.vars.forEach((xv, vi) => {
+      const v = xv.v, P = xv.passes; if(!P.length) return;
+      if(v.hidden && !siteVarsShowHidden) return;
+      const nm = v.name || "", ph = varAutoName(v, xv.letterIdx);
+      const timed = P.filter(p => p.mov);
+      h += `<div class="sites-var${v.hidden ? " sites-var-removed" : ""}"><div class="sites-vhead">${v.kind === "subida" ? `<span class="sites-tag">${varLetter(xv.letterIdx)}</span>` : `<span class="sites-tag plain">·</span>`}
+        <input type="text" data-v="${vi}" value="${sitesEsc(nm)}" placeholder="${sitesEsc(ph)}" aria-label="${tr("sites_var_label")}">
+        ${v.hidden ? "" : `<button class="ghost sites-vshow" data-v="${vi}" title="${sitesEsc(tr(v.kind === "subida" && timed.length ? "sites_var_show_tip_best" : "sites_var_show_tip_last"))}">${tr("sites_var_show")}</button>`}
+        <button class="ghost sites-vdel" data-v="${vi}" title="${sitesEsc(v.hidden ? "" : tr("sites_var_remove_tip"))}">${tr(v.hidden ? "sites_var_restore" : "sites_var_remove")}</button></div>`;
+      if(v.kind === "subida" && timed.length){
+        const best = timed.reduce((a, b) => a.mov < b.mov ? a : b), last = timed[timed.length-1];
+        const med = [...timed].sort((a, b) => a.mov - b.mov)[Math.floor(timed.length/2)];
+        const kmMed = [...timed].map(p => p.km).sort((a, b) => a - b)[Math.floor(timed.length/2)];
+        const vam = v.climb && best.mov ? Math.round(v.climb / (best.mov/3600)) : null;
+        const byType = new Map(); timed.forEach(p => { const k = p.t.type || "Desconocido"; const o = byType.get(k); if(!o || p.mov < o.mov) byType.set(k, p); });
+        h += `<div class="sites-vsub">${tr("sites_var_sub", nf(P.length), nf(v.climb), fmtKm(kmMed), nf(v.gate[2]))}</div>
+          <div class="sites-stats"><div><span>${tr("sites_best")}</span><b>${fmtClimb(best.mov)}</b><em>${fmtDate(best.t.date)}</em></div>
+          <div><span>${tr("sites_median")}</span><b>${fmtClimb(med.mov)}</b></div>
+          <div><span>${tr("sites_last")}</span><b>${fmtClimb(last.mov)}</b><em>${fmtDate(last.t.date)}</em></div>
+          <div><span>${tr("sites_vam")}</span><b>${vam ? nf(vam) : "—"}</b><em>m/h</em></div></div>`;
+        if(byType.size > 1) h += `<div class="sites-vsub">${tr("sites_best_by_type")}: ${[...byType.entries()].sort((a, b) => a[1].mov - b[1].mov).map(([k, p]) => `${sitesEsc(typeLabel(k))} <b>${fmtClimb(p.mov)}</b>`).join(" · ")}</div>`;
+        h += sitesSpark(P);
+      } else {
+        h += `<div class="sites-vsub">${tr("sites_var_n", nf(P.length))}${v.kind === "subida" && v.climb ? " · " + tr("sites_var_climb_only", nf(v.climb)) : ""}</div>`;
+      }
+      h += `<details class="sites-passes"><summary>${tr("sites_show_passes", nf(P.length))}</summary><table class="repeat-table"><thead><tr><th>${tr("col_date")}</th><th>${tr("col_type")}</th>${timed.length ? `<th class="num">${tr("sites_col_time")}</th><th class="num">${tr("col_km")}</th><th class="num">km/h</th>` : ""}</tr></thead><tbody>
+        ${[...P].reverse().map(p => `<tr data-id="${sitesEsc(p.id)}"><td>${fmtDate(p.t.date) || "—"}</td><td>${sitesEsc(typeLabel(p.t.type))}</td>${timed.length ? `<td class="num">${p.mov ? fmtClimb(p.mov) : "—"}</td><td class="num">${p.km ? fmtKm(p.km) : "—"}</td><td class="num">${p.mov && p.km ? nf(p.km/(p.mov/3600), 1) : "—"}</td>` : ""}</tr>`).join("")}
+        </tbody></table></details></div>`;
+    });
+    if(x.other.length) h += `<div class="sites-var"><div class="sites-vsub">${tr("sites_other", nf(x.other.length))}</div></div>`;
+    if(nVarHidden) h += `<div class="sites-var"><div class="sites-vsub"><button class="linklike" id="siteVarsHiddenToggle">${tr(siteVarsShowHidden ? "sites_var_hide_removed" : "sites_var_show_removed", nf(nVarHidden))}</button></div></div>`;
+    d.innerHTML = h;
+    d.querySelectorAll(".sites-vshow").forEach(b => b.addEventListener("click", () => showSiteVarOnMap(x, x.vars[+b.dataset.v])));
+    d.querySelectorAll(".sites-vdel").forEach(b => b.addEventListener("click", () => {
+      const v = x.vars[+b.dataset.v].v; v.hidden = !v.hidden; if(!v.hidden) delete v.hidden;
+      sitesSave();
+      const keepScroll = d.scrollTop;
+      renderSites(); drawSiteLayer();
+      const d2 = els("sitesDetail"); if(d2) d2.scrollTop = keepScroll;
+    }));
+    const vht = els("siteVarsHiddenToggle"); if(vht) vht.addEventListener("click", () => { siteVarsShowHidden = !siteVarsShowHidden; renderSiteDetail(sitesView().find(y => y.idx === x.idx)); });
+    els("siteNameIn").addEventListener("change", e => {
+      s.name = e.target.value.trim(); sitesSave();
+      // fuera del evento: "change" llega al perder el foco y redibujar ahí mismo rompe el clic que lo provocó
+      setTimeout(() => { const r = document.querySelector(`.sites-table tr[data-i="${x.idx}"] td.sites-name`); if(r){ r.textContent = siteName(s); r.title = siteName(s); } drawSiteLayer(); }, 0);
+    });
+    d.querySelectorAll(".sites-vhead input").forEach(inp => inp.addEventListener("change", e => { x.vars[+e.target.dataset.v].v.name = e.target.value.trim(); sitesSave(); }));
+    d.querySelectorAll(".sites-passes tbody tr").forEach(r => r.addEventListener("click", () => { closeSites(); focusTrack(r.dataset.id); }));
+    els("siteOnMap").addEventListener("click", () => showSiteOnMap(x.idx));
+    els("siteHide").addEventListener("click", () => {
+      s.hidden = !s.hidden;
+      if(s.hidden && !sitesShowHidden){
+        // pasar al siguiente de la lista
+        const rows = [...document.querySelectorAll(".sites-table tbody tr")].map(r => +r.dataset.i);
+        const k = rows.indexOf(x.idx); sitesSel = rows[k+1] != null ? rows[k+1] : (rows[k-1] != null ? rows[k-1] : 0);
+      }
+      sitesSave(); renderSites(); drawSiteLayer();
+    });
+  }
+  async function sitesSave(){ try{ await sitesDbPut(sitesData); }catch(e){} }
+  // Al volver a buscar: hereda nombres de sitios a < 200 m y de subidas con el inicio a < 150 m.
+  function sitesCarryNames(oldD, sites){
+    if(!oldD) return;
+    const dist = (a, b) => sitesDist(a, b);
+    sites.forEach(s => {
+      const o = oldD.sites.filter(o => dist([o.lat, o.lon], [s.lat, s.lon]) < 200).sort((a, b) => dist([a.lat, a.lon], [s.lat, s.lon]) - dist([b.lat, b.lon], [s.lat, s.lon]))[0];
+      if(!o) return;
+      if(o.name) s.name = o.name;
+      if(o.hidden) s.hidden = true;
+      if(o.osmChecked){ s.osmChecked = true; if(o.osmName) s.osmName = o.osmName; if(o.osmV) s.osmV = o.osmV; }
+      s.vars.forEach(v => {
+        const same = ov => ov.kind === v.kind && (v.gate && ov.gate ? dist(ov.gate, v.gate) < 150 : !v.gate && !ov.gate);
+        const ov = o.vars.find(ov => ov.name && same(ov));
+        if(ov) v.name = ov.name;
+        if(o.vars.some(ov => ov.hidden && same(ov))) v.hidden = true;
+        const oo = o.vars.find(ov => ov.osmChecked && same(ov));
+        if(oo){ v.osmChecked = true; if(oo.osmFrom) v.osmFrom = oo.osmFrom; }
+      });
+    });
+  }
+  // ---- nombres de OpenStreetMap (Overpass) ----
+  // Para cada alto: el puerto o collado con nombre más cercano (≤ 400 m); si no hay, la cima (≤ 250 m);
+  // si no, el mirador (≤ 150 m); y si no, el pueblo, aldea o paraje con nombre (≤ 300 m).
+  // Para cada subida: el pueblo o barrio más cercano a su punto de inicio (≤ 1,5 km). Solo se envían esas
+  // coordenadas, no las rutas. Lo ya consultado no se vuelve a pedir.
+  let sitesOsmRunning = false;
+  async function sitesOsmNames(){
+    if(!sitesData || sitesOsmRunning || sitesRunning) return;
+    // OSM_V: versión del criterio; los altos consultados con un criterio anterior y sin nombre se vuelven a mirar
+    const OSM_V = 3;
+    sitesData.sites.forEach(s => { if(s.osmChecked && !s.osmName && (s.osmV || 1) < OSM_V) s.osmChecked = false; });
+    const todo = sitesData.sites.filter(s => !s.osmChecked || s.vars.some(v => v.kind === "subida" && v.gate && !v.osmChecked));
+    if(!todo.length){ els("sitesInfo").innerHTML = tr("sites_osm_none"); return; }
+    const nGates = todo.reduce((a, s) => a + s.vars.filter(v => v.kind === "subida" && v.gate && !v.osmChecked).length, 0);
+    if(!confirm(tr("sites_osm_confirm", todo.filter(s => !s.osmChecked).length, nGates))) return;
+    sitesOsmRunning = true; sitesStop = false;
+    els("sitesStopBtn").classList.remove("hidden"); els("sitesRun").disabled = true; els("sitesOsmBtn").disabled = true;
+    const info = els("sitesInfo");
+    const c6 = v => (+v).toFixed(6);
+    const nameOf = el => el.tags && (el.tags["name:" + LANG] || el.tags.name);
+    let done = 0, found = 0, failed = false;
+    // Una consulta por zona (cuadrados de ~0,3° × 0,4°): se piden de una vez todos los puertos, collados,
+    // cimas y pueblos con nombre del rectángulo que abarca sus altos y sus inicios, y las distancias se
+    // calculan aquí. Es mucho más ligero para el servidor que buscar alrededor de cada punto.
+    const pendGates = s => s.vars.filter(v => v.kind === "subida" && v.gate && !v.osmChecked);
+    const cells = new Map();
+    todo.forEach(s => { const k = Math.floor(s.lat/0.3) + "," + Math.floor(s.lon/0.4); if(!cells.has(k)) cells.set(k, []); cells.get(k).push(s); });
+    const zones = [...cells.values()];
+    let qn = 0;
+    for(let zi=0; zi<zones.length && !sitesStop; zi++){
+      const part = zones[zi];
+      let S = Infinity, W = Infinity, N = -Infinity, E = -Infinity;
+      const ext = (la, lo, m) => { S = Math.min(S, la - m); N = Math.max(N, la + m); W = Math.min(W, lo - m*1.4); E = Math.max(E, lo + m*1.4); };
+      part.forEach(st => { if(!st.osmChecked) ext(st.lat, st.lon, 0.005); pendGates(st).forEach(v => ext(v.gate[0], v.gate[1], 0.015)); });
+      const showProg = extra => { info.innerHTML = `${tr("sites_osm_progress", done, todo.length)} · ${tr("sites_osm_zone", zi+1, zones.length)}${extra ? " · " + extra : ""} <span class="sites-bar"><i style="width:${Math.round(zi/zones.length*100)}%"></i></span>`; };
+      showProg();
+      const q = `[out:json][timeout:90][bbox:${c6(S)},${c6(W)},${c6(N)},${c6(E)}];(node["mountain_pass"="yes"]["name"];node["natural"~"^(saddle|peak|hill)$"]["name"];node["tourism"="viewpoint"]["name"];node["place"~"^(town|village|hamlet|suburb|quarter|neighbourhood|locality)$"]["name"];);out body;`;
+      let els_ = null;
+      try{ els_ = (await overpassQuery(q, qn++ % 2, w => showProg(tr("sites_osm_wait", w)))).elements || []; }catch(e){ failed = true; break; }
+      const pts = els_.filter(e => e.type === "node" && nameOf(e));
+      part.forEach(s => {
+        if(!s.osmChecked){
+          const near = (pred, r) => pts.filter(pred).map(e => ({ e, d: sitesDist([s.lat, s.lon], [e.lat, e.lon]) })).filter(x => x.d <= r).sort((a, b) => a.d - b.d)[0];
+          const pass = near(e => e.tags.mountain_pass === "yes" || e.tags.natural === "saddle", 400);
+          const peak = near(e => e.tags.natural === "peak" || e.tags.natural === "hill", 250);
+          const view = near(e => e.tags.tourism === "viewpoint", 150);   // miradores en el propio alto
+          // último recurso: un lugar con nombre (pueblo, aldea, paraje…) en el propio alto, p. ej. «La Pinilla»
+          const place = near(e => !!e.tags.place, 300);
+          const best = pass || peak || view || place;
+          if(best){ s.osmName = nameOf(best.e); found++; }
+          s.osmChecked = true; s.osmV = OSM_V;
+        }
+        pendGates(s).forEach(v => {
+          const pl = pts.filter(e => e.tags.place).map(e => ({ e, d: sitesDist([v.gate[0], v.gate[1]], [e.lat, e.lon]) })).filter(x => x.d <= 1500).sort((a, b) => a.d - b.d)[0];
+          if(pl) v.osmFrom = nameOf(pl.e);
+          v.osmChecked = true;
+        });
+      });
+      done += part.length;
+      await sitesSave();
+    }
+    sitesOsmRunning = false;
+    els("sitesStopBtn").classList.add("hidden"); els("sitesOsmBtn").disabled = false;
+    renderSites(); drawSiteLayer();
+    els("sitesInfo").innerHTML = failed ? tr("sites_osm_failed", done) : tr("sites_osm_done", done, found, sitesStop);
+  }
+  async function runSites(){
+    if(sitesRunning || !tracks.length) return;
+    sitesRunning = true; sitesStop = false;
+    const info = els("sitesInfo");
+    els("sitesBody").innerHTML = "";
+    els("sitesRun").disabled = true; els("sitesStopBtn").classList.remove("hidden");
+    const phases = { 1: "sites_phase_read", 2: "sites_phase_peaks", 3: "sites_phase_climbs" };
+    // orden fijo (por archivo) para que dos búsquedas con las mismas rutas den lo mismo
+    const list = tracks.filter(t => t.profile && t.profile.length >= 2).sort((a, b) => a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
+    let res = null;
+    try{
+      res = await computeSites(list, (f, d, n) => {
+        const pct = f === 1 ? Math.round(d/n*30) : f === 2 ? 32 : 32 + Math.round(d/Math.max(1,n)*68);
+        info.innerHTML = `${tr(phases[f])} <span class="sites-bar"><i style="width:${pct}%"></i></span> ${pct} %`;
+      }, () => sitesStop);
+    }catch(e){ console.error(e); res = null; }
+    sitesRunning = false;
+    els("sitesStopBtn").classList.add("hidden");
+    if(res){
+      sitesCarryNames(sitesData, res);
+      // los índices cambian: el alto seleccionado y el resaltado del mapa se buscan por su sitio (< 200 m)
+      const near = oldIdx => { const o = sitesData && oldIdx != null && sitesData.sites[oldIdx]; if(!o) return null;
+        let bi = null, bd = 200; res.forEach((s, i) => { const d = sitesDist([o.lat, o.lon], [s.lat, s.lon]); if(d < bd){ bd = d; bi = i; } }); return bi; };
+      const newSel = near(sitesSel), newFocus = near(siteFocusIdx);
+      sitesData = { version:1, computedAt: new Date().toISOString(), appVersion: APP_VERSION, nTracks: list.length, sig: sitesSig(tracks), sites: res };
+      sitesSel = newSel != null ? newSel : 0; siteFocusIdx = newFocus; clearSiteVar();
+      await sitesSave();
+      drawSiteLayer();
+    }
+    renderSites();
+    if(!res) els("sitesInfo").innerHTML = tr(sitesStop ? "sites_stopped" : "sites_error") + (sitesData ? "" : "");
+  }
+  // ---- capa del mapa ----
+  const siteLayer = L.layerGroup();
+  layerControl.addOverlay(siteLayer, tr("leyenda_sitios"));
+  // Alto resaltado en el mapa: se mantiene al cambiar filtros y al redibujar.
+  let siteFocusIdx = null;
+  const siteMarkers = new Map();
+  function sitePopupHtml(x){
+    let h = `<div class="site-pop"><b>${sitesEsc(siteName(x.s))}</b><div class="site-pop-sub">${nf(x.s.ele)} m · ${tr("sites_facts_short", nf(x.n))}</div>`;
+    x.vars.forEach((xv, vi) => {
+      if(xv.v.kind !== "subida" || xv.letterIdx < 0) return;
+      const timed = xv.passes.filter(p => p.mov); if(!xv.passes.length) return;
+      const best = timed.length ? timed.reduce((a, b) => a.mov < b.mov ? a : b) : null;
+      const full = `${xv.v.name || varAutoName(xv.v, xv.letterIdx)}: ${best ? fmtClimb(best.mov) + " · " : ""}${tr("sites_var_n", nf(xv.passes.length))}`;
+      h += `<div class="site-pop-row" data-i="${x.idx}" data-v="${vi}" title="${sitesEsc(full + " — " + tr(timed.length ? "sites_var_show_tip_best" : "sites_var_show_tip_last"))}"><span class="site-pop-tag">${varLetter(xv.letterIdx)}</span> ${sitesEsc(xv.v.name || varAutoName(xv.v, xv.letterIdx))}: ${best ? `<b>${fmtClimb(best.mov)}</b> · ` : ""}${tr("sites_var_n", nf(xv.passes.length))}</div>`;
+    });
+    return h + `<button class="ghost site-pop-open" data-i="${x.idx}">${tr("sites_open_card")}</button></div>`;
+  }
+  // Los altos se dibujan en el mismo lienzo que las rutas (sharedRenderer). Con un lienzo propio, ese
+  // lienzo queda encima del de las rutas aunque se oculte la capa y las rutas dejan de recibir el ratón.
+  function drawSiteLayer(focusIdx){
+    if(focusIdx !== undefined) siteFocusIdx = focusIdx;
+    focusIdx = siteFocusIdx;
+    siteLayer.clearLayers(); siteMarkers.clear();
+    const view = sitesData ? sitesView().filter(x => !x.s.hidden) : [];
+    const f = focusIdx != null ? view.find(x => x.idx === focusIdx) : null;
+    // tramo de "Ver": se quita si se resalta otro alto, si ese alto o esa subida se han quitado, o si su ruta
+    // ya no pasa los filtros; si no, se sube encima de las rutas (que se acaban de redibujar)
+    try{
+      if(siteVarSiteIdx != null){
+        const xv = f && siteVarSiteIdx === f.idx ? f.vars[siteVarVi] : null;
+        if(!xv || xv.v.hidden || !xv.passes.some(p => p.id === siteVarTrackId)) clearSiteVar();
+        else siteVarLayer.eachLayer(l => l.bringToFront());
+      }
+    }catch(e){}
+    if(!view.length) return;
+    const mx = Math.max(...view.map(x => x.n));
+    const accent = getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#ff7a63";
+    // los demás primero y el resaltado al final, para que quede encima
+    [...view.filter(x => x !== f), ...(f ? [f] : [])].forEach(x => {
+      const on = x === f, r = 5 + 9*Math.sqrt(x.n/mx);
+      const m = L.circleMarker([x.s.lat, x.s.lon], on
+        ? { radius: r + 5, color: "#ffffff", weight: 3.5, fillColor: accent, fillOpacity: 1, renderer: sharedRenderer }
+        : { radius: r, color: "#1a1420", weight: 1, fillColor: accent, fillOpacity: f ? .6 : .9, renderer: sharedRenderer });
+      if(on) m.bindTooltip(sitesEsc(siteName(x.s)), { permanent: true, direction: "top", offset: [0, -(r + 6)], className: "site-label" });
+      else m.bindTooltip(`${sitesEsc(siteName(x.s))} · ${nf(x.s.ele)} m · ${tr("sites_facts_short", nf(x.n))}`);
+      m.bindPopup(() => sitePopupHtml(x), { maxWidth: 300 });
+      m.on("click", () => { sitesSel = x.idx; drawSiteLayer(x.idx); setTimeout(() => { const nm = siteMarkers.get(x.idx); if(nm) nm.openPopup(); }, 0); });
+      siteMarkers.set(x.idx, m);
+      siteLayer.addLayer(m);
+    });
+    if(f) f.vars.forEach(xv => {
+      if(!xv.v.gate || xv.letterIdx < 0 || !xv.passes.length) return;
+      L.polyline([[xv.v.gate[0], xv.v.gate[1]], [f.s.lat, f.s.lon]], { color: accent, weight: 1.5, dashArray: "4 4", interactive:false, renderer: sharedRenderer }).addTo(siteLayer);
+      const vi = f.vars.indexOf(xv);
+      L.marker([xv.v.gate[0], xv.v.gate[1]], { icon: L.divIcon({ className:"site-gate", html: varLetter(xv.letterIdx), iconSize:[20,20] }) })
+        .bindTooltip(sitesEsc(xv.v.name || varAutoName(xv.v, xv.letterIdx)))
+        .on("click", () => showSiteVarByIdx(f.idx, vi))   // la letra de inicio también muestra su camino
+        .addTo(siteLayer);
+    });
+  }
+  map.on("popupopen", e => {
+    const b = e.popup.getElement() && e.popup.getElement().querySelector(".site-pop-open");
+    if(b) b.addEventListener("click", () => { sitesSel = +b.dataset.i; map.closePopup(); openSites(); });
+    // pinchar una subida de la ventanita = su botón "Ver" de la ficha
+    e.popup.getElement() && e.popup.getElement().querySelectorAll(".site-pop-row").forEach(r => r.addEventListener("click", () => {
+      map.closePopup(); showSiteVarByIdx(+r.dataset.i, +r.dataset.v);
+    }));
+  });
+  function showSiteVarByIdx(idx, vi){
+    const x = sitesView().find(y => y.idx === idx); if(!x || !x.vars[vi]) return;
+    sitesSel = idx; showSiteVarOnMap(x, x.vars[vi]);
+  }
+  // ---- "Ver" de una variante: el tramo recorrido, sacado del perfil de una de sus rutas ----
+  // Subida: de su inicio al alto, en la vez más rápida (o la última si no hay tiempos).
+  // De bajada / de paso: 1,5 km antes y después del alto, en la última vez.
+  const siteVarLayer = L.layerGroup().addTo(map);
+  let siteVarSiteIdx = null, siteVarVi = null, siteVarTrackId = null;
+  function clearSiteVar(){ siteVarLayer.clearLayers(); siteVarSiteIdx = null; siteVarVi = null; siteVarTrackId = null; }
+  function siteVarSegment(s, xv){
+    const v = xv.v, P = xv.passes; if(!P.length) return null;
+    const timed = P.filter(p => p.mov);
+    const p = v.kind === "subida" && timed.length ? timed.reduce((a, b) => a.mov < b.mov ? a : b) : P[P.length-1];
+    const prof = p.t && p.t.profile; if(!prof || prof.length < 2) return null;
+    const pos = prof.map(q => [q.lat, q.lon]);
+    const dTop = pos.map(q => sitesDist(q, [s.lat, s.lon]));
+    // veces que la ruta pasa por el alto: mínimos locales a < 250 m
+    const tops = []; for(let i=0;i<pos.length;i++) if(dTop[i] < 250 && (i === 0 || dTop[i] <= dTop[i-1]) && (i === pos.length-1 || dTop[i] <= dTop[i+1])) tops.push(i);
+    if(!tops.length) return null;
+    let best = null;
+    tops.forEach(b => {
+      if(v.kind === "subida" && v.gate){
+        // el punto más cercano al inicio, antes del alto y a no más de ~1,5 veces la distancia de la subida
+        const back = ((p.km || 3) * 1.5 + 0.5);
+        let a = -1, da = Infinity;
+        for(let i=b-1;i>=0 && prof[b].km - prof[i].km <= back;i--){ const dd = sitesDist(pos[i], [v.gate[0], v.gate[1]]); if(dd < da){ da = dd; a = i; } }
+        if(a >= 0 && (!best || da < best.score)) best = { a, b, score: da };
+      } else {
+        const km0 = prof[b].km; let a = b, c = b;
+        while(a > 0 && km0 - prof[a].km < 1.5) a--;
+        while(c < prof.length-1 && prof[c].km - km0 < 1.5) c++;
+        if(!best || dTop[b] < best.score) best = { a, b: c, score: dTop[b] };
+      }
+    });
+    if(!best || best.score > 400) return null;
+    const pts = pos.slice(best.a, best.b + 1);
+    if(v.kind === "subida") pts.push([s.lat, s.lon]);
+    return { pts, p };
+  }
+  function showSiteVarOnMap(x, xv){
+    const seg = siteVarSegment(x.s, xv);
+    if(!seg){ showSiteOnMap(x.idx); return; }
+    closeSites();
+    if(!map.hasLayer(siteLayer)) map.addLayer(siteLayer);
+    clearSiteVar();
+    const accent = getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#ff7a63";
+    L.polyline(seg.pts, { renderer: sharedRenderer, interactive:false, color:"#ffffff", weight:9, opacity:.85, lineCap:"round", lineJoin:"round" }).addTo(siteVarLayer);
+    L.polyline(seg.pts, { renderer: sharedRenderer, interactive:false, color:accent, weight:5, opacity:1, lineCap:"round", lineJoin:"round" }).addTo(siteVarLayer);
+    siteVarSiteIdx = x.idx; siteVarVi = x.vars.indexOf(xv); siteVarTrackId = seg.p.id;
+    drawSiteLayer(x.idx);   // el alto y las letras de inicio, por encima del tramo
+    map.fitBounds(L.latLngBounds(seg.pts).pad(0.15), { maxZoom: 16 });
+  }
+  map.on("overlayremove", e => { if(e.layer === siteLayer) clearSiteVar(); });
+  function showSiteOnMap(idx){
+    closeSites();
+    clearSiteVar();
+    if(!map.hasLayer(siteLayer)) map.addLayer(siteLayer);
+    drawSiteLayer(idx);
+    const s = sitesData.sites[idx];
+    const pts = [[s.lat, s.lon], ...s.vars.filter(v => v.gate).map(v => [v.gate[0], v.gate[1]])];
+    map.fitBounds(L.latLngBounds(pts).pad(0.3), { maxZoom: 15 });
+  }
+  // "Ver en el mapa" de la cabecera: todos los altos, el seleccionado resaltado, encuadrando su zona
+  // (los altos a menos de 120 km de él), para no mostrar media España si hay rutas en sitios lejanos.
+  function showAllSitesOnMap(){
+    closeSites();
+    clearSiteVar();
+    if(!map.hasLayer(siteLayer)) map.addLayer(siteLayer);
+    const view = sitesView().filter(x => !x.s.hidden);
+    if(!view.length) return;
+    const sel = view.find(x => x.idx === sitesSel) || view[0];
+    drawSiteLayer(sel.idx);
+    const zone = view.filter(x => sitesDist([x.s.lat, x.s.lon], [sel.s.lat, sel.s.lon]) < 120000).map(x => [x.s.lat, x.s.lon]);
+    map.fitBounds(L.latLngBounds(zone).pad(0.1), { maxZoom: 14 });
+  }
+  function openSites(){ els("sitesModal").classList.remove("hidden"); renderSites(); }
+  function closeSites(){ els("sitesModal").classList.add("hidden"); }
+  els("btnSites").addEventListener("click", openSites);
+  els("sitesClose").addEventListener("click", closeSites);
+  els("sitesRun").addEventListener("click", runSites);
+  els("sitesOsmBtn").addEventListener("click", sitesOsmNames);
+  els("sitesStopBtn").addEventListener("click", () => { sitesStop = true; });
+  els("sitesMapBtn").addEventListener("click", showAllSitesOnMap);
+  els("sitesModal").addEventListener("click", e => { if(e.target === els("sitesModal")) closeSites(); });
+  document.addEventListener("keydown", e => { if(e.key === "Escape") closeSites(); });
+  map.on("overlayadd", e => { if(e.layer === siteLayer) drawSiteLayer(); });
+  (async () => { try{ sitesData = sitesValid(await sitesDbGet()); }catch(e){} })();
   document.addEventListener("keydown", e => { if(e.key === "Escape") closeRepeats(); });
 
   // ---------- tabla de rutas ----------
@@ -4460,11 +5388,11 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     if(key === "km") return fmtKm(v);
     if(key === "date") return fmtDate(v);
     if(key === "gain") return nf(v);
-    if(key === "type") return typeLabel(v);
+    if(key === "type") return escH(typeLabel(v));
     if(key === "idx") return nf(v);
     if(key === "duration") return formatDuration(v);
     if(key === "speed") return nf(v, 1) + " km/h";
-    return v;
+    return escH(v);
   }
 
   function renderTable(){
