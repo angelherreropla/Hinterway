@@ -568,6 +568,19 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
   header h1{ font-size:14px; }
   .menu-btn{ padding:6px 4px; font-size:12.5px; }
 }
+/* (0.75) Mi ubicación: solo en móviles (pantalla táctil y pequeña). */
+.geo-ctl{ position:relative; }
+.geo-ctl .geo-btn{ display:flex; align-items:center; justify-content:center; width:30px; height:30px; padding:0; border:0; border-radius:2px; background:#fff; color:#333; cursor:pointer; }
+.geo-ctl .geo-btn svg{ width:20px; height:20px; display:block; }
+.geo-ctl.geo-shown .geo-btn{ color:#1a73e8; }
+.geo-ctl.geo-follow .geo-btn{ background:#1a73e8; color:#fff; }
+.geo-ctl.geo-busy .geo-btn svg{ animation:geoPulse 1s ease-in-out infinite; }
+@keyframes geoPulse{ 0%,100%{ opacity:1; } 50%{ opacity:.3; } }
+.geo-note{ position:absolute; left:40px; top:2px; width:max-content; max-width:min(240px, calc(100vw - 80px)); padding:6px 9px; border-radius:6px; background:var(--panel); color:var(--text); border:1px solid var(--line); font-size:12px; line-height:1.35; box-shadow:0 2px 8px rgba(0,0,0,.3); pointer-events:none; }
+.geo-pane{ pointer-events:none; }
+.geo-dot{ pointer-events:none; }
+.geo-dot span{ display:block; width:16px; height:16px; margin:2px; border-radius:50%; background:#1a73e8; border:3px solid #fff; box-sizing:border-box; box-shadow:0 0 0 1px rgba(0,0,0,.25), 0 1px 4px rgba(0,0,0,.4); }
+.geo-dot.geo-old span{ background:#8a96a8; }
 </style>
 </head>
 <body>
@@ -1436,6 +1449,14 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       table_no_routes: "Sin rutas",
       prev: "◀ Anterior", next: "Siguiente ▶",
       leyenda_rutas: "Rutas", leyenda_densidad: "Densidad (heatmap)",
+      geo_btn_off: "Mostrar mi ubicación", geo_btn_shown: "Seguir mi ubicación", geo_btn_follow: "Dejar de seguir mi ubicación",
+      geo_searching: "Buscando tu ubicación…", geo_follow_on: "Siguiendo tu ubicación. Arrastra el mapa o vuelve a tocar para dejar de seguirla.", geo_follow_off: "Ya no se sigue tu ubicación.",
+      geo_acc: (m) => `Precisión: ± ${m} m`,
+      geo_denied: "No hay permiso para usar tu ubicación. Actívalo para esta página en los ajustes del navegador (en iPhone, también en Ajustes → Privacidad → Localización → Safari).",
+      geo_unavail: "No se ha podido obtener tu ubicación. Comprueba que la ubicación del móvil está activada.",
+      geo_timeout: "La ubicación tarda demasiado. Prueba en un sitio más despejado o vuelve a intentarlo.",
+      geo_insecure: "La ubicación solo funciona si la página se abre por https (por ejemplo, desde la dirección web de la app).",
+      geo_unsupported: "Este navegador no permite obtener la ubicación.",
       capa_osm: "OpenStreetMap", capa_topo: "Topográfico (OpenTopoMap)",
       capa_ciclista: "Ciclista (CyclOSM)", capa_satelite: "Satélite (Esri)",
       alert_name_saved_not_file: "El nombre se ha actualizado en la aplicación, pero no se ha podido escribir en el archivo GPX (¿permiso denegado?).",
@@ -1753,6 +1774,14 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       table_no_routes: "No routes",
       prev: "◀ Previous", next: "Next ▶",
       leyenda_rutas: "Routes", leyenda_densidad: "Density (heatmap)",
+      geo_btn_off: "Show my location", geo_btn_shown: "Follow my location", geo_btn_follow: "Stop following my location",
+      geo_searching: "Finding your location…", geo_follow_on: "Following your location. Drag the map or tap again to stop.", geo_follow_off: "No longer following your location.",
+      geo_acc: (m) => `Accuracy: ± ${m} m`,
+      geo_denied: "Location permission is not granted. Allow it for this page in your browser settings (on iPhone, also in Settings → Privacy → Location Services → Safari).",
+      geo_unavail: "Your location could not be found. Check that location is turned on on your phone.",
+      geo_timeout: "Finding your location is taking too long. Try somewhere more open or try again.",
+      geo_insecure: "Location only works when the page is opened over https (for example, from the app's web address).",
+      geo_unsupported: "This browser cannot provide your location.",
       capa_osm: "OpenStreetMap", capa_topo: "Topographic (OpenTopoMap)",
       capa_ciclista: "Cycling (CyclOSM)", capa_satelite: "Satellite (Esri)",
       alert_name_saved_not_file: "The name was updated in the app, but could not be written to the GPX file (permission denied?).",
@@ -1846,6 +1875,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     applyI18n();
     updateFiltersBtn();
     renderHelp();
+    geoI18n();
     try{ els("wlLang").textContent = tr("wl_lang"); updateOnboard(); }catch(e){}
     if(!els("aboutModal").classList.contains("hidden")) renderAbout();
     if(!els("settingsModal").classList.contains("hidden")) renderTypesPane();
@@ -2361,6 +2391,134 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
   map.on("baselayerchange", e => {
     lsSet("heatmap-capa-base", baseIdOf(e.layer));
   });
+
+  // ---------- (0.75) mi ubicación (solo móviles) ----------
+  // Un toque: localiza una vez y centra. Segundo toque: sigue la posición (el mapa acompaña) hasta arrastrar el mapa
+  // (deja de seguir, el punto se queda) o volver a tocar (deja de seguir y quita el punto). La posición no se guarda
+  // ni se envía a ningún sitio. Va en un panel propio por encima del lienzo de las rutas (si no, al redibujar las
+  // rutas quedarían encima del punto) y sin eventos del ratón.
+  const GEO_MQ = window.matchMedia("(pointer:coarse) and (max-width:700px), (pointer:coarse) and (max-height:500px)");
+  const geo = { state: "off", watch: null, dot: null, acc: null, ctl: null, noteT: null, req: 0, last: null };
+  map.createPane("geoPane"); map.getPane("geoPane").style.zIndex = 620; map.getPane("geoPane").classList.add("geo-pane");
+  const geoRenderer = L.svg({ pane: "geoPane" });
+  const GEO_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3"/></svg>';
+  function geoNote(msg, ms){
+    if(!geo.ctl) return;
+    const box = geo.ctl._container; let n = box.querySelector(".geo-note");
+    clearTimeout(geo.noteT); geo.noteErr = false;
+    if(!msg){ if(n) n.remove(); return; }
+    if(!n){ n = document.createElement("div"); n.className = "geo-note"; n.setAttribute("role", "status"); box.appendChild(n); }
+    n.textContent = msg;
+    if(ms) geo.noteT = setTimeout(() => { if(n.parentNode) n.remove(); }, ms);
+  }
+  function geoSetState(st, busy){
+    geo.state = st;
+    if(!geo.ctl) return;
+    const box = geo.ctl._container, b = box.querySelector(".geo-btn");
+    box.classList.toggle("geo-shown", st === "shown");
+    box.classList.toggle("geo-follow", st === "follow");
+    box.classList.toggle("geo-busy", !!busy);
+    const t = tr(st === "off" ? "geo_btn_off" : st === "shown" ? "geo_btn_shown" : "geo_btn_follow");
+    b.title = t; b.setAttribute("aria-label", t); b.setAttribute("aria-pressed", st === "follow" ? "true" : "false");
+  }
+  function geoDraw(pos){
+    const ll = L.latLng(pos.coords.latitude, pos.coords.longitude), acc = Math.max(0, pos.coords.accuracy || 0);
+    geo.last = ll;
+    if(!geo.acc) geo.acc = L.circle(ll, { radius: acc, renderer: geoRenderer, pane: "geoPane", interactive: false, color: "#1a73e8", weight: 1, opacity: .6, fillColor: "#1a73e8", fillOpacity: .12 }).addTo(map);
+    else geo.acc.setLatLng(ll).setRadius(acc);
+    if(!geo.dot) geo.dot = L.marker(ll, { pane: "geoPane", interactive: false, keyboard: false, icon: L.divIcon({ className: "geo-dot", html: "<span></span>", iconSize: [20, 20], iconAnchor: [10, 10] }) }).addTo(map);
+    else geo.dot.setLatLng(ll);
+    const el = geo.dot.getElement(); if(el) el.classList.remove("geo-old");
+    return { ll, acc };
+  }
+  function geoClear(){
+    if(geo.dot){ map.removeLayer(geo.dot); geo.dot = null; }
+    if(geo.acc){ map.removeLayer(geo.acc); geo.acc = null; }
+    geo.last = null;
+  }
+  function geoStopWatch(){ if(geo.watch != null){ navigator.geolocation.clearWatch(geo.watch); geo.watch = null; } }
+  function geoError(err){
+    const k = !err ? "geo_unavail" : err.code === 1 ? "geo_denied" : err.code === 3 ? "geo_timeout" : "geo_unavail";
+    geoStopWatch();
+    if(err && err.code === 1) geoClear();
+    geoSetState(geo.dot ? "shown" : "off", false);
+    geoNote(tr(k), 8000);
+  }
+  function geoZoom(acc){ return Math.max(map.getZoom(), acc > 1000 ? 13 : acc > 200 ? 15 : 16); }
+  function geoOnce(){
+    const id = ++geo.req;
+    geoSetState(geo.state, true); geoNote(tr("geo_searching"));
+    navigator.geolocation.getCurrentPosition(pos => {
+      if(id !== geo.req) return;
+      const { ll, acc } = geoDraw(pos);
+      map.setView(ll, geoZoom(acc));
+      geoSetState("shown", false);
+      geoNote(tr("geo_acc", nf(Math.round(acc))), 3000);
+    }, err => { if(id === geo.req) geoError(err); }, { enableHighAccuracy: true, timeout: 20000, maximumAge: 15000 });
+  }
+  function geoStartWatch(){
+    geoStopWatch();
+    let first = true;
+    geo.watch = navigator.geolocation.watchPosition(pos => {
+      if(geo.state !== "follow") return;
+      const { ll, acc } = geoDraw(pos);
+      if(geo.noteErr) geoNote("");
+      if(first){ first = false; map.setView(ll, geoZoom(acc)); geoSetState("follow", false); }
+      else map.panTo(ll, { animate: true });
+    }, err => {
+      if(geo.state !== "follow") return;
+      if(err && err.code === 1){ geoError(err); return; }
+      // Sin señal un momento (bosque, túnel…): se sigue esperando; el punto pasa a gris hasta la siguiente posición.
+      const el = geo.dot && geo.dot.getElement(); if(el) el.classList.add("geo-old");
+      if(first){ first = false; geoSetState("follow", false); }
+      geoNote(tr(err && err.code === 3 ? "geo_timeout" : "geo_unavail"), 5000); geo.noteErr = true;
+    }, { enableHighAccuracy: true, timeout: 30000, maximumAge: 5000 });
+  }
+  function geoTap(){
+    if(!navigator.geolocation){ geoNote(tr("geo_unsupported"), 6000); return; }
+    if(window.isSecureContext === false){ geoNote(tr("geo_insecure"), 8000); return; }
+    if(geo.state === "off"){ geoOnce(); return; }
+    if(geo.state === "shown"){
+      geo.req++;                     // descarta una localización única que aún no haya llegado
+      geoSetState("follow", true); geoNote(tr("geo_follow_on"), 4000);
+      if(geo.last) map.panTo(geo.last);
+      geoStartWatch(); return;
+    }
+    geoStopWatch(); geo.req++; geoClear(); geoSetState("off", false); geoNote("");
+  }
+  // Arrastrar el mapa deja de seguir (el punto se queda, en gris: ya no se actualiza).
+  map.on("dragstart", () => {
+    if(geo.state !== "follow") return;
+    geoStopWatch(); geoSetState("shown", false); geoNote(tr("geo_follow_off"), 2500);
+    const el = geo.dot && geo.dot.getElement(); if(el) el.classList.add("geo-old");
+  });
+  // Con la página oculta no se pide la posición (batería); al volver se reanuda el seguimiento.
+  document.addEventListener("visibilitychange", () => {
+    if(geo.state !== "follow") return;
+    if(document.hidden) geoStopWatch(); else geoStartWatch();
+  });
+  const GeoControl = L.Control.extend({
+    options: { position: "topleft" },
+    onAdd(){
+      const box = L.DomUtil.create("div", "leaflet-bar geo-ctl");
+      const b = L.DomUtil.create("button", "geo-btn", box);
+      b.type = "button"; b.innerHTML = GEO_ICON;
+      L.DomEvent.disableClickPropagation(box); L.DomEvent.disableScrollPropagation(box);
+      L.DomEvent.on(b, "click", e => { L.DomEvent.preventDefault(e); geoTap(); });
+      return box;
+    }
+  });
+  function geoSync(){
+    if(GEO_MQ.matches){
+      if(!geo.ctl){ geo.ctl = new GeoControl().addTo(map); geoSetState(geo.state, false); }
+    }else if(geo.ctl){
+      geoStopWatch(); geo.req++; geoClear(); geo.state = "off";
+      map.removeControl(geo.ctl); geo.ctl = null;
+    }
+  }
+  if(GEO_MQ.addEventListener) GEO_MQ.addEventListener("change", geoSync); else if(GEO_MQ.addListener) GEO_MQ.addListener(geoSync);
+  geoSync();
+  function geoI18n(){ try{ if(geo.ctl) geoSetState(geo.state, geo.ctl._container.classList.contains("geo-busy")); }catch(e){} }
 
   function typeOptionsHtml(current){
     const options = [...new Set([current, ...seenTypes, ...defaultTypes].filter(Boolean))];
@@ -3817,11 +3975,13 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
         <li>El panel de filtros se abre y se cierra desde Filtros (o con ✕); el idioma y los ajustes, desde ⚙.</li>
         <li>En el perfil, toca un punto para ver sus datos o arrastra el dedo para seleccionar un tramo. La zona del mapa se dibuja con el dedo.</li>
         <li>Algunas columnas de la Tabla y del Top 10 se ocultan para que quepan. "Compartir (imagen + texto)" envía la imagen del resumen anual directamente a cualquier app.</li>
+        <li>Mi ubicación: el botón de la diana, debajo del zoom (solo en móviles). Un toque muestra dónde estás (punto azul; el círculo indica la precisión) y centra el mapa; un segundo toque lo sigue mientras te mueves, hasta que arrastras el mapa (el punto se queda, en gris) o vuelves a tocar (se quita). La primera vez el navegador pide permiso. Solo funciona con la página abierta y la pantalla encendida (no graba rutas) y seguir la posición gasta batería. Hace falta abrir la app por https; en iPhone, además, la ubicación tiene que estar permitida para Safari en Ajustes → Privacidad → Localización.</li>
       </ul>
 
       <h4>10. Privacidad y navegadores</h4>
       <ul style="margin-bottom:0;">
         <li>Tus rutas se guardan solo en este navegador y no se suben a ningún servidor; el análisis de terreno solo envía la zona, no la traza, y la búsqueda de nombres de Sitios solo las coordenadas de los altos y del inicio o final de sus subidas y bajadas; la de Caminos y sendas envía el trazado aproximado de cada tramo (un punto cada ~100 m), no tus rutas enteras. Si cambias de navegador o lo limpias, haz antes una copia de seguridad.</li>
+        <li>Tu ubicación (botón de la diana, en el móvil) solo se usa para dibujar el punto en el mapa: no se guarda ni se envía a ningún sitio. Lo único que sale del móvil son las peticiones de los mosaicos del mapa de esa zona, como al mover el mapa a mano.</li>
         <li>Funciona en las versiones actuales de Chrome, Edge, Firefox y Safari, en ordenador y en móvil. Para los archivos .gz hace falta Chrome o Edge 80 o posterior, Firefox 113 o Safari 16.4. Grabar el nombre o el tipo en el propio GPX solo es posible en Chrome, Edge u Opera de ordenador. Se ha probado sobre todo en Chrome.</li>
       </ul>
     `,
@@ -3914,11 +4074,13 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
         <li>The filters panel opens and closes from Filters (or with ✕); language and settings are in ⚙.</li>
         <li>On the profile, tap a point to see its data or drag your finger to select a section. The map area is drawn with your finger.</li>
         <li>Some Table and Top 10 columns are hidden so they fit. "Share (image + text)" sends the year-in-review image straight to any app.</li>
+        <li>My location: the target button below the zoom buttons (phones only). One tap shows where you are (blue dot; the circle shows the accuracy) and centers the map; a second tap follows you as you move, until you drag the map (the dot stays, in grey) or tap again (it is removed). The first time, the browser asks for permission. It only works while the page is open and the screen is on (it does not record routes), and following your position uses battery. The app must be opened over https; on iPhone, location must also be allowed for Safari in Settings → Privacy → Location Services.</li>
       </ul>
 
       <h4>10. Privacy and browsers</h4>
       <ul style="margin-bottom:0;">
         <li>Your routes are stored only in this browser and are not uploaded to any server; terrain analysis only sends the area, not the track, and the name lookup in Places only the coordinates of the tops and of where their climbs start or descents end; the one in Tracks and trails sends the approximate course of each stretch (one point every ~100 m), not your whole routes. If you switch or clear your browser, back up first.</li>
+        <li>Your location (target button, on mobile) is only used to draw the dot on the map: it is not stored or sent anywhere. The only thing that leaves your phone is the map tile requests for that area, just as when you move the map by hand.</li>
         <li>It works in current versions of Chrome, Edge, Firefox and Safari, on desktop and mobile. .gz files need Chrome or Edge 80 or later, Firefox 113 or Safari 16.4. Writing the name or type into the GPX file itself is only possible in desktop Chrome, Edge or Opera. It has been tested mainly in Chrome.</li>
       </ul>
     `,
@@ -3933,7 +4095,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
   // ---------- Quiénes somos / About ----------
   // Versión de la app: se sube (0.4 → 0.5 → …) y se pone la fecha del día cada vez que se genera un HTML nuevo.
   // Versiones 0.x mientras la app no se publique.
-  const APP_VERSION = "0.74", APP_VERSION_DATE = "2026-10-28";
+  const APP_VERSION = "0.75", APP_VERSION_DATE = "2026-10-29";
   const APP_AUTHOR = "Angel Herrero", APP_EMAIL = "angelherreropla@gmail.com";
   const ABOUT_HTML = {
     es: () => `
