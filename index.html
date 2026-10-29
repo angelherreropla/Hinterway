@@ -210,7 +210,8 @@ body.no-tracks aside#sidebar, body.no-tracks .menu[data-menu="filtros"]{ display
 .grp-row .gi{ width:48px; flex:none; text-align:center; }
 .grp-row .gn{ flex:1; min-width:0; }
 .grp-row .cnt{ min-width:118px; text-align:right; font-size:11.5px; color:var(--text-dim); white-space:nowrap; }
-.grp-row .gtypes{ flex-basis:100%; margin-top:-2px; font-size:11.5px; color:var(--text-dim); }
+.grp-row .gi-tip{ flex-basis:100%; order:5; font-size:12px; color:var(--text); background:var(--panel); border:1px solid var(--accent); border-radius:6px; padding:5px 9px; }
+.grp-row .gtypes{ order:6;  flex-basis:100%; margin-top:-2px; font-size:11.5px; color:var(--text-dim); }
 @media (max-width:700px){ .type-row{ flex-wrap:wrap; } .grp-row{ flex-wrap:wrap; } }
 .type-dot{ width:10px; height:10px; border-radius:2px; display:inline-block; vertical-align:-1px; margin:0 2px; }
 .rp-sub .dot{ width:9px; height:9px; border-radius:2px; display:inline-block; flex:0 0 auto; }
@@ -1354,7 +1355,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       grp_sum_tip: "Rutas que se suman en este panel: todas las filtradas o solo las de un grupo",
       grp_cmp_tip: "Solo se comparan rutas del mismo grupo (bici con bici, a pie con a pie…)",
       set_tab_groups: "Grupos", set_groups_note: "Los récords, el Top 10, los puestos de la Ficha y los tiempos de Sitios y de Caminos y sendas comparan solo rutas del mismo grupo. Cambia el icono o el nombre de cada grupo, añade los que quieras y elige el grupo de cada tipo en Tipos de actividad.",
-      grp_add: "Añadir grupo", grp_new_name: n => `Grupo ${n}`, grp_icon_ph: "Icono", grp_name_lbl: "Nombre del grupo",
+      grp_add: "Añadir grupo", grp_new_name: n => `Grupo ${n}`, grp_icon_ph: "Icono", grp_icon_tip_win: "Pulsa <b>Windows + .</b> (tecla Windows y punto) para elegir un emoji, o pega uno copiado. Enter para guardar.", grp_icon_tip_mac: "Pulsa <b>Control + Comando + Espacio</b> para elegir un emoji, o pega uno copiado. Enter para guardar.", grp_icon_tip_touch: "Usa el botón de emojis del teclado (😊) para elegir uno.", grp_icon_tip_other: "Pega un emoji copiado o escribe hasta 4 caracteres. Enter para guardar.", grp_name_lbl: "Nombre del grupo",
       grp_count: (t, r) => `${t} tipos · ${r} rutas`, grp_del_tip: "Quitar este grupo", set_type_group_tip: "Grupo de este tipo",
       grp_del_confirm: g => `¿Quitar el grupo «${g}»? Sus tipos pasan al grupo que les corresponda por el nombre (Bici, E-bike o A pie) o al primero. No se borra ninguna ruta.`,
       glitch_menu: "Revisar puntos erróneos (rutas filtradas)", glitch_title: "Puntos erróneos del GPS", glitch_fix_all: "Corregir todas", glitch_fix: "Corregir",
@@ -1679,7 +1680,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       grp_sum_tip: "Routes added up in this panel: all filtered routes or just one group",
       grp_cmp_tip: "Only routes of the same group are compared (bike with bike, on foot with on foot…)",
       set_tab_groups: "Groups", set_groups_note: "Records, the Top 10, the rankings in Details and the times in Places and Tracks and trails only compare routes of the same group. Change each group's icon or name, add as many as you like and pick each type's group in Activity types.",
-      grp_add: "Add group", grp_new_name: n => `Group ${n}`, grp_icon_ph: "Icon", grp_name_lbl: "Group name",
+      grp_add: "Add group", grp_new_name: n => `Group ${n}`, grp_icon_ph: "Icon", grp_icon_tip_win: "Press <b>Windows + .</b> (Windows key and period) to pick an emoji, or paste one. Enter to save.", grp_icon_tip_mac: "Press <b>Control + Command + Space</b> to pick an emoji, or paste one. Enter to save.", grp_icon_tip_touch: "Use the emoji button on your keyboard (😊) to pick one.", grp_icon_tip_other: "Paste an emoji or type up to 4 characters. Enter to save.", grp_name_lbl: "Group name",
       grp_count: (t, r) => `${t} types · ${r} routes`, grp_del_tip: "Remove this group", set_type_group_tip: "This type's group",
       grp_del_confirm: g => `Remove the group "${g}"? Its types move to the group their name suggests (Bike, E-bike or On foot) or to the first one. No route is deleted.`,
       glitch_menu: "Check GPS glitches (filtered routes)", glitch_title: "GPS glitches", glitch_fix_all: "Fix all", glitch_fix: "Fix",
@@ -3948,7 +3949,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       <ul>
         <li><strong>Apariencia</strong>: idioma, tema claro u oscuro, formato de fecha, intensidad y grosor de las rutas.</li>
         <li><strong>Tipos de actividad</strong>: color de cada tipo; renombrar o fusionar tipos (si pones el nombre de otro tipo existente, se juntan); con la casilla "Cambiar solo las rutas filtradas", el cambio afecta solo a las rutas que cumplen los filtros; el grupo de cada tipo (selector junto al nombre); y el tipo por defecto para los archivos que no lo traen.</li>
-        <li><strong>Grupos</strong>: cambia el icono y el nombre de cada grupo, añade grupos nuevos (por ejemplo, Gravel o Carrera) o quítalos (🗑; sus tipos vuelven al grupo que les toque por el nombre). Cada grupo muestra sus tipos y sus rutas. Los tipos nuevos van solos a A pie si su nombre lo indica (hiking, walking, running…), a E-bike si es eléctrica y si no a Bici; cámbialo en Tipos de actividad. Se guarda en la configuración de la copia de seguridad.</li>
+        <li><strong>Grupos</strong>: cambia el icono (al pincharlo te dice cómo escribir un emoji: en Windows, <em>Windows + .</em>) y el nombre de cada grupo, añade grupos nuevos (por ejemplo, Gravel o Carrera) o quítalos (🗑; sus tipos vuelven al grupo que les toque por el nombre). Cada grupo muestra sus tipos y sus rutas. Los tipos nuevos van solos a A pie si su nombre lo indica (hiking, walking, running…), a E-bike si es eléctrica y si no a Bici; cámbialo en Tipos de actividad. Se guarda en la configuración de la copia de seguridad.</li>
         <li><strong>Mapa</strong>: detalle de las rutas al añadirlas (Normal, Alto o Máximo), si quitar los puntos erróneos del GPS al añadirlas, mapa de fondo al abrir (uno fijo o el último usado), capa de densidad al abrir y si el mapa se centra al pinchar una ruta.</li>
         <li><strong>Cálculos</strong>: los coeficientes del índice de dificultad, con el resultado al momento.</li>
       </ul>
@@ -4047,7 +4048,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       <ul>
         <li><strong>Appearance</strong>: language, light or dark theme, date format, route intensity and thickness.</li>
         <li><strong>Activity types</strong>: each type's color; rename or merge types (give one the name of another existing type and they're combined); with the "Change filtered routes only" box, the change only affects routes matching the filters; each type's group (selector next to the name); and the default type for files that don't include one.</li>
-        <li><strong>Groups</strong>: change each group's icon and name, add new groups (e.g. Gravel or Running) or remove them (🗑; their types go back to the group their name suggests). Each group shows its types and routes. New types go to On foot on their own if the name says so (hiking, walking, running…), to E-bike if it's electric, and otherwise to Bike; change it in Activity types. It's saved in the backup's settings.</li>
+        <li><strong>Groups</strong>: change each group's icon (clicking it tells you how to type an emoji: on Windows, <em>Windows + .</em>) and name, add new groups (e.g. Gravel or Running) or remove them (🗑; their types go back to the group their name suggests). Each group shows its types and routes. New types go to On foot on their own if the name says so (hiking, walking, running…), to E-bike if it's electric, and otherwise to Bike; change it in Activity types. It's saved in the backup's settings.</li>
         <li><strong>Map</strong>: route detail when adding them (Normal, High or Maximum), whether to remove GPS glitches when adding them, background map on open (a fixed one or the last used), density layer on open, and whether the map centers when you click a route.</li>
         <li><strong>Calculations</strong>: the difficulty index coefficients, with live results.</li>
       </ul>
@@ -4095,7 +4096,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
   // ---------- Quiénes somos / About ----------
   // Versión de la app: se sube (0.4 → 0.5 → …) y se pone la fecha del día cada vez que se genera un HTML nuevo.
   // Versiones 0.x mientras la app no se publique.
-  const APP_VERSION = "0.75", APP_VERSION_DATE = "2026-10-29";
+  const APP_VERSION = "0.76", APP_VERSION_DATE = "2026-10-29";
   const APP_AUTHOR = "Angel Herrero", APP_EMAIL = "angelherreropla@gmail.com";
   const ABOUT_HTML = {
     es: () => `
@@ -7987,6 +7988,26 @@ ${head}
     const ic = e.target.dataset.gicon, nm = e.target.dataset.gname;
     if(ic){ const g = groupById(ic); if(g){ g.icon = e.target.value.trim(); groupsChanged(); } }
     else if(nm){ const g = groupById(nm); if(g){ const v = e.target.value.trim(); if(v && v !== tr("grp_" + g.id)) g.name = v; else delete g.name; if(!g.name && !GROUP_DEFAULT.some(d => d.id === g.id)) g.name = v || g.id; groupsChanged(); } }
+  });
+  // (0.76) al pinchar en el icono, una pista de cómo escribir un emoji según el sistema
+  function groupIconTipKey(){
+    const plat = ((navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || "") + " " + navigator.userAgent;
+    if(/Android|iPhone|iPad|iPod/i.test(plat) || (window.matchMedia("(pointer:coarse)").matches && !/Win/i.test(plat))) return "grp_icon_tip_touch";
+    if(/Win/i.test(plat)) return "grp_icon_tip_win";
+    if(/Mac/i.test(plat)) return "grp_icon_tip_mac";
+    return "grp_icon_tip_other";
+  }
+  els("groupRows").addEventListener("focusin", e => {
+    if(!e.target.matches("input.gi")) return;
+    const row = e.target.closest(".grp-row"); if(!row || row.querySelector(".gi-tip")) return;
+    const tip = document.createElement("div"); tip.className = "gi-tip"; tip.setAttribute("role", "note");
+    tip.innerHTML = "💡 " + tr(groupIconTipKey());
+    row.appendChild(tip);
+    try{ e.target.select(); }catch(err){}
+  });
+  els("groupRows").addEventListener("focusout", e => {
+    if(!e.target.matches("input.gi")) return;
+    const tip = e.target.closest(".grp-row")?.querySelector(".gi-tip"); if(tip) tip.remove();
   });
   els("groupRows").addEventListener("keydown", e => { if(e.key === "Enter" && e.target.matches("input")) e.target.blur(); });
   els("groupRows").addEventListener("click", e => {
