@@ -79,6 +79,39 @@ aside h2:first-child{ margin-top:0; }
 .filter-actions{ display:flex; gap:6px; margin-bottom:8px; }
 .filter-actions button{ padding:4px 9px; font-size:12px; }
 .check-list{ display:flex; flex-direction:column; gap:6px; max-height:180px; overflow-y:auto; }
+/* (0.80) barra lateral compacta: secciones plegables con resumen, años en chapas, filtros activos arriba */
+aside .check-list{ max-height:none; overflow:visible; }
+.frow{ padding:0 0 8px; border-bottom:1px solid var(--line); }
+.fsec{ border-bottom:1px solid var(--line); }
+.fsh{ display:flex; align-items:center; gap:6px; padding:9px 0; cursor:pointer; user-select:none; outline-offset:2px; }
+.fs-t{ font-size:12.5px; font-weight:600; color:var(--text); flex:none; }
+.fs-s{ flex:1; min-width:0; font-size:11.5px; color:var(--text-dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.fs-on{ width:7px; height:7px; border-radius:50%; background:var(--accent); flex:none; visibility:hidden; }
+.fsec.active .fs-on{ visibility:visible; }
+.fsec.active .fs-s{ color:var(--accent); }
+.fs-ar{ color:var(--text-dim); font-size:10px; flex:none; transition:transform .15s; }
+.fsec.open .fs-ar{ transform:rotate(90deg); }
+.fsb{ display:none; padding:0 0 10px; }
+.fsec.open .fsb{ display:block; }
+.fs-acts{ display:flex; gap:12px; justify-content:flex-end; margin:-2px 0 6px; }
+button.fs-lnk{ background:none; border:none; color:var(--accent); padding:0; font-size:11.5px; text-decoration:underline; border-radius:0; }
+.zone-row{ display:flex; align-items:center; gap:8px; padding:8px 0; }
+.zone-row .fs-t{ flex:1; }
+.zone-row .zone-actions{ margin:0; justify-content:flex-end; }
+.zone-info{ margin:6px 0 4px; }
+.year-chips{ display:grid !important; grid-template-columns:repeat(4, 1fr); gap:5px !important; }
+.year-chips label{ justify-content:center; font-size:12.5px !important; padding:4px 0; border:1px solid var(--line); border-radius:6px; background:var(--panel-2); color:var(--text-dim); gap:0 !important; }
+.year-chips label:has(input:checked){ background:rgba(255,122,99,.18); border-color:var(--accent); color:var(--text); }
+.year-chips label:has(input:focus-visible){ outline:2px solid var(--accent); outline-offset:1px; }
+.year-chips input{ position:absolute; opacity:0; width:1px !important; height:1px !important; pointer-events:none; }
+.rng1{ display:grid; grid-template-columns:62px 1fr auto 1fr 22px; gap:5px; align-items:center; margin-bottom:6px; }
+.rng1 span{ font-size:12px; color:var(--text-dim); }
+.rng1 input[type=number]{ width:100%; min-width:0; background:var(--panel-2); border:1px solid var(--line); color:var(--text); border-radius:6px; padding:5px 6px; font:inherit; font-size:12.5px; }
+.factive{ display:flex; flex-wrap:wrap; gap:5px; align-items:center; margin:0 0 10px; }
+.fchip{ font-size:11.5px; background:var(--panel-2); border:1px solid var(--accent); color:var(--text); border-radius:999px; padding:1px 3px 1px 8px; display:inline-flex; align-items:center; gap:2px; max-width:100%; }
+.fchip b{ font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
+.fchip button{ border:none; background:none; color:var(--text-dim); padding:0 4px; font-size:13px; line-height:1; border-radius:50%; }
+.fchip button:hover{ color:var(--text); }
 .check-list label{ display:flex; align-items:center; gap:8px; font-size:13.5px; cursor:pointer; }
 .check-list input[type=checkbox]{ accent-color:var(--accent); width:15px; height:15px; }
 .check-list input[type=color]{ width:20px; height:20px; padding:0; border:1px solid var(--line); border-radius:4px; background:none; cursor:pointer; }
@@ -181,6 +214,33 @@ body.no-tracks aside#sidebar, body.no-tracks .menu[data-menu="filtros"]{ display
 .surf-legend i:first-child{ margin-left:0; }
 .surf-status{ position:fixed; left:50%; top:74px; transform:translateX(-50%); z-index:1500; background:var(--panel-2); border:1px solid var(--line); border-radius:10px; padding:10px 14px; display:flex; align-items:center; gap:12px; font-size:13px; box-shadow:0 10px 28px rgba(0,0,0,.45); max-width:calc(100vw - 32px); }
 .surf-status button{ padding:5px 10px; font-size:12px; }
+/* (0.78) arrastrar y soltar archivos, y aviso tras importar */
+/* (0.79) personas */
+.pp-chips{ display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
+.pp-chip{ font:inherit; font-size:12px; border:1px solid var(--line); background:var(--panel); color:var(--text-dim); border-radius:999px; padding:3px 10px; cursor:pointer; line-height:1.3; }
+.pp-chip:hover{ color:var(--text); border-color:var(--text-dim); }
+.pp-chip.on{ background:var(--accent); border-color:var(--accent); color:#fff; }
+.rp-people{ order:10; flex:1 1 100%; }
+.rp-with{ color:var(--text-dim); }
+.ficha-people{ display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin:-2px 0 4px; }
+.ficha-people .ficha-note{ margin-right:2px; }
+.pp-h{ margin:18px 0 6px; font-size:14px; }
+.pp-bulk{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+.pp-bulk select{ min-width:150px; }
+.pp-scan-list{ list-style:none; margin:8px 0 0; padding:0; display:grid; gap:2px; }
+.pp-scan-it{ border-bottom:1px solid var(--line); padding:6px 0; }
+.pp-scan-it label{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; cursor:pointer; }
+.pp-scan-it .cnt{ color:var(--text-dim); font-size:12px; }
+.pp-scan-it .new{ font-size:11px; color:var(--accent); border:1px solid var(--accent); border-radius:999px; padding:0 6px; }
+.pp-scan-it button.see{ background:none; border:none; color:var(--accent); cursor:pointer; text-decoration:underline; font:inherit; font-size:12px; padding:0; }
+.pp-scan-it ul{ margin:4px 0 0 26px; padding:0; color:var(--text-dim); font-size:12px; max-height:160px; overflow-y:auto; }
+.drop-overlay{ position:fixed; inset:0; z-index:2500; background:rgba(4,8,6,.72); display:flex; align-items:center; justify-content:center; pointer-events:none; }
+.drop-box{ border:3px dashed var(--accent); border-radius:16px; padding:34px 40px; background:var(--panel-2); text-align:center; max-width:min(460px, calc(100vw - 40px)); box-shadow:0 18px 50px rgba(0,0,0,.5); }
+.drop-box .drop-ic{ font-size:40px; line-height:1; }
+.drop-box b{ display:block; font-size:18px; margin:10px 0 6px; }
+.drop-box span{ color:var(--text-dim); font-size:13px; }
+.toast{ position:fixed; left:50%; bottom:34px; transform:translateX(-50%); z-index:2600; background:var(--panel-2); color:var(--text); border:1px solid var(--line); border-left:4px solid var(--accent); border-radius:8px; padding:9px 14px; font-size:13.5px; box-shadow:0 10px 28px rgba(0,0,0,.45); width:max-content; max-width:calc(100vw - 32px); box-sizing:border-box; transition:opacity .3s; }
+.toast.fade{ opacity:0; }
 .auto-note{ position:fixed; left:12px; bottom:28px; z-index:1400; background:var(--panel-2); border:1px solid var(--line); border-radius:8px; padding:6px 12px 6px 30px; font-size:12.5px; color:var(--text-dim); box-shadow:0 6px 18px rgba(0,0,0,.35); pointer-events:none; }
 .auto-note::before{ content:""; position:absolute; left:10px; top:50%; width:11px; height:11px; margin-top:-7px; border:2px solid var(--line); border-top-color:var(--accent); border-radius:50%; animation:autoSpin .9s linear infinite; }
 @keyframes autoSpin{ to{ transform:rotate(360deg); } }
@@ -198,7 +258,7 @@ body.no-tracks aside#sidebar, body.no-tracks .menu[data-menu="filtros"]{ display
 .rp-id{ min-width:140px; flex:1 1 150px; }
 .rp-name{ font-family:'Fraunces',Georgia,serif; font-weight:700; font-size:16px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .rp-sub{ font-size:12px; color:var(--text-dim); margin-top:1px; display:flex; align-items:center; gap:6px; white-space:nowrap; overflow:hidden; }
-#typeList{ max-height:300px; }
+#typeList{ max-height:none; }
 #typeList .grp-head{ font-weight:600; margin-top:2px; }
 #typeList .grp-item{ padding-left:22px; }
 .grp-sel-lbl{ display:inline-flex; align-items:center; gap:6px; white-space:nowrap; }
@@ -550,13 +610,14 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
   .rp-stats{ order:3; flex:1 1 100%; flex-wrap:nowrap; overflow-x:auto; -webkit-overflow-scrolling:touch; }
   .rp-stat{ min-width:52px; padding:3px 7px; }
   .rp-terrain{ order:4; flex:1 1 100%; }
+  .rp-people{ order:3; }
   #elevSlope{ font-size:11.5px !important; }
   #elevSvg{ touch-action:none; }
   /* Ventanas emergentes y tablas */
   .modal{ padding:12px; }
   .ficha-modal .ficha-map{ top:-12px; }   /* (0.77) el mapa fijo de la Ficha, pegado al borde con este relleno */
   .data-table .c-type, .data-table .c-duration, .data-table .c-speed, .data-table .c-idx, .data-table .c-idr,
-  .data-table .c-s_asf, .data-table .c-s_pis, .data-table .c-s_sen{ display:none; }
+  .data-table .c-s_asf, .data-table .c-s_pis, .data-table .c-s_sen, .data-table .c-with{ display:none; }
   .data-table th.c-name{ width:auto; }
   .data-table th.c-date{ width:78px; }
   .top10-table .num:nth-child(n+8){ display:none; }
@@ -666,40 +727,57 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
   <div class="body">
     <aside id="sidebar">
       <button class="ghost sidebar-close" id="sidebarClose">✕</button>
-      <h2 data-i18n="filter_name">Nombre</h2>
-      <input type="text" id="nameFilter" data-i18n-ph="filter_name_ph" placeholder="Buscar en el nombre…" style="width:100%; margin-bottom:4px;">
-
-      <h2 data-i18n="filter_date">Fecha</h2>
-      <div class="date-rows">
-        <span data-i18n="date_from">Desde</span><input type="date" id="dateFrom">
-        <span data-i18n="date_to">Hasta</span><input type="date" id="dateTo">
+      <div class="factive hidden" id="activeFilters" aria-live="polite"></div>
+      <div class="frow"><input type="text" id="nameFilter" data-i18n-ph="filter_name_ph" placeholder="Buscar en el nombre…" style="width:100%;"></div>
+      <div class="fsec" data-sec="date">
+        <div class="fsh" role="button" tabindex="0" aria-expanded="false"><span class="fs-t" data-i18n="filter_date">Fecha</span><span class="fs-s" data-sum="date"></span><span class="fs-on" aria-hidden="true"></span><span class="fs-ar" aria-hidden="true">▶</span></div>
+        <div class="fsb">
+          <div class="date-rows">
+            <span data-i18n="date_from">Desde</span><input type="date" id="dateFrom">
+            <span data-i18n="date_to">Hasta</span><input type="date" id="dateTo">
+          </div>
+          <button class="ghost date-clear hidden" id="dateClear" data-i18n="date_clear">Quitar fechas</button>
+        </div>
       </div>
-      <button class="ghost date-clear hidden" id="dateClear" data-i18n="date_clear">Quitar fechas</button>
-
-      <h2 data-i18n="filter_zone">Zona del mapa</h2>
-      <div class="zone-actions">
-        <button class="ghost" id="zoneDraw" data-i18n="zone_draw">▭ Dibujar zona</button>
-        <button class="ghost hidden" id="zoneClear" data-i18n="zone_clear">Quitar zona</button>
+      <div class="frow zone-row">
+        <span class="fs-t" data-i18n="filter_zone">Zona del mapa</span>
+        <div class="zone-actions">
+          <button class="ghost" id="zoneDraw" data-i18n="zone_draw">▭ Dibujar zona</button>
+          <button class="ghost hidden" id="zoneClear" data-i18n="zone_clear">Quitar zona</button>
+        </div>
       </div>
-      <div class="zone-info" id="zoneInfo" data-i18n="zone_info_none">Rutas que pasan por un rectángulo que dibujas en el mapa.</div>
-
-      <h2 data-i18n="filter_year">Año</h2>
-      <div class="filter-actions"><button data-all="year" data-i18n="all">Todos</button><button data-none="year" data-i18n="none">Ninguno</button></div>
-      <div class="check-list" id="yearList"></div>
-
-      <h2 data-i18n="filter_type">Tipo de actividad</h2>
-      <div class="filter-actions"><button data-all="type" data-i18n="all">Todos</button><button data-none="type" data-i18n="none">Ninguno</button></div>
-      <div class="check-list" id="typeList"></div>
-
-      <h2 data-i18n="filter_km">Distancia (km)</h2>
-      <div class="range-row"><input type="number" id="kmMin" min="0" step="1"><span data-i18n="range_to">a</span><input type="number" id="kmMax" min="0" step="1"></div>
-
-      <h2 data-i18n="filter_gain">Desnivel positivo (m)</h2>
-      <div class="range-row"><input type="number" id="elMin" min="0" step="10"><span data-i18n="range_to">a</span><input type="number" id="elMax" min="0" step="10"></div>
-
-      <h2 data-i18n="filter_idx">Índice de dificultad</h2>
-      <div class="range-row"><input type="number" id="idxMin" min="0" step="5"><span data-i18n="range_to">a</span><input type="number" id="idxMax" min="0" step="5"></div>
-
+      <div class="zone-info hidden" id="zoneInfo" data-i18n="zone_info_none">Rutas que pasan por un rectángulo que dibujas en el mapa.</div>
+      <div class="fsec" data-sec="year">
+        <div class="fsh" role="button" tabindex="0" aria-expanded="false"><span class="fs-t" data-i18n="filter_year">Año</span><span class="fs-s" data-sum="year"></span><span class="fs-on" aria-hidden="true"></span><span class="fs-ar" aria-hidden="true">▶</span></div>
+        <div class="fsb">
+          <div class="fs-acts"><button class="fs-lnk" data-all="year" data-i18n="all">Todos</button><button class="fs-lnk" data-none="year" data-i18n="none">Ninguno</button></div>
+          <div class="check-list year-chips" id="yearList"></div>
+        </div>
+      </div>
+      <div class="fsec" data-sec="type">
+        <div class="fsh" role="button" tabindex="0" aria-expanded="false"><span class="fs-t" data-i18n="fs_type">Tipo</span><span class="fs-s" data-sum="type"></span><span class="fs-on" aria-hidden="true"></span><span class="fs-ar" aria-hidden="true">▶</span></div>
+        <div class="fsb">
+          <div class="fs-acts"><button class="fs-lnk" data-all="type" data-i18n="all">Todos</button><button class="fs-lnk" data-none="type" data-i18n="none">Ninguno</button></div>
+          <div class="check-list" id="typeList"></div>
+        </div>
+      </div>
+      <div id="peopleFilter" class="hidden">
+      <div class="fsec" data-sec="people">
+        <div class="fsh" role="button" tabindex="0" aria-expanded="false"><span class="fs-t" data-i18n="filter_people">Acompañantes</span><span class="fs-s" data-sum="people"></span><span class="fs-on" aria-hidden="true"></span><span class="fs-ar" aria-hidden="true">▶</span></div>
+        <div class="fsb">
+          <div class="fs-acts"><button class="fs-lnk" data-pall="1" data-i18n="all">Todos</button><button class="fs-lnk" data-pnone="1" data-i18n="none">Ninguno</button></div>
+          <div class="check-list" id="peopleList"></div>
+        </div>
+      </div>
+      </div>
+      <div class="fsec" data-sec="more">
+        <div class="fsh" role="button" tabindex="0" aria-expanded="false"><span class="fs-t" data-i18n="fs_more">Más filtros</span><span class="fs-s" data-sum="more"></span><span class="fs-on" aria-hidden="true"></span><span class="fs-ar" aria-hidden="true">▶</span></div>
+        <div class="fsb">
+          <div class="rng1"><span data-i18n="fs_lbl_km">Distancia</span><input type="number" id="kmMin" min="0" step="1"><span>–</span><input type="number" id="kmMax" min="0" step="1"><span>km</span></div>
+          <div class="rng1"><span data-i18n="fs_lbl_el">Desnivel</span><input type="number" id="elMin" min="0" step="10"><span>–</span><input type="number" id="elMax" min="0" step="10"><span>m</span></div>
+          <div class="rng1"><span data-i18n="fs_lbl_idx">Índice</span><input type="number" id="idxMin" min="0" step="5"><span>–</span><input type="number" id="idxMax" min="0" step="5"><span></span></div>
+        </div>
+      </div>
 
       <input type="file" id="restoreInput" accept=".json,.gz" class="hidden">
     </aside>
@@ -741,6 +819,8 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     <button class="ghost" id="backupRemLater" data-i18n="backup_rem_later">Más tarde</button>
   </div>
   <div class="auto-note hidden" id="autoNote" role="status" aria-live="polite"></div>
+  <div class="drop-overlay hidden" id="dropOverlay"><div class="drop-box"><div class="drop-ic">⇣</div><b data-i18n="drop_title">Suelta los archivos para añadirlos</b><span data-i18n="drop_sub">GPX, TCX o .gz, o una copia de seguridad (.json / .json.gz)</span></div></div>
+  <div class="toast hidden" id="toast" role="status" aria-live="polite"></div>
   <div class="surf-status hidden" id="surfStatus">
     <div class="spinner" id="surfSpinner"></div>
     <span id="surfStatusText"></span>
@@ -995,6 +1075,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
         <button class="ghost active" data-tab="look" data-i18n="set_tab_look">Apariencia</button>
         <button class="ghost" data-tab="types" data-i18n="set_tab_types">Tipos de actividad</button>
         <button class="ghost" data-tab="groups" data-i18n="set_tab_groups">Grupos</button>
+        <button class="ghost" data-tab="people" data-i18n="set_tab_people">Personas</button>
         <button class="ghost" data-tab="map" data-i18n="set_tab_map">Mapa</button>
         <button class="ghost" data-tab="calc" data-i18n="set_tab_calc">Cálculos</button>
       </div>
@@ -1021,6 +1102,20 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
         <div class="set-note" style="margin-top:0;" data-i18n="set_groups_note">Los récords, el Top 10, los puestos de la Ficha y los tiempos de Sitios y de Caminos y sendas comparan solo rutas del mismo grupo. Cambia el icono o el nombre de cada grupo, añade los que quieras y elige el grupo de cada tipo en Tipos de actividad.</div>
         <div id="groupRows"></div>
         <div style="display:flex; justify-content:flex-end; margin-top:10px;"><button class="ghost" id="groupAdd" data-i18n="grp_add">Añadir grupo</button></div>
+      </div>
+      <div id="setPanePeople" class="hidden">
+        <div class="set-note" style="margin-top:0;" data-i18n="set_people_note"></div>
+        <div id="personRows"></div>
+        <div style="display:flex; justify-content:flex-end; margin-top:10px;"><button class="ghost" id="personAdd" data-i18n="pp_add">Añadir persona</button></div>
+        <div id="ppMore">
+          <h4 class="pp-h" data-i18n="pp_bulk_h">Asignar a las rutas filtradas</h4>
+          <div class="pp-bulk"><select id="ppBulkSel"></select><button class="ghost" id="ppBulkAdd" data-i18n="pp_bulk_add">Añadir</button><button class="ghost" id="ppBulkDel" data-i18n="pp_bulk_del">Quitar</button></div>
+          <div class="set-note" id="ppBulkInfo"></div>
+        </div>
+        <h4 class="pp-h" data-i18n="pp_scan_h">Buscar en los nombres de las rutas</h4>
+        <div class="set-note" style="margin-top:0;" data-i18n="pp_scan_note"></div>
+        <button class="ghost" id="ppScan" data-i18n="pp_scan_btn">Buscar</button>
+        <div id="ppScanRes"></div>
       </div>
       <div id="setPaneCalc" class="hidden">
         <div class="set-note" style="margin-top:0;" data-i18n-html="set_calc_note"></div>
@@ -1260,7 +1355,43 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       filter_km: "Distancia (km)", filter_gain: "Desnivel positivo (m)", filter_idx: "Índice de dificultad", route_intensity: "Intensidad de las rutas",
       range_to: "a",
       empty_title: "Bienvenido a Hinterway",
-      empty_text: "Admite archivos GPX y TCX, también comprimidos en .gz; puedes elegir cientos a la vez. Si no traen el tipo de actividad, te lo preguntará.",
+      empty_text: "Admite archivos GPX y TCX, también comprimidos en .gz; puedes elegir cientos a la vez o, en el ordenador, arrastrarlos a esta ventana. Si no traen el tipo de actividad, te lo preguntará.",
+      drop_title: "Suelta los archivos para añadirlos",
+      filter_people: "Acompañantes", pp_solo: "Solo (sin acompañantes)",
+      fs_type: "Tipo", fs_more: "Más filtros", fs_lbl_km: "Distancia", fs_lbl_el: "Desnivel", fs_lbl_idx: "Índice",
+      fs_any: "cualquiera", fs_all: "todos", fs_all_n: n => `todos (${n})`, fs_none: "ninguno", fs_without: a => "sin " + a.join(", "),
+      fs_nolimit: "sin límites", fs_alone: "solo", fs_from: d => `desde ${d}`, fs_to: d => `hasta ${d}`, fs_zone: "Zona del mapa",
+      fs_gt: (v, u) => `> ${v} ${u}`, fs_lt: (v, u) => `< ${v} ${u}`, fs_idx_gt: v => `índice > ${v}`, fs_idx_lt: v => `índice < ${v}`,
+      fs_remove: "Quitar este filtro", fs_reset: "Restablecer",
+      with_list: a => "con " + (a.length > 1 ? a.slice(0, -1).join(", ") + " y " + a[a.length - 1] : a[0]),
+      with_lbl: "Con:", pp_btn_tip: "Con quién fuiste", col_with: "Con",
+      set_tab_people: "Personas",
+      set_people_note: "Apunta con quién haces cada ruta. Crea aquí a las personas y márcalas en la ventana de la ruta (botón 👥) o en la Ficha, o asígnalas abajo a las rutas filtradas. En la barra lateral puedes filtrar por acompañantes. Las personas no salen en la ficha compartida.",
+      pp_add: "Añadir persona", pp_new_name: n => `Persona ${n}`, pp_name_lbl: "Nombre de la persona",
+      pp_count: n => `${n} ruta${n == 1 ? "" : "s"}`,
+      pp_del_tip: "Quitar a esta persona (también de sus rutas)",
+      pp_del_confirm: (p, n) => `¿Quitar a «${p}»? Desaparecerá de ${n} ruta${n == 1 ? "" : "s"}.`,
+      pp_bulk_h: "Asignar a las rutas filtradas", pp_bulk_add: "Añadir", pp_bulk_del: "Quitar",
+      pp_bulk_info: n => `Se aplica a las ${n} rutas que cumplen los filtros actuales (barra lateral).`,
+      pp_bulk_confirm_add: (p, n) => `¿Añadir a ${p} en ${n} ruta${n == 1 ? "" : "s"} filtrada${n == 1 ? "" : "s"}?`,
+      pp_bulk_confirm_del: (p, n) => `¿Quitar a ${p} de ${n} ruta${n == 1 ? "" : "s"} filtrada${n == 1 ? "" : "s"}?`,
+      pp_bulk_none: "Ninguna ruta filtrada cambia.",
+      pp_bulk_done_add: (p, n) => `✓ ${p} está ahora en ${n} ruta${n == 1 ? "" : "s"} más`,
+      pp_bulk_done_del: (p, n) => `✓ ${p} ya no está en ${n} ruta${n == 1 ? "" : "s"}`,
+      pp_need: "Añade primero una persona.",
+      pp_scan_h: "Buscar en los nombres de las rutas",
+      pp_scan_note: "Busca «con …» en los nombres de tus rutas (p. ej. «El Pardo con Eva y Ari») y te propone a quién apuntar en cada una. Revisa la lista antes de asignar.",
+      pp_scan_btn: "Buscar",
+      pp_scan_none: "Ningún nombre de ruta tiene «con» seguido de un nombre propio.",
+      pp_scan_new: "persona nueva", pp_scan_see: "ver rutas",
+      pp_scan_cnt: (n, m) => `${n} ruta${n == 1 ? "" : "s"} · ${m} sin marcar`,
+      pp_scan_apply: "Asignar las marcadas",
+      pp_scan_done: (r, p) => `✓ ${r} ruta${r == 1 ? "" : "s"} marcada${r == 1 ? "" : "s"} con ${p} persona${p == 1 ? "" : "s"}`,
+      drop_sub: "GPX, TCX o .gz, o una copia de seguridad (.json / .json.gz)",
+      imp_done: (a, u) => a && u ? `✓ ${a} ruta${a == 1 ? "" : "s"} añadida${a == 1 ? "" : "s"} y ${u} actualizada${u == 1 ? "" : "s"}` : u ? `✓ ${u} ruta${u == 1 ? "" : "s"} actualizada${u == 1 ? "" : "s"}` : `✓ ${a} ruta${a == 1 ? "" : "s"} añadida${a == 1 ? "" : "s"}`,
+      imp_ignored: n => `Se ignor${n == 1 ? "ó 1 archivo que no es" : `aron ${n} archivos que no son`} GPX, TCX ni .gz.`,
+      imp_none: "Ninguno de esos archivos es GPX, TCX ni .gz.",
+      drop_one_backup: "Para restaurar una copia de seguridad, suéltala sola.",
       empty_btn: "Añadir rutas",
       wl_lead: "Todas tus rutas en un mapa, para ver por dónde has pasado y analizarlas.",
       wl_f1: "<b>Mapa de calor</b> de todas tus rutas, con filtros por año, tipo, zona, distancia o desnivel.",
@@ -1331,7 +1462,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       elev_segment: (dist,gain,loss,avg) => `Tramo seleccionado: ${dist} km · subida +${gain} m · bajada −${loss} m · ${avg}% de media &nbsp;·&nbsp; <a href="#" class="elev-reset-zoom" style="color:var(--accent-2);">Ver ruta completa</a>`,
       km_unit: "km",
       unknown_type: "Desconocido",
-      csv_header: ["Nombre","Archivo","Fecha","Tipo","Km","Desnivel (m)","Tiempo en movimiento (h)","Velocidad media (km/h)","Índice de dificultad","% Asfalto","% Pista","% Senda","% Sin datos (terreno)"],
+      csv_header: ["Nombre","Archivo","Fecha","Tipo","Km","Desnivel (m)","Tiempo en movimiento (h)","Velocidad media (km/h)","Índice de dificultad","% Asfalto","% Pista","% Senda","% Sin datos (terreno)","Con"],
       no_index: "Sin índice",
       index_label: "Índice de dificultad",
       save: "Guardar", cancel: "Cancelar", assign: "Asignar",
@@ -1585,7 +1716,43 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       filter_km: "Distance (km)", filter_gain: "Elevation gain (m)", filter_idx: "Difficulty index", route_intensity: "Route intensity",
       range_to: "to",
       empty_title: "Welcome to Hinterway",
-      empty_text: "It reads GPX and TCX files, also gzipped as .gz; you can pick hundreds at once. If they don't include the activity type, you'll be asked.",
+      empty_text: "It reads GPX and TCX files, also gzipped as .gz; you can pick hundreds at once or, on a computer, drag them onto this window. If they don't include the activity type, you'll be asked.",
+      drop_title: "Drop the files to add them",
+      filter_people: "Companions", pp_solo: "Alone (no companions)",
+      fs_type: "Type", fs_more: "More filters", fs_lbl_km: "Distance", fs_lbl_el: "Gain", fs_lbl_idx: "Index",
+      fs_any: "any", fs_all: "all", fs_all_n: n => `all (${n})`, fs_none: "none", fs_without: a => "without " + a.join(", "),
+      fs_nolimit: "no limits", fs_alone: "alone", fs_from: d => `from ${d}`, fs_to: d => `until ${d}`, fs_zone: "Map area",
+      fs_gt: (v, u) => `> ${v} ${u}`, fs_lt: (v, u) => `< ${v} ${u}`, fs_idx_gt: v => `index > ${v}`, fs_idx_lt: v => `index < ${v}`,
+      fs_remove: "Remove this filter", fs_reset: "Reset",
+      with_list: a => "with " + (a.length > 1 ? a.slice(0, -1).join(", ") + " and " + a[a.length - 1] : a[0]),
+      with_lbl: "With:", pp_btn_tip: "Who came with you", col_with: "With",
+      set_tab_people: "People",
+      set_people_note: "Note who you do each route with. Create the people here and tick them in the route window (👥 button) or in the Details, or assign them below to the filtered routes. In the sidebar you can filter by companions. People never appear in a shared details page.",
+      pp_add: "Add person", pp_new_name: n => `Person ${n}`, pp_name_lbl: "Person's name",
+      pp_count: n => `${n} route${n == 1 ? "" : "s"}`,
+      pp_del_tip: "Remove this person (also from their routes)",
+      pp_del_confirm: (p, n) => `Remove “${p}”? They will disappear from ${n} route${n == 1 ? "" : "s"}.`,
+      pp_bulk_h: "Assign to the filtered routes", pp_bulk_add: "Add", pp_bulk_del: "Remove",
+      pp_bulk_info: n => `Applies to the ${n} routes matching the current filters (sidebar).`,
+      pp_bulk_confirm_add: (p, n) => `Add ${p} to ${n} filtered route${n == 1 ? "" : "s"}?`,
+      pp_bulk_confirm_del: (p, n) => `Remove ${p} from ${n} filtered route${n == 1 ? "" : "s"}?`,
+      pp_bulk_none: "No filtered route changes.",
+      pp_bulk_done_add: (p, n) => `✓ ${p} is now in ${n} more route${n == 1 ? "" : "s"}`,
+      pp_bulk_done_del: (p, n) => `✓ ${p} is no longer in ${n} route${n == 1 ? "" : "s"}`,
+      pp_need: "Add a person first.",
+      pp_scan_h: "Search the route names",
+      pp_scan_note: "Looks for “with …” / “con …” in your route names (e.g. “El Pardo con Eva y Ari”) and suggests who to tick on each one. Review the list before assigning.",
+      pp_scan_btn: "Search",
+      pp_scan_none: "No route name has “with” followed by a proper name.",
+      pp_scan_new: "new person", pp_scan_see: "show routes",
+      pp_scan_cnt: (n, m) => `${n} route${n == 1 ? "" : "s"} · ${m} not ticked`,
+      pp_scan_apply: "Assign the ticked ones",
+      pp_scan_done: (r, p) => `✓ ${r} route${r == 1 ? "" : "s"} ticked with ${p} person${p == 1 ? "" : "s"}`,
+      drop_sub: "GPX, TCX or .gz, or a backup (.json / .json.gz)",
+      imp_done: (a, u) => a && u ? `✓ ${a} route${a == 1 ? "" : "s"} added and ${u} updated` : u ? `✓ ${u} route${u == 1 ? "" : "s"} updated` : `✓ ${a} route${a == 1 ? "" : "s"} added`,
+      imp_ignored: n => `${n} file${n == 1 ? " was" : "s were"} ignored (not GPX, TCX or .gz).`,
+      imp_none: "None of those files is GPX, TCX or .gz.",
+      drop_one_backup: "To restore a backup, drop it on its own.",
       empty_btn: "Add routes",
       wl_lead: "All your routes on one map, to see where you've been and analyze them.",
       wl_f1: "<b>Heatmap</b> of all your routes, with filters by year, type, area, distance or elevation gain.",
@@ -1656,7 +1823,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       elev_segment: (dist,gain,loss,avg) => `Selected section: ${dist} km · climb +${gain} m · descent −${loss} m · ${avg}% average &nbsp;·&nbsp; <a href="#" class="elev-reset-zoom" style="color:var(--accent-2);">View full route</a>`,
       km_unit: "km",
       unknown_type: "Unknown",
-      csv_header: ["Name","File","Date","Type","Km","Elevation gain (m)","Moving time (h)","Average speed (km/h)","Difficulty index","% Paved","% Track","% Trail","% No data (terrain)"],
+      csv_header: ["Name","File","Date","Type","Km","Elevation gain (m)","Moving time (h)","Average speed (km/h)","Difficulty index","% Paved","% Track","% Trail","% No data (terrain)","With"],
       no_index: "No index",
       index_label: "Difficulty index",
       save: "Save", cancel: "Cancel", assign: "Assign",
@@ -2915,14 +3082,16 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
           <input type="text" class="popup-rename-input" data-id="${t.id}" value="${String(t.name).replace(/"/g,"&quot;")}">
           <button class="ghost popup-rename-save" data-id="${t.id}">✓</button>
         </div>
-        <div class="rp-sub">${dateTxt ? `<span>${dateTxt}</span>·` : ""}<span class="dot" style="background:${color}"></span><span title="${t.type || ""}">${typeLabel(t.type)}</span></div>
+        <div class="rp-sub">${dateTxt ? `<span>${dateTxt}</span>·` : ""}<span class="dot" style="background:${color}"></span><span title="${t.type || ""}">${typeLabel(t.type)}</span><span class="rp-with" data-id="${escH(t.id)}">${withNames(t).length ? " · " + escH(tr("with_list", withNames(t))) : ""}</span></div>
       </div>
+      ${PEOPLE.length ? `<div class="rp-people popup-people-row hidden" data-id="${escH(t.id)}">${peopleChipsHtml(t)}</div>` : ""}
       <div class="rp-stats">${st}</div>
       <div class="rp-terrain">${terrain}</div>
       <div class="rp-actions">
         <select class="popup-type-select" data-id="${t.id}" title="${tr("rp_type")}">${typeOptionsHtml(t.type)}</select>
         <input type="text" class="popup-type-new hidden" data-id="${t.id}" placeholder="${tr("new_type_ph")}">
         <button class="ghost popup-ficha-btn" data-id="${t.id}" title="${tr("ficha_btn_tip")}">${tr("ficha_btn")}</button>
+        ${PEOPLE.length ? `<button class="ghost popup-people-btn" data-id="${escH(t.id)}" title="${escH(tr("pp_btn_tip"))}" aria-label="${escH(tr("pp_btn_tip"))}">👥</button>` : ""}
         <button class="ghost popup-rename-btn" data-id="${t.id}" title="${tr("rename")}">✎</button>
         <button class="ghost popup-surf-btn" data-id="${t.id}" ${busy ? "disabled" : ""} title="${tr(t.surface ? "surf_reanalyze" : "surf_analyze")}">${surfLabel}</button>
         <button class="ghost danger popup-delete-btn" data-id="${t.id}" title="${tr("delete_route")}">🗑</button>
@@ -3462,6 +3631,19 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
   const groupOf = t => groupOfType(t.type);
   function groupName(id){ const g = groupById(id); if(!g) return id; if(g.name) return g.name; const d = tr("grp_" + g.id); return typeof d === "string" ? d : g.id; }
   function groupLabel(id){ const g = groupById(id); return g ? (g.icon ? g.icon + " " : "") + groupName(id) : id; }
+  // (0.79) personas: acompañantes de cada ruta (t.with = [ids]). "Yo" va implícito: todas las rutas son del usuario.
+  let PEOPLE = (() => { try{ const a = JSON.parse(localStorage.getItem("heatmap-people") || "[]"); return Array.isArray(a) ? a.filter(p => p && p.id && p.name) : []; }catch(e){ return []; } })();
+  const PEOPLE_OFF = new Set();   // casillas del filtro desmarcadas ("solo" = rutas sin acompañantes)
+  function savePeople(){ lsSet("heatmap-people", JSON.stringify(PEOPLE)); }
+  const personById = id => PEOPLE.find(p => p.id === id);
+  const personLabel = p => (p.icon ? p.icon + " " : "") + p.name;
+  function withOf(t){ return Array.isArray(t.with) ? t.with.filter(id => personById(id)) : []; }
+  function withNames(t){ return withOf(t).map(id => personById(id).name); }
+  function passesPeople(t){
+    if(!PEOPLE_OFF.size || !PEOPLE.length) return true;
+    const w = withOf(t);
+    return w.length ? w.some(id => !PEOPLE_OFF.has(id)) : !PEOPLE_OFF.has("solo");
+  }
   // Selector de grupo de los paneles. Sumas (Gráficos, Calendario, Tabla, Resumen anual): "Todos" o un grupo.
   // Comparaciones (Récords y Top 10, Sitios, Caminos y sendas): siempre un grupo (por defecto, el que tiene más rutas).
   let SUM_GROUP = lsGet("heatmap-sum-group", "all"), CMP_GROUP = lsGet("heatmap-cmp-group", "");
@@ -3551,6 +3733,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       });
     });
     updateGroupChecks();
+    renderPeopleFilter();
 
     if(tracks.length){
       const kms = tracks.map(t=>t.km), gains = tracks.map(t=>t.gain);
@@ -3628,7 +3811,8 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
         (!state.dateFrom || (t.date && t.date.slice(0,10) >= state.dateFrom)) &&
         (!state.dateTo || (t.date && t.date.slice(0,10) <= state.dateTo)) &&
         (!state.nombre || t.name.toLowerCase().includes(state.nombre)) &&
-        (!state.zone || passesThroughZone(t, state.zone));
+        (!state.zone || passesThroughZone(t, state.zone)) &&
+        passesPeople(t);
     });
     return list;
   }
@@ -3671,6 +3855,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     updateHeaderTotals(list);
     redrawMap(list, fit);
     els("emptyState").classList.toggle("hidden", tracks.length>0);
+    try{ updateFilterSummary(); }catch(e){ console.error(e); }
     if(document.body.classList.contains("no-tracks") !== !tracks.length){
       document.body.classList.toggle("no-tracks", !tracks.length);
       setTimeout(() => map.invalidateSize(), 50);
@@ -3784,7 +3969,8 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     const items = [...fileList]
       .map((f,i) => ({ file:f, handle: handles ? handles[i] : null }))
       .filter(x => ROUTE_FILE_RE.test(x.file.name));
-    if(!items.length) return;
+    const nIgnored = fileList.length - items.length;   // (0.78) en el iPhone se puede elegir cualquier archivo, y al soltar también
+    if(!items.length){ if(nIgnored) showToast(tr("imp_none"), 5000); return; }
     showLoading(tr("loading_reading_gpx", items.length));
     let results;
     try{
@@ -3802,7 +3988,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     // que tenía en la app: pueden haberse cambiado solo aquí, sin grabarlos en el GPX.
     valid.forEach(x => {
       const old = tracks.find(o => o.id === x.t.id);
-      if(old){ x.t.name = old.name; x.t.type = old.type; }
+      if(old){ x.t.name = old.name; x.t.type = old.type; if(Array.isArray(old.with) && old.with.length) x.t.with = old.with.slice(); }
     });
     const sinTipo = valid.filter(x => !x.t.type);
     if(sinTipo.length && DEFAULT_TYPE){
@@ -3829,6 +4015,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     });
     await fillSurfacesFromCache(parsed);
     showLoading(tr("loading_saving_routes"));
+    const nUpd = parsed.filter(t => tracks.some(o => o.id === t.id)).length, nAdd = parsed.length - nUpd;
     try{
       await dbPutAll(parsed);
       const byId = new Map(tracks.map(t => [t.id, t]));
@@ -3840,6 +4027,47 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     scheduleAutoUpdate("sites");
     if(parsed.some(t => t.surface)) scheduleAutoUpdate("segs");
     checkBackupReminder();
+    showToast(tr("imp_done", nAdd, nUpd) + (nIgnored ? " · " + tr("imp_ignored", nIgnored) : ""), nIgnored ? 6000 : 3500);
+  }
+
+  // (0.78) aviso breve abajo en el centro
+  let toastT = null;
+  function showToast(msg, ms){
+    const el = els("toast"); el.textContent = msg; el.classList.remove("hidden", "fade");
+    clearTimeout(toastT);
+    toastT = setTimeout(() => { el.classList.add("fade"); toastT = setTimeout(() => el.classList.add("hidden"), 320); }, ms || 3500);
+  }
+  // (0.78) arrastrar y soltar archivos en cualquier parte de la ventana
+  (() => {
+    const ov = els("dropOverlay"); let depth = 0;
+    const hasFiles = e => e.dataTransfer && [...(e.dataTransfer.types || [])].includes("Files");
+    const hide = () => { depth = 0; ov.classList.add("hidden"); };
+    window.addEventListener("dragenter", e => { if(!hasFiles(e)) return; e.preventDefault(); depth++; ov.classList.remove("hidden"); });
+    window.addEventListener("dragover", e => { if(!hasFiles(e)) return; e.preventDefault(); e.dataTransfer.dropEffect = "copy"; });
+    window.addEventListener("dragleave", e => { if(!hasFiles(e)) return; depth = Math.max(0, depth - 1); if(!depth) ov.classList.add("hidden"); });
+    window.addEventListener("drop", e => {
+      if(!hasFiles(e)) return;
+      e.preventDefault(); hide();
+      const files = [...e.dataTransfer.files]; if(!files.length) return;
+      const backups = files.filter(f => /\.json(\.gz)?$/i.test(f.name));
+      if(backups.length){
+        if(files.length > 1){ showToast(tr("drop_one_backup"), 5000); return; }
+        try{ const dt = new DataTransfer(); dt.items.add(files[0]); const inp = els("restoreInput"); inp.files = dt.files; inp.dispatchEvent(new Event("change")); }catch(err){ console.error(err); }
+        return;
+      }
+      // con Chrome/Edge de ordenador se piden también los "handles" para poder grabar nombre y tipo en el propio GPX
+      const its = [...e.dataTransfer.items].filter(i => i.kind === "file");
+      if(canWriteFiles && its.length === files.length && its.every(i => i.getAsFileSystemHandle)){
+        const hp = its.map(i => i.getAsFileSystemHandle());
+        Promise.all(hp).then(hs => handleGpxFiles(files, hs.map(h => h && h.kind === "file" ? h : null))).catch(() => handleGpxFiles(files));
+      } else handleGpxFiles(files);
+    });
+  })();
+  // (0.78) iPhone/iPad: Safari pone en gris las extensiones que no conoce (.tcx, .gz y a veces .gpx).
+  // Allí se quita el filtro del selector y se comprueba la extensión después.
+  if(/iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)){
+    els("gpxInput").removeAttribute("accept");
+    els("restoreInput").removeAttribute("accept");
   }
 
   // ---------- panel de filtros: mostrar / ocultar ----------
@@ -3904,7 +4132,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       <h4>1. Añadir rutas</h4>
       <ul>
         <li><strong>Primeros pasos</strong> (desde 0.72): al empezar con la app vacía, tras añadir las primeras rutas aparece abajo a la derecha una lista con los pasos recomendados, en orden: añadir rutas, revisar los grupos, analizar el terreno, buscar Sitios, buscar Caminos y sendas y hacer una copia de seguridad. Cada paso se marca solo al hacerlo y tiene un botón para ir a él. Se pliega con ▾, se cierra con ✕ y se vuelve a abrir en <strong>Info → Primeros pasos</strong>. Si un panel está vacío, te dice por qué y te ofrece el botón para resolverlo (añadir rutas, restablecer los filtros, analizar el terreno…).</li>
-        <li><strong>Datos → Añadir rutas</strong>: elige varios archivos a la vez. Admite <strong>GPX</strong> y <strong>TCX</strong> (Garmin), también comprimidos en <strong>.gz</strong>. Los FIT todavía no.</li>
+        <li><strong>Datos → Añadir rutas</strong>: elige varios archivos a la vez. Admite <strong>GPX</strong> y <strong>TCX</strong> (Garmin), también comprimidos en <strong>.gz</strong>. Los FIT todavía no. En el ordenador también puedes <strong>arrastrar los archivos</strong> a la ventana de Hinterway (sale un recuadro «Suelta los archivos»); si sueltas una copia de seguridad (.json o .json.gz), se abre la restauración. Al terminar, un aviso abajo dice cuántas rutas se han añadido o actualizado y si se ignoró algún archivo.</li>
         <li>Si un archivo no trae el tipo de actividad, te lo pregunta (o pone el tipo por defecto de ⚙ → Tipos de actividad).</li>
         <li>En la cabecera ves cuántas rutas se muestran y sus totales: km, desnivel, tiempo en movimiento y velocidad media.</li>
         <li>De cada ruta se guardan los puntos que hacen falta para seguir el recorrido y la altitud: en <strong>Alto</strong> (por defecto), con 3 m de margen como mucho y sin huecos de más de 50 m; en <strong>Normal</strong>, 5 m y 100 m; en <strong>Máximo</strong>, todos los del GPX (⚙ → Mapa). En las rectas se guardan pocos puntos y en las curvas, muchos; el mapa dibuja la ruta con esos mismos puntos (separándose como mucho 4 m), así que sigue bien las curvas. Con el mapa lejos (zoom 13 o menos) se dibuja una versión simplificada de cada ruta, que a esa distancia no se distingue, para que el zoom y el movimiento vayan más ligeros. Además, solo se calculan las rutas que quedan cerca de lo que ves; las demás, al llegar a ellas. Cambiar el nivel solo afecta a las rutas que añadas después: para cambiar las que ya tienes, vuelve a añadir sus archivos. Si vuelves a añadir un archivo que ya tienes, la ruta se actualiza y conserva su nombre, su tipo y su terreno analizado; así las rutas importadas antes de la 0.24 ganan el perfil más detallado.</li>
@@ -3916,6 +4144,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
         <li>El <strong>icono de capas</strong> (arriba a la derecha) cambia el fondo del mapa y enciende o apaga las rutas y la capa de densidad (heatmap).</li>
         <li><strong>Pincha una ruta</strong> y se abre abajo su ventana: nombre, fecha y tipo; km, desnivel, tiempo, velocidad e índice de dificultad; el terreno; y los botones para cambiar el tipo, ver su <strong>Ficha</strong>, renombrar (✎), analizar el terreno (↻), borrarla de la app (🗑) y cerrar (✕).</li>
         <li>La <strong>Ficha</strong> junta todo lo que se sabe de la ruta: km, desnivel (y entre qué altitudes), tiempo en movimiento y total (y parado), pendiente media de subida, índice, km de cada terreno y sus puestos (por ejemplo «3ª más larga de 2024»). Debajo, <strong>por dónde pasaste</strong>, en orden: las subidas y bajadas de Sitios y los tramos de Caminos y sendas, con el km, el tiempo desde la salida, tu tiempo y su puesto entre todas las veces (las subidas casi iguales a altos cercanos van en una fila). Encima de la lista, un <strong>mapa pequeño</strong> (con el mismo fondo que el mapa grande) y el <strong>perfil</strong> con cada trozo coloreado: al pasar el ratón (o el dedo) por el perfil ves el km, la altitud y la hora, dónde estás en el mapa pequeño y qué filas corresponden; al pasar el ratón por una fila, su trozo se ilumina en el perfil y en el mapa pequeño. Pincha una fila para verla marcada en el mapa grande. Al bajar por la lista, el mapa pequeño y el perfil se quedan fijos arriba para que no los pierdas de vista (en el móvil, solo el mapa). Con <em>Compartir</em> (arriba) guardas la ficha como página web, un archivo .html que puedes enviar: quien lo abra ve los datos, el mapa con su fondo (necesita internet), el perfil y la lista, enlazados como aquí, y un botón <em>Descargar GPX</em> con el recorrido, sus altitudes y sus horas de paso. Las horas solo están en las rutas cargadas desde la versión 0.68 (la ficha muestra entonces la hora de salida junto a la fecha); para las anteriores, vuelve a cargar sus GPX: se actualizan conservando el nombre, el tipo y el terreno. Al final, las <strong>rutas parecidas</strong>: las que comparten más subidas, bajadas y tramos; pincha una para ver su ficha. Para ver por dónde pasa hay que haber buscado antes en Sitios y en Caminos y sendas. También se abre con ⓘ junto al nombre en la Tabla y en el Top 10; al cerrarla vuelves a donde estabas.</li>
+        <li><strong>Con quién</strong> (desde 0.79): si has creado personas en ⚙ → Personas, el botón 👥 de la ventana de la ruta muestra unas chapas para marcar quién fue contigo, y la Ficha las muestra arriba («Con:»). Debajo del tipo se lee «con Eva y Ari». Las personas no salen nunca en la ficha compartida.</li>
         <li>Los <strong>puestos</strong> de la Ficha, los tiempos de cada subida, bajada o tramo y las rutas parecidas solo se comparan con rutas del <strong>mismo grupo</strong> de actividad (Bici, E-bike, A pie…; ver ⚙ → Grupos): una caminata no compite con una salida en bici.</li>
         <li>Debajo está su <strong>perfil de elevación</strong>: pasa el ratón para ver km, altitud, pendiente, terreno y tiempo transcurrido desde la salida (⏱ hh:mm:ss, si la ruta tiene tiempos de paso) de cada punto; arrastra para ampliar un tramo, verlo en el mapa y ver su pendiente por sectores. Si la ruta tiene el terreno analizado, una franja de colores marca asfalto, pista y senda.</li>
         <li>El tipo y el nombre que cambies se guardan en la app; con Chrome o Edge de ordenador también se graban en el propio archivo, si es un GPX sin comprimir.</li>
@@ -3924,10 +4153,12 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       <h4>3. Filtros (panel izquierdo)</h4>
       <ul>
         <li>El panel y el menú Filtros aparecen cuando hay alguna ruta cargada.</li>
+        <li><strong>Secciones plegables</strong> (desde 0.80): Fecha, Año, Tipo, Acompañantes y Más filtros (distancia, desnivel e índice) se abren y cierran pinchando su título, y la app recuerda cuáles dejas abiertas. Al lado del título se lee un resumen («todos», «2024–2026», «sin Nico», «> 50 km»…); si la sección tiene un filtro puesto, el resumen sale en color con un punto, aunque esté plegada. Los años son chapas que se marcan con un toque. Arriba del todo aparecen los <strong>filtros activos</strong>, cada uno con × para quitarlo, y <em>Restablecer</em>.</li>
         <li><strong>Nombre</strong>: busca un texto en el nombre.</li>
         <li><strong>Fecha</strong> desde / hasta: ambos días incluidos; puedes rellenar solo uno.</li>
         <li><strong>Zona del mapa</strong>: pulsa "Dibujar zona" y arrastra un rectángulo; quedan las rutas que pasan por él y el mapa se ajusta a ellas. "Quitar zona" lo elimina.</li>
         <li><strong>Año</strong> y <strong>tipo de actividad</strong> (el cuadrito muestra su color). Los tipos van agrupados por grupo de actividad (🚴 Bici, ⚡ E-bike, 🥾 A pie…): la casilla del grupo marca o desmarca todos sus tipos, y aparece a medias si solo hay algunos marcados.</li>
+        <li><strong>Acompañantes</strong> (si has creado personas): «Solo» son las rutas sin nadie más; cada persona, las rutas en las que fue. Se ve una ruta si va alguno de los marcados.</li>
         <li><strong>Distancia</strong>, <strong>desnivel</strong> e <strong>índice de dificultad</strong>: mínimo y máximo. Los máximos se amplían solos al añadir rutas, salvo que los hayas cambiado a mano.</li>
         <li>Todos se combinan entre sí y afectan al mapa, a los totales y a los paneles. Al cambiar la zona o las fechas, el mapa se ajusta a las rutas que quedan; con los demás filtros se queda donde estás. <strong>Filtros → Restablecer filtros</strong> los deja como al principio y vuelve a mostrar todas las rutas.</li>
       </ul>
@@ -3937,7 +4168,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
         <li><strong>Gráficos</strong>: km, desnivel y horas por mes o por año, y velocidad media por tipo.</li>
         <li><strong>Récords y Top 10</strong>: la ruta más larga, con más desnivel, más rápida, con más tiempo y más difícil; y las 10 mejores ordenables por cualquier columna.</li>
         <li><strong>Calendario</strong>: un cuadradito por día, más intenso cuantos más km.</li>
-        <li><strong>Tabla de rutas</strong>: todas las rutas filtradas, ordenables por columna.</li>
+        <li><strong>Tabla de rutas</strong>: todas las rutas filtradas, ordenables por columna (con personas, también la columna <em>Con</em>).</li>
         <li><strong>Resumen anual</strong>: las cifras de un año. Con <em>Todos los años</em>, una tabla con una fila por año y el total; pincha un año para ver su resumen. <em>Compartir…</em> crea una imagen del año (sin nombres de rutas) para WhatsApp, Telegram, X, email, etc.</li>
         <li><strong>Sitios (subidas y bajadas)</strong>: pulsa <em>Buscar sitios</em> y la app encuentra los altos por los que pasas a menudo, y también los de subidas grandes aunque los hayas pasado una sola vez, y, en cada uno, los caminos por los que llegas (subida A, B…, llegando de bajada o de paso) y, en la pestaña <em>Bajadas</em>, los caminos por los que te vas bajando (bajada A, B…, «hacia» el pueblo donde acaban). De cada subida o bajada ves cuántas veces la has hecho, el mejor tiempo, la mediana, la última, la velocidad media de la mejor vez (km/h), el mejor por tipo y un gráfico de tus tiempos por fecha; pincha un paso para abrir esa ruta. <em>Buscar nombres</em> toma de OpenStreetMap el nombre del puerto, collado, cima o mirador de cada alto (si no hay, el de un aparcamiento, refugio, fuente u otro lugar con nombre en el propio alto, y si tampoco, el del pueblo o paraje, y si no, el del camino o la carretera con nombre que pasa por él) y el del sitio donde empieza cada subida o acaba cada bajada: un lugar con nombre a menos de 100 m, el pueblo, o el camino o la carretera con nombre por los que pasa («Subida A · desde Talledo», «Bajada A · hacia Camino Portillo»). Al pinchar en la casilla del nombre salen los <strong>nombres cercanos</strong> de OpenStreetMap para elegir uno con un clic (en el alto, también como botones debajo); los que no estén en OpenStreetMap quedan como «Alto 373 m». Escribe encima tus propios nombres: mandan sobre los de OpenStreetMap, se guardan y se conservan al volver a buscar. <em>Quitar este sitio</em> lo oculta de la lista y del mapa, también al volver a buscar; con <em>Ver los quitados</em> puedes recuperarlo. Del mismo modo, <em>Quitar</em> junto a una subida quita ese inicio (las que quedan se renombran A, B, C… y ya no salen en el mapa); se recupera con <em>Ver los inicios quitados</em>, al final de la ficha. No se borra ninguna ruta. <em>Ver</em>, junto a cada subida, marca en el mapa el camino que sigue, desde su inicio hasta el alto, tomado de la vez más rápida (en las bajadas, desde el alto hasta su final; en «llegando de bajada» y «de paso», 1,5 km antes y después del alto, de la última vez); en el mapa, pinchar una subida en la ventanita del alto o su letra (círculo: inicio de subida; cuadrado: final de bajada) hace lo mismo, y la letra abre además una ventanita con sus datos. <em>Ver en el mapa</em> muestra los altos de la zona (también desde el icono de capas, casilla «Sitios»), con el seleccionado resaltado, su nombre y el inicio de cada subida. En cambio, <em>Ver en el mapa</em> de la ficha de un sitio muestra solo ese alto, con todas sus subidas dibujadas (cada una por el camino de su vez más rápida) y sus letras; con el botón de abajo a la izquierda cambias a sus bajadas. Las subidas y los «de paso» que quitas dejan de contar en los pasos de la lista. En el mapa, pincha un alto para resaltarlo y ver sus mejores tiempos; <em>Abrir ficha</em> vuelve al panel. En la lista, <strong>×</strong> son las veces que has pasado por el alto, <strong>↗</strong> sus subidas y <strong>↘</strong> sus bajadas (al pasar el ratón por la cabecera sale el nombre). Respeta los filtros. La primera búsqueda la pides tú; desde entonces, al añadir o borrar rutas los sitios se vuelven a buscar solos, en segundo plano (abajo a la izquierda sale «Actualizando Sitios…»), y se conservan los nombres que hayas puesto, los de OpenStreetMap y lo que hayas quitado. Los altos nuevos salen sin nombre de OpenStreetMap hasta que pulses <em>Buscar nombres</em>.</li>
         <li><strong>Caminos y sendas</strong>: pulsa <em>Buscar tramos</em> y la app encuentra los tramos de senda (1 km o más) y de camino o pista (2 km o más) por los que has pasado varias veces en el mismo sentido, en dos pestañas, <em>Sendas</em> y <em>Caminos</em>. Usa el análisis de terreno, así que solo cuentan las rutas que lo tengan. De cada tramo ves su perfil, cuántas veces lo has hecho, el mejor tiempo, la mediana, la última, la velocidad media, el mejor por tipo y un gráfico de tus tiempos por fecha; si también lo has hecho al revés, <em>En sentido contrario</em> te lleva a ese otro tramo. <em>Buscar nombres</em> pone el nombre del camino o la senda de OpenStreetMap si el tramo va casi entero por él («Camino Portillo»); si no, lo que hay al principio y al final, un lugar con nombre, el pueblo o el camino («De Talledo a Otañes»). Puedes escribir el tuyo encima o elegir uno de los <strong>nombres cercanos</strong> (botones debajo de la casilla). <em>Quitar este tramo</em> y <em>Abrir ficha</em> desde el mapa funcionan como en Sitios; <em>Ver en el mapa</em> de un tramo lo resalta solo a él, y para ver todos está el <em>Ver en el mapa</em> de arriba o la casilla «Caminos y sendas» del icono de capas; en el mapa, pinchar un tramo, o el principio (círculo blanco) o el final (círculo oscuro) del resaltado, abre una ventanita con sus datos. Con la capa puesta se ven a la vez las sendas (morado) y los caminos (ocre), con un borde oscuro, y las rutas se atenúan para que los tramos se distingan. En la lista, <strong>↕</strong> es el desnivel del principio al final y <strong>×</strong> las veces que lo has hecho. Tras la primera búsqueda, se vuelven a buscar solos al terminar un análisis de terreno (o al añadir rutas que ya lo tienen), igual que Sitios.</li>
@@ -3948,7 +4179,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
 
       <h4>5. Menú Datos</h4>
       <ul>
-        <li><strong>Exportar a CSV</strong> las rutas filtradas, para abrirlas en Excel.</li>
+        <li><strong>Exportar a CSV</strong> las rutas filtradas, para abrirlas en Excel (incluye la columna «Con»).</li>
         <li><strong>Descargar copia de seguridad</strong>: eliges qué rutas (todas, solo las filtradas o ninguna), si incluir los tiempos de paso, el análisis de terreno y la configuración, y si comprimirla (.json.gz, unas 5 veces más pequeña). Te muestra el tamaño aproximado y recuerda tus opciones. Si hay cambios sin copiar y la última copia completa tiene más de 7 días, la app te lo recuerda al abrirla.</li>
         <li><strong>Restaurar copia de seguridad</strong> (.json o .json.gz): te muestra qué trae la copia y eliges qué hacer: añadir y actualizar rutas, reemplazar todas, o solo completar los tiempos de paso de las rutas que no los tienen; y si aplicar su configuración.</li>
         <li><strong>Analizar terreno</strong> de todas las rutas filtradas que aún no lo tienen (se puede detener).</li>
@@ -3961,6 +4192,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
         <li><strong>Apariencia</strong>: idioma, tema claro u oscuro, formato de fecha, intensidad y grosor de las rutas.</li>
         <li><strong>Tipos de actividad</strong>: color de cada tipo; renombrar o fusionar tipos (si pones el nombre de otro tipo existente, se juntan); con la casilla "Cambiar solo las rutas filtradas", el cambio afecta solo a las rutas que cumplen los filtros; el grupo de cada tipo (selector junto al nombre); y el tipo por defecto para los archivos que no lo traen.</li>
         <li><strong>Grupos</strong>: cambia el icono (al pincharlo te dice cómo escribir un emoji: en Windows, <em>Windows + .</em>) y el nombre de cada grupo, añade grupos nuevos (por ejemplo, Gravel o Carrera) o quítalos (🗑; sus tipos vuelven al grupo que les toque por el nombre). Cada grupo muestra sus tipos y sus rutas. Los tipos nuevos van solos a A pie si su nombre lo indica (hiking, walking, running…), a E-bike si es eléctrica y si no a Bici; cámbialo en Tipos de actividad. Se guarda en la configuración de la copia de seguridad.</li>
+        <li><strong>Personas</strong> (desde 0.79): crea a las personas con las que sales (nombre e icono), quítalas (🗑, también de sus rutas), asígnalas de golpe a las rutas filtradas y usa <em>Buscar en los nombres de las rutas</em>: encuentra «con …» en los nombres (p. ej. «El Pardo con Eva y Ari») y te propone a quién marcar en cada ruta, para revisarlo antes de asignar. Se guardan en la copia de seguridad (las personas en la configuración y quién fue en cada ruta).</li>
         <li><strong>Mapa</strong>: detalle de las rutas al añadirlas (Normal, Alto o Máximo), si quitar los puntos erróneos del GPS al añadirlas, mapa de fondo al abrir (uno fijo o el último usado), capa de densidad al abrir y si el mapa se centra al pinchar una ruta.</li>
         <li><strong>Cálculos</strong>: los coeficientes del índice de dificultad, con el resultado al momento.</li>
       </ul>
@@ -3984,6 +4216,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
 
       <h4>9. En el móvil</h4>
       <ul>
+        <li>En el iPhone y el iPad el selector deja elegir cualquier archivo, porque Safari pone en gris los .tcx y .gz (y a veces los .gpx); Hinterway comprueba después la extensión e ignora lo que no sea GPX, TCX o .gz.</li>
         <li>El panel de filtros se abre y se cierra desde Filtros (o con ✕); el idioma y los ajustes, desde ⚙.</li>
         <li>En el perfil, toca un punto para ver sus datos o arrastra el dedo para seleccionar un tramo. La zona del mapa se dibuja con el dedo.</li>
         <li>Algunas columnas de la Tabla y del Top 10 se ocultan para que quepan. "Compartir (imagen + texto)" envía la imagen del resumen anual directamente a cualquier app.</li>
@@ -4003,7 +4236,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       <h4>1. Adding routes</h4>
       <ul>
         <li><strong>Getting started</strong> (since 0.72): when you start with an empty app, after adding your first routes a list of the recommended steps appears at the bottom right, in order: add routes, check the groups, analyze the terrain, find Places, find Tracks and trails and make a backup. Each step is ticked on its own when done and has a button to go to it. Collapse it with ▾, close it with ✕ and reopen it from <strong>Info → Getting started</strong>. If a panel is empty, it tells you why and offers a button to fix it (add routes, reset filters, analyze terrain…).</li>
-        <li><strong>Data → Add routes</strong>: pick several files at once. <strong>GPX</strong> and <strong>TCX</strong> (Garmin) are supported, also gzipped as <strong>.gz</strong>. FIT not yet.</li>
+        <li><strong>Data → Add routes</strong>: pick several files at once. <strong>GPX</strong> and <strong>TCX</strong> (Garmin) are supported, also gzipped as <strong>.gz</strong>. FIT not yet. On a computer you can also <strong>drag the files</strong> onto the Hinterway window (a “Drop the files” box appears); dropping a backup (.json or .json.gz) opens the restore. When it's done, a note at the bottom says how many routes were added or updated and whether any file was ignored.</li>
         <li>If a file has no activity type, you'll be asked (or the default type from ⚙ → Activity types is used).</li>
         <li>The header shows how many routes are displayed and their totals: km, gain, moving time and average speed.</li>
         <li>Each route keeps the points needed to follow its course and altitude: on <strong>High</strong> (default), within 3 m at most and with no gaps over 50 m; on <strong>Normal</strong>, 5 m and 100 m; on <strong>Maximum</strong>, every point in the GPX (⚙ → Map). Straight stretches keep few points and bends keep many; the map draws the route with those same points (at most 4 m off), so it follows bends well. With the map zoomed out (zoom 13 or less) a simplified version of each route is drawn, indistinguishable at that distance, so zooming and panning are lighter. Also, only the routes near what you see are computed; the rest, when you get to them. Changing the level only affects routes you add afterwards: to change the ones you have, add their files again. If you add a file you already have, the route is updated and keeps its name, type and analyzed terrain; that way routes imported before 0.24 get the more detailed profile.</li>
@@ -4015,6 +4248,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
         <li>The <strong>layers icon</strong> (top right) changes the background map and turns the routes and the density layer (heatmap) on or off.</li>
         <li><strong>Click a route</strong> to open its panel at the bottom: name, date and type; km, gain, time, speed and difficulty index; terrain; and buttons to change the type, open its <strong>Details</strong>, rename (✎), analyze terrain (↻), remove it from the app (🗑) and close (✕).</li>
         <li><strong>Details</strong> gathers everything known about the route: km, gain (and between which altitudes), moving and total time (and stopped time), average climbing gradient, index, km of each terrain and its rankings (e.g. "#3 longest of 2024"). Below, <strong>where you rode</strong>, in order: the climbs and descents from Places and the stretches from Tracks and trails, with the km, the time since the start, your time and its rank among all passes (nearly identical climbs to nearby tops share one row). Above the list, a <strong>small map</strong> (with the same background as the main map) and the <strong>profile</strong> with each stretch colored: hovering (or dragging a finger) over the profile shows the km, altitude and time, where you are on the small map and which rows match; hovering a row lights up its stretch on the profile and the small map. Click a row to see it marked on the main map. As you scroll down the list, the small map and the profile stay fixed at the top so you don't lose sight of them (on mobile, only the map). With <em>Share</em> (at the top) you save the details as a web page, an .html file you can send: whoever opens it sees the data, the map with its background (needs internet), the profile and the list, linked as here, and a <em>Download GPX</em> button with the track, its altitudes and its pass times. Times are only in routes loaded from version 0.68 on (the details then show the start time next to the date); for older ones, load their GPX files again: they are updated keeping the name, type and terrain. At the end, <strong>similar routes</strong>: those sharing the most climbs, descents and stretches; click one to see its details. Places and Tracks and trails must have been searched first. It also opens with ⓘ next to the name in the Table and the Top 10; closing it takes you back where you were.</li>
+        <li><strong>Who with</strong> (since 0.79): if you have created people in ⚙ → People, the 👥 button in the route window shows chips to tick who came with you, and the Details show them at the top (“With:”). Under the type you can read “with Eva and Ari”. People never appear in a shared details page.</li>
         <li>The Details <strong>rankings</strong>, the times of each climb, descent or stretch and the similar routes are only compared with routes of the <strong>same activity group</strong> (Bike, E-bike, On foot…; see ⚙ → Groups): a walk doesn't compete with a bike ride.</li>
         <li>Below is its <strong>elevation profile</strong>: hover to see the km, altitude, gradient, terrain and time elapsed since the start (⏱ hh:mm:ss, if the route has pass times) at each point; drag to zoom into a section, see it on the map and see its gradient by sector. If the terrain has been analyzed, a colored strip marks paved, track and trail.</li>
         <li>Type and name changes are saved in the app; with desktop Chrome or Edge they're also written to the file itself, if it's an uncompressed GPX.</li>
@@ -4023,10 +4257,12 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       <h4>3. Filters (left panel)</h4>
       <ul>
         <li>The panel and the Filters menu appear once some route is loaded.</li>
+        <li><strong>Collapsible sections</strong> (since 0.80): Date, Year, Type, Companions and More filters (distance, gain and index) open and close by clicking their title, and the app remembers which ones you leave open. Next to the title there is a summary (“all”, “2024–2026”, “without Nico”, “> 50 km”…); if the section has a filter set, the summary is coloured with a dot, even when collapsed. Years are chips you tick with a tap. At the very top the <strong>active filters</strong> appear, each with × to remove it, plus <em>Reset</em>.</li>
         <li><strong>Name</strong>: searches for text in the name.</li>
         <li><strong>Date</strong> from / to: both days included; you can fill in just one.</li>
         <li><strong>Map area</strong>: press "Draw area" and drag a rectangle; the routes passing through it remain and the map zooms to them. "Clear area" removes it.</li>
         <li><strong>Year</strong> and <strong>activity type</strong> (the small square shows its color). Types are listed under their activity group (🚴 Bike, ⚡ E-bike, 🥾 On foot…): the group's box ticks or unticks all its types, and shows half-ticked when only some are.</li>
+        <li><strong>Companions</strong> (if you have created people): “Alone” is the routes with nobody else; each person, the routes they came on. A route shows if any of the ticked ones went.</li>
         <li><strong>Distance</strong>, <strong>gain</strong> and <strong>difficulty index</strong>: minimum and maximum. Maximums widen automatically when you add routes, unless you changed them by hand.</li>
         <li>They all combine and affect the map, the totals and the panels. When you change the area or the dates, the map zooms to the remaining routes; with the other filters it stays where you are. <strong>Filters → Reset filters</strong> clears them and shows all routes again.</li>
       </ul>
@@ -4036,7 +4272,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
         <li><strong>Charts</strong>: km, gain and hours by month or year, and average speed by type.</li>
         <li><strong>Records & Top 10</strong>: the longest route, most gain, fastest, most time and hardest; and the top 10, sortable by any column.</li>
         <li><strong>Calendar</strong>: one square per day, brighter the more km.</li>
-        <li><strong>Route table</strong>: every filtered route, sortable by column.</li>
+        <li><strong>Route table</strong>: every filtered route, sortable by column (with people, also the <em>With</em> column).</li>
         <li><strong>Year in review</strong>: a year's figures. With <em>All years</em>, a table with one row per year plus the total; click a year to see its summary. <em>Share…</em> creates an image of the year (no route names) for WhatsApp, Telegram, X, email, etc.</li>
         <li><strong>Places (climbs and descents)</strong>: press <em>Find places</em> and the app finds the tops you ride over often, and also big climbs you have done only once, and, for each one, the ways you get there (climb A, B…, arriving downhill or passing) and, in the <em>Descents</em> tab, the ways you leave it going down (descent A, B…, "to" the village where they end). For each climb or descent you see how many times you've done it, the best time, the median, the last one, the average speed of the best time (km/h), the best by type and a chart of your times by date; click a pass to open that route. <em>Find names</em> takes from OpenStreetMap the name of the pass, saddle, peak or viewpoint at each top (failing that, of a car park, shelter, spring or other named place on the top itself, and failing that, of the village or place, or else of the named track or road through it) and of where each climb starts or each descent ends: a named place within 100 m, the village, or the named track or road it passes ("Climb A · from Talledo", "Descent A · to Camino Portillo"). Clicking the name box shows the <strong>nearby names</strong> from OpenStreetMap to pick one with a click (for the top, also as buttons below); those not in OpenStreetMap stay as "Top 373 m". Type your own names over them: they take priority over OpenStreetMap, are saved and are kept when you search again. <em>Remove this place</em> hides it from the list and the map, also when you search again; <em>Show the removed</em> lets you bring it back. In the same way, <em>Remove</em> next to a climb removes that start (the remaining ones are relettered A, B, C… and no longer appear on the map); bring it back with <em>Show the removed starts</em>, at the end of the details. No route is deleted. <em>Show</em>, next to each climb, marks its path on the map, from its start to the top, taken from the fastest time (for descents, from the top to their end; for "arriving downhill" and "passing", 1.5 km before and after the top, from the last time); on the map, clicking a climb in the top's pop-up or its letter (circle: climb start; square: descent end) does the same, and the letter also opens a pop-up with its data. <em>Show on map</em> shows the tops in the area (also from the layers icon, "Places" box), with the selected one highlighted, its name and where each climb starts. <em>Show on map</em> in a place's details, instead, shows only that top, with all its climbs drawn (each along the path of its fastest time) and their letters; the button at the bottom left switches to its descents. Climbs and "passing" entries you remove no longer count in the list's passes. On the map, click a top to highlight it and see its best times; <em>Open details</em> goes back to the panel. In the list, <strong>×</strong> is how many times you have passed the top, <strong>↗</strong> its climbs and <strong>↘</strong> its descents (hover the header to see the name). It follows the filters. You run the first search yourself; after that, adding or deleting routes searches again on its own in the background ("Updating Places…" shows at the bottom left), keeping the names you gave, the OpenStreetMap ones and what you removed. New tops have no OpenStreetMap name until you press <em>Find names</em>.</li>
         <li><strong>Tracks and trails</strong>: press <em>Find stretches</em> and the app finds the trail stretches (1 km or more) and dirt-track stretches (2 km or more) you have ridden several times in the same direction, in two tabs, <em>Trails</em> and <em>Tracks</em>. It uses terrain analysis, so only routes that have it count. For each stretch you see its profile, how many times you've done it, the best time, the median, the last one, the average speed, the best by type and a chart of your times by date; if you have also done it the other way, <em>The other way</em> takes you to that stretch. <em>Find names</em> uses the name of the OpenStreetMap track or trail if the stretch runs almost entirely along it ("Camino Portillo"); otherwise, what is at the start and the end, a named place, the village or the track ("From Talledo to Otañes"). You can type your own over it or pick one of the <strong>nearby names</strong> (buttons below the box). <em>Remove this stretch</em> and <em>Open details</em> from the map work as in Places; <em>Show on map</em> on a stretch highlights only that one, and to see them all use the <em>Show on map</em> at the top or the "Tracks and trails" box in the layers icon; on the map, clicking a stretch, or the start (white circle) or end (dark circle) of the highlighted one, opens a pop-up with its data. With the layer on, trails (purple) and tracks (ochre) are shown together with a dark outline, and the routes are dimmed so the stretches stand out. In the list, <strong>↕</strong> is the elevation change from start to end and <strong>×</strong> how many times you have done it. After the first search, they are searched again on their own when a terrain analysis finishes (or when you add routes that already have it), like Places.</li>
@@ -4047,7 +4283,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
 
       <h4>5. Data menu</h4>
       <ul>
-        <li><strong>Export to CSV</strong> the filtered routes, to open them in Excel.</li>
+        <li><strong>Export to CSV</strong> the filtered routes, to open them in Excel (includes the “With” column).</li>
         <li><strong>Download backup</strong>: choose which routes (all, filtered only or none), whether to include pass times, terrain analysis and settings, and whether to compress it (.json.gz, about 5 times smaller). It shows the approximate size and remembers your choices. If there are unsaved changes and the last full backup is more than 7 days old, the app reminds you when you open it.</li>
         <li><strong>Restore backup</strong> (.json or .json.gz): shows what the backup contains and lets you choose: add and update routes, replace all, or only fill in the pass times of routes that lack them; and whether to apply its settings.</li>
         <li><strong>Analyze terrain</strong> of every filtered route that doesn't have it yet (can be stopped).</li>
@@ -4060,6 +4296,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
         <li><strong>Appearance</strong>: language, light or dark theme, date format, route intensity and thickness.</li>
         <li><strong>Activity types</strong>: each type's color; rename or merge types (give one the name of another existing type and they're combined); with the "Change filtered routes only" box, the change only affects routes matching the filters; each type's group (selector next to the name); and the default type for files that don't include one.</li>
         <li><strong>Groups</strong>: change each group's icon (clicking it tells you how to type an emoji: on Windows, <em>Windows + .</em>) and name, add new groups (e.g. Gravel or Running) or remove them (🗑; their types go back to the group their name suggests). Each group shows its types and routes. New types go to On foot on their own if the name says so (hiking, walking, running…), to E-bike if it's electric, and otherwise to Bike; change it in Activity types. It's saved in the backup's settings.</li>
+        <li><strong>People</strong> (since 0.79): create the people you go out with (name and icon), remove them (🗑, also from their routes), assign them in bulk to the filtered routes and use <em>Search the route names</em>: it finds “con …” / “with …” in the names (e.g. “El Pardo con Eva y Ari”) and suggests who to tick on each route, for you to review before assigning. They are saved in the backup (people in the settings, who went on each route with the route).</li>
         <li><strong>Map</strong>: route detail when adding them (Normal, High or Maximum), whether to remove GPS glitches when adding them, background map on open (a fixed one or the last used), density layer on open, and whether the map centers when you click a route.</li>
         <li><strong>Calculations</strong>: the difficulty index coefficients, with live results.</li>
       </ul>
@@ -4083,6 +4320,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
 
       <h4>9. On mobile</h4>
       <ul>
+        <li>On iPhone and iPad the picker lets you choose any file, because Safari greys out .tcx and .gz (and sometimes .gpx) files; Hinterway then checks the extension and ignores anything that isn't GPX, TCX or .gz.</li>
         <li>The filters panel opens and closes from Filters (or with ✕); language and settings are in ⚙.</li>
         <li>On the profile, tap a point to see its data or drag your finger to select a section. The map area is drawn with your finger.</li>
         <li>Some Table and Top 10 columns are hidden so they fit. "Share (image + text)" sends the year-in-review image straight to any app.</li>
@@ -4107,7 +4345,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
   // ---------- Quiénes somos / About ----------
   // Versión de la app: se sube (0.4 → 0.5 → …) y se pone la fecha del día cada vez que se genera un HTML nuevo.
   // Versiones 0.x mientras la app no se publique.
-  const APP_VERSION = "0.77", APP_VERSION_DATE = "2026-10-31";
+  const APP_VERSION = "0.80", APP_VERSION_DATE = "2026-11-01";
   const APP_AUTHOR = "Angel Herrero", APP_EMAIL = "angelherreropla@gmail.com";
   const ABOUT_HTML = {
     es: () => `
@@ -4153,7 +4391,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       const horas = t.duration ? Math.round((t.duration/3600)*100)/100 : "";
       const vel = t.duration ? Math.round((t.km/(t.duration/3600))*10)/10 : "";
       return [t.name, t.fileName || t.id, t.date || "", typeLabel(t.type), t.km, t.gain, horas, vel, idx != null ? idx : "",
-        ...["asfalto","pista","senda","sinDatos"].map(k => t.surface ? surfacePct(t, k) : "")];
+        ...["asfalto","pista","senda","sinDatos"].map(k => t.surface ? surfacePct(t, k) : ""), withNames(t).join(", ")];
     });
     const csv = [header, ...rows].map(r => r.map(csvField).join(";")).join("\r\n");
     const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
@@ -4196,7 +4434,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
   function collectSettings(){
     let baseLayer = null;
     try{ baseLayer = localStorage.getItem("heatmap-capa-base"); }catch(e){}
-    return { lang: LANG, theme: THEME, dateFmt: DATE_FMT, routeIntensity, routeWeight, typeColors: Object.fromEntries(typeColors), defaultType: DEFAULT_TYPE, baseLayer, baseDefault: BASE_DEFAULT, heatOnOpen: HEAT_ON_OPEN, fitOnSelect: FIT_ON_SELECT, routeDetail: ROUTE_DETAIL, glitchFix: GLITCH_FIX, groups: GROUPS, typeGroups: TYPE_GROUP, calc: CALC };
+    return { lang: LANG, theme: THEME, dateFmt: DATE_FMT, routeIntensity, routeWeight, typeColors: Object.fromEntries(typeColors), defaultType: DEFAULT_TYPE, baseLayer, baseDefault: BASE_DEFAULT, heatOnOpen: HEAT_ON_OPEN, fitOnSelect: FIT_ON_SELECT, routeDetail: ROUTE_DETAIL, glitchFix: GLITCH_FIX, groups: GROUPS, typeGroups: TYPE_GROUP, people: PEOPLE, calc: CALC };
   }
   // ---- ventana de opciones de la copia ----
   const BK_DEFAULT = { scope:"all", times:true, terrain:true, settings:true, gz:true };
@@ -4349,6 +4587,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     if(st.routeDetail in DETAIL_CFG){ ROUTE_DETAIL = st.routeDetail; lsSet("heatmap-detail", ROUTE_DETAIL); }
     if(validGroups(st.groups)){ GROUPS = st.groups.map(g => ({ ...g })); saveGroups(); }
     if(st.typeGroups && typeof st.typeGroups === "object" && !Array.isArray(st.typeGroups)){ TYPE_GROUP = { ...st.typeGroups }; saveGroups(); }
+    if(Array.isArray(st.people)){ PEOPLE = st.people.filter(p => p && p.id && p.name).map(p => ({ id: String(p.id), name: String(p.name), icon: p.icon ? String(p.icon) : "" })); savePeople(); PEOPLE_OFF.clear(); }
     if(typeof st.glitchFix === "boolean"){ GLITCH_FIX = st.glitchFix; lsSet("heatmap-glitch-fix", GLITCH_FIX ? "1" : "0"); }
     if(st.calc && typeof st.calc === "object"){
       Object.keys(CALC_DEFAULT).forEach(k => { if(typeof st.calc[k] === "number" && st.calc[k] > 0) CALC[k] = st.calc[k]; });
@@ -4530,6 +4769,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     document.querySelectorAll("#yearList input[type=checkbox]").forEach(i=>{ i.checked=true; state.years.add(parseInt(i.dataset.year,10)); });
     document.querySelectorAll("#typeList input[data-type]").forEach(i=>{ i.checked=true; state.types.add(i.dataset.type); });
     updateGroupChecks();
+    PEOPLE_OFF.clear(); renderPeopleFilter();
     readRangeInputs();
     applyFiltersAndRedraw(true);
   });
@@ -4541,6 +4781,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     const z = state.zone;
     els("zoneClear").classList.toggle("hidden", !z);
     els("zoneDraw").textContent = tr(z ? "zone_redraw" : "zone_draw");
+    els("zoneDraw").title = tr("zone_info_none"); els("zoneInfo").classList.toggle("hidden", !z);
     if(z){
       const mid = (z[0]+z[2])/2;
       const w = haversine([mid, z[1]], [mid, z[3]]) / 1000, h = haversine([z[0], z[1]], [z[2], z[1]]) / 1000;
@@ -4643,6 +4884,12 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       deleteTrack(e.target.dataset.id);
     } else if(e.target.matches(".popup-ficha-btn")){
       openFicha(e.target.dataset.id, null);
+    } else if(e.target.matches(".popup-people-btn")){
+      const row = document.querySelector(`.popup-people-row[data-id="${CSS.escape(e.target.dataset.id)}"]`);
+      if(row) row.classList.toggle("hidden");
+    } else if(e.target.closest(".pp-chip[data-tid]")){
+      const b = e.target.closest(".pp-chip[data-tid]");
+      togglePerson(b.dataset.tid, b.dataset.pid);
     }
   });
   document.body.addEventListener("change", e => {
@@ -7436,7 +7683,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     const tt = (t.profile || []).filter(p => p.t != null), total = tt.length > 1 ? tt[tt.length-1].t - tt[0].t : null;
     const stop = total != null && t.duration ? Math.max(0, total - t.duration) : null, idx = difficultyIndex(t);
     const stat = (l, v, x) => `<div><span>${l}</span><b>${v}</b>${x ? `<em>${x}</em>` : ""}</div>`;
-    let h = `<div class="ficha-stats">
+    let h = (PEOPLE.length ? `<div class="ficha-people"><span class="ficha-note">${tr("with_lbl")}</span>${peopleChipsHtml(t)}</div>` : "") + `<div class="ficha-stats">
       ${stat(tr("col_km"), fmtKm(t.km) + " km")}
       ${stat(tr("col_gain"), nf(t.gain) + " m", valid.length ? tr("ficha_between", nf(Math.min(...valid.map(p => p.ele))), nf(Math.max(...valid.map(p => p.ele)))) : "")}
       ${stat(tr("ficha_moving"), t.duration ? formatDuration(t.duration) : "—", t.duration ? fmtSpeed(t.km, t.duration) : "")}
@@ -7553,6 +7800,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     const oldPF = fichaPF, svg = fichaProfileSvg(t, 934), pf = fichaPF; fichaPF = oldPF;
     const clone = body.cloneNode(true);
     const mapEl = clone.querySelector("#fichaMap"); if(mapEl) mapEl.innerHTML = "";
+    clone.querySelectorAll(".ficha-people").forEach(n => n.remove());   // (0.79) los acompañantes nunca salen en la ficha compartida
     const pbx = clone.querySelector(".ficha-profbox"); if(pbx){ const old = pbx.querySelector("svg"); if(old) old.remove(); pbx.insertAdjacentHTML("afterbegin", svg); }
     clone.querySelectorAll(".ficha-sim tbody tr").forEach(r => { r.removeAttribute("data-id"); r.removeAttribute("title"); });
     const rn = clone.querySelector(".ficha-evs + .ficha-note"); if(rn) rn.textContent = tr("ficha_share_note");
@@ -7728,6 +7976,7 @@ ${head}
     { key:"name",     i18n:"col_route" },
     { key:"date",     i18n:"col_date" },
     { key:"type",     i18n:"col_type" },
+    { key:"with",     i18n:"col_with" },
     { key:"km",       i18n:"col_km", num:true },
     { key:"gain",     i18n:"col_gain", num:true },
     { key:"duration", i18n:"col_time", num:true },
@@ -7737,6 +7986,7 @@ ${head}
     { key:"s_pis",    i18n:"col_s_pis", num:true },
     { key:"s_sen",    i18n:"col_s_sen", num:true },
   ];
+  const tableColsNow = () => tableCols.filter(c => c.key !== "with" || PEOPLE.length);   // (0.79) la columna Con solo si hay personas
   let tableSort = { key:"date", dir:-1 };
   let tablePage = 0;
   const TABLE_PAGE_SIZE = 50;
@@ -7748,6 +7998,7 @@ ${head}
     if(key === "s_pis") return surfacePct(t, "pista");
     if(key === "s_sen") return surfacePct(t, "senda");
     if(key === "type") return t.type || "Desconocido";
+    if(key === "with"){ const n = withNames(t); return n.length ? n.join(", ") : null; }
     return t[key];
   }
   function tableFormat(v, key){
@@ -7783,14 +8034,14 @@ ${head}
 
     const table = els("dataTable");
     const thead = table.querySelector("thead"), tbody = table.querySelector("tbody");
-    thead.innerHTML = `<tr><th class="c-check"></th>` + tableCols.map(c => {
+    thead.innerHTML = `<tr><th class="c-check"></th>` + tableColsNow().map(c => {
       const arrow = tableSort.key === c.key ? `<span class="arrow">${tableSort.dir === 1 ? "▲" : "▼"}</span>` : "";
       return `<th class="c-${c.key}${c.num ? " num" : ""}" data-key="${c.key}">${tr(c.i18n)}${arrow}</th>`;
     }).join("") + "</tr>";
     tbody.innerHTML = "";
     pageRows.forEach(t => {
       const row = document.createElement("tr");
-      row.innerHTML = `<td><input type="checkbox" class="cmp-check" data-id="${t.id}" ${compareSelection.has(t.id)?"checked":""}></td>` + tableCols.map(c => {
+      row.innerHTML = `<td><input type="checkbox" class="cmp-check" data-id="${t.id}" ${compareSelection.has(t.id)?"checked":""}></td>` + tableColsNow().map(c => {
         const v = tableRowValue(t, c.key);
         return `<td class="c-${c.key}${c.num ? " num" : ""}">${c.key === "name" ? `<button class="ficha-row-btn" data-id="${escH(t.id)}" title="${escH(tr("ficha_btn_tip"))}">ⓘ</button>` : ""}${tableFormat(v, c.key)}</td>`;
       }).join("");
@@ -7879,6 +8130,8 @@ ${head}
     els("setPaneMap").classList.toggle("hidden", tab !== "map");
     els("setPaneCalc").classList.toggle("hidden", tab !== "calc");
     els("setPaneGroups").classList.toggle("hidden", tab !== "groups");
+    els("setPanePeople").classList.toggle("hidden", tab !== "people");
+    if(tab === "people") renderPeoplePane();
     if(tab === "groups"){ renderGroupsPane(); lsSet("heatmap-ob-groups", "1"); try{ updateOnboard(); }catch(e){} }
     if(tab === "calc") renderCalcPane();
     if(tab === "types") renderTypesPane();
@@ -7999,6 +8252,268 @@ ${head}
     const ic = e.target.dataset.gicon, nm = e.target.dataset.gname;
     if(ic){ const g = groupById(ic); if(g){ g.icon = e.target.value.trim(); groupsChanged(); } }
     else if(nm){ const g = groupById(nm); if(g){ const v = e.target.value.trim(); if(v && v !== tr("grp_" + g.id)) g.name = v; else delete g.name; if(!g.name && !GROUP_DEFAULT.some(d => d.id === g.id)) g.name = v || g.id; groupsChanged(); } }
+  });
+
+
+  // ---------- (0.80) barra lateral compacta ----------
+  let FSEC_OPEN = (() => { try{ const a = JSON.parse(localStorage.getItem("heatmap-fsec-open") || '["year","type"]'); return new Set(Array.isArray(a) ? a : []); }catch(e){ return new Set(["year","type"]); } })();
+  function applySecOpen(){
+    document.querySelectorAll("#sidebar .fsec").forEach(sec => {
+      const on = FSEC_OPEN.has(sec.dataset.sec);
+      sec.classList.toggle("open", on); sec.querySelector(".fsh").setAttribute("aria-expanded", on);
+    });
+  }
+  function toggleSec(sec){
+    const k = sec.dataset.sec; FSEC_OPEN.has(k) ? FSEC_OPEN.delete(k) : FSEC_OPEN.add(k);
+    lsSet("heatmap-fsec-open", JSON.stringify([...FSEC_OPEN])); applySecOpen();
+  }
+  els("sidebar").addEventListener("click", e => { const h = e.target.closest(".fsh"); if(h) toggleSec(h.parentElement); });
+  els("sidebar").addEventListener("keydown", e => { const h = e.target.closest(".fsh"); if(h && (e.key === "Enter" || e.key === " ")){ e.preventDefault(); toggleSec(h.parentElement); } });
+  applySecOpen();
+  // "2019, 2021–2023" a partir de los años marcados
+  function yearRanges(ys){
+    const a = [...ys].sort((x, y) => x - y), out = [];
+    a.forEach(y => { const l = out[out.length - 1]; if(l && l[1] === y - 1) l[1] = y; else out.push([y, y]); });
+    return out.map(r => r[0] === r[1] ? String(r[0]) : r[0] + "–" + r[1]).reverse().join(", ");
+  }
+  // Resumen de una lista: todos / ninguno / sin X, Y / X, Y
+  const listSum = (on, off) => !off.length ? tr("fs_all") : !on.length ? tr("fs_none") : off.length <= 2 ? tr("fs_without", off) : on.join(", ");
+  function filterSummary(){
+    const S = {}, A = {}, chips = [];
+    // fecha
+    A.date = !!(state.dateFrom || state.dateTo);
+    S.date = !A.date ? tr("fs_any") : state.dateFrom && state.dateTo ? `${fmtDate(state.dateFrom)} → ${fmtDate(state.dateTo)}` : state.dateFrom ? tr("fs_from", fmtDate(state.dateFrom)) : tr("fs_to", fmtDate(state.dateTo));
+    // años
+    const yIn = [...document.querySelectorAll("#yearList input[data-year]")], yOn = yIn.filter(i => i.checked).map(i => +i.dataset.year);
+    A.year = yOn.length !== yIn.length;
+    S.year = !A.year ? tr("fs_all_n", yIn.length) : !yOn.length ? tr("fs_none") : yearRanges(yOn);
+    // tipos (por grupos si un grupo está entero)
+    const tIn = [...document.querySelectorAll("#typeList input[data-type]")];
+    A.type = tIn.some(i => !i.checked);
+    if(A.type){
+      const on = [], off = [];
+      GROUPS.forEach(g => {
+        const mine = tIn.filter(i => groupOfType(i.dataset.type) === g.id); if(!mine.length) return;
+        const n = mine.filter(i => i.checked).length;
+        if(n === mine.length) on.push(groupLabel(g.id)); else if(!n) off.push(groupLabel(g.id));
+        else mine.forEach(i => (i.checked ? on : off).push(typeLabel(i.dataset.type)));
+      });
+      S.type = listSum(on, off);
+    } else S.type = tr("fs_all");
+    // acompañantes
+    A.people = PEOPLE.length > 0 && PEOPLE_OFF.size > 0;
+    if(A.people){
+      const lab = id => id === "solo" ? tr("fs_alone") : personLabel(personById(id));
+      const all = ["solo", ...PEOPLE.map(p => p.id)];
+      S.people = listSum(all.filter(id => !PEOPLE_OFF.has(id)).map(lab), all.filter(id => PEOPLE_OFF.has(id)).map(lab));
+    } else S.people = tr("fs_all");
+    // más filtros
+    const mx = f => Math.ceil(Math.max(0, ...tracks.map(f)));
+    const kmTop = mx(t => t.km), elTop = mx(t => t.gain), ixTop = mx(t => difficultyIndex(t) || 0);
+    const more = [];
+    if(state.kmMin > 0) more.push(tr("fs_gt", nf(state.kmMin), "km"));
+    if(state.kmMax < kmTop) more.push(tr("fs_lt", nf(state.kmMax), "km"));
+    if(state.elMin > 0) more.push(tr("fs_gt", nf(state.elMin), "m"));
+    if(state.elMax < elTop) more.push(tr("fs_lt", nf(state.elMax), "m"));
+    if(state.idxMin > 0) more.push(tr("fs_idx_gt", nf(state.idxMin)));
+    if(ixTop && state.idxMax < ixTop) more.push(tr("fs_idx_lt", nf(state.idxMax)));
+    A.more = more.length > 0; S.more = more.length ? more.join(" · ") : tr("fs_nolimit");
+    // filtros activos (arriba)
+    if(state.nombre) chips.push(["name", `«${els("nameFilter").value.trim()}»`]);
+    if(A.date) chips.push(["date", S.date]);
+    if(state.zone) chips.push(["zone", tr("fs_zone")]);
+    if(A.year) chips.push(["year", S.year]);
+    if(A.type) chips.push(["type", S.type]);
+    if(A.people) chips.push(["people", S.people]);
+    if(A.more) chips.push(["more", S.more]);
+    return { S, A, chips };
+  }
+  function updateFilterSummary(){
+    const { S, A, chips } = filterSummary();
+    document.querySelectorAll("#sidebar .fsec").forEach(sec => {
+      const k = sec.dataset.sec, el = sec.querySelector(".fs-s");
+      el.textContent = S[k] || ""; el.title = S[k] || "";
+      sec.classList.toggle("active", !!A[k]);
+    });
+    const box = els("activeFilters");
+    box.classList.toggle("hidden", !chips.length);
+    const html = chips.map(([k, txt]) => `<span class="fchip"><b title="${escH(txt)}">${escH(txt)}</b><button type="button" data-fclear="${k}" title="${escH(tr("fs_remove"))}" aria-label="${escH(tr("fs_remove"))}">×</button></span>`).join("")
+      + (chips.length ? `<button type="button" class="fs-lnk" data-freset="1">${tr("fs_reset")}</button>` : "");
+    if(box._html !== html){ box.innerHTML = html; box._html = html; }   // sin rehacer si no cambia (un clic a medio camino no se pierde)
+  }
+  els("activeFilters").addEventListener("click", e => {
+    if(e.target.closest("[data-freset]")){ els("btnReset").click(); return; }
+    const b = e.target.closest("[data-fclear]"); if(!b) return;
+    const k = b.dataset.fclear;
+    if(k === "name"){ els("nameFilter").value = ""; readRangeInputs(); applyFiltersAndRedraw(); }
+    else if(k === "date") els("dateClear").click();
+    else if(k === "zone") setZone(null);
+    else if(k === "year") document.querySelector('#sidebar [data-all="year"]').click();
+    else if(k === "type") document.querySelector('#sidebar [data-all="type"]').click();
+    else if(k === "people") document.querySelector('#sidebar [data-pall]').click();
+    else if(k === "more"){
+      const mx = f => Math.ceil(Math.max(0, ...tracks.map(f)));
+      els("kmMin").value = 0; els("kmMax").value = mx(t => t.km);
+      els("elMin").value = 0; els("elMax").value = mx(t => t.gain);
+      const ix = mx(t => difficultyIndex(t) || 0); els("idxMin").value = 0; els("idxMax").value = ix || "";
+      ["kmMax","elMax","idxMax"].forEach(id => { autoMax[id] = els(id).value === "" ? null : parseFloat(els(id).value); });
+      readRangeInputs(); applyFiltersAndRedraw();
+    }
+  });
+  // ---------- (0.79) personas ----------
+  function peopleChipsHtml(t){
+    const w = new Set(withOf(t));
+    return `<span class="pp-chips">${PEOPLE.map(p => `<button type="button" class="pp-chip${w.has(p.id) ? " on" : ""}" data-tid="${escH(t.id)}" data-pid="${escH(p.id)}" aria-pressed="${w.has(p.id)}">${escH(personLabel(p))}</button>`).join("")}</span>`;
+  }
+  function renderPeopleFilter(){
+    const box = els("peopleFilter"); if(!box) return;
+    box.classList.toggle("hidden", !PEOPLE.length);
+    if(!PEOPLE.length){ els("peopleList").innerHTML = ""; return; }
+    const cnt = new Map(), solo = tracks.filter(t => !withOf(t).length).length;
+    tracks.forEach(t => withOf(t).forEach(id => cnt.set(id, (cnt.get(id) || 0) + 1)));
+    const row = (id, label, n) => `<label><input type="checkbox" data-person="${escH(id)}" ${PEOPLE_OFF.has(id) ? "" : "checked"}> ${escH(label)} <span class="cnt" style="color:var(--text-dim);font-size:11.5px;">${nf(n)}</span></label>`;
+    els("peopleList").innerHTML = row("solo", tr("pp_solo"), solo) + PEOPLE.map(p => row(p.id, personLabel(p), cnt.get(p.id) || 0)).join("");
+  }
+  document.body.addEventListener("change", e => {
+    if(!e.target.matches("#peopleList input[data-person]")) return;
+    const id = e.target.dataset.person;
+    e.target.checked ? PEOPLE_OFF.delete(id) : PEOPLE_OFF.add(id);
+    applyFiltersAndRedraw();
+  });
+  document.body.addEventListener("click", e => {
+    if(!e.target.matches("[data-pall], [data-pnone]")) return;
+    PEOPLE_OFF.clear();
+    if(e.target.dataset.pnone){ PEOPLE_OFF.add("solo"); PEOPLE.forEach(p => PEOPLE_OFF.add(p.id)); }
+    renderPeopleFilter(); applyFiltersAndRedraw();
+  });
+  // Tras cambiar los acompañantes de alguna ruta: contadores, ventanas abiertas y, si el filtro está activo, el mapa.
+  function peopleChanged(redraw){
+    renderPeopleFilter();
+    if(redraw || PEOPLE_OFF.size) applyFiltersAndRedraw();
+    if(!els("tableModal").classList.contains("hidden")) renderTable();
+    if(!els("settingsModal").classList.contains("hidden") && !els("setPanePeople").classList.contains("hidden")) renderPeoplePane(true);
+  }
+  async function togglePerson(tid, pid){
+    const t = tracks.find(x => x.id === tid); if(!t || !personById(pid)) return;
+    const w = withOf(t), on = !w.includes(pid);
+    t.with = on ? [...w, pid] : w.filter(x => x !== pid);
+    if(!t.with.length) delete t.with;
+    try{ await dbPutAll([t]); }catch(err){ console.error(err); }
+    document.querySelectorAll(`.pp-chip[data-tid="${CSS.escape(tid)}"][data-pid="${CSS.escape(pid)}"]`).forEach(b => { b.classList.toggle("on", on); b.setAttribute("aria-pressed", on); });
+    document.querySelectorAll(`.rp-with[data-id="${CSS.escape(tid)}"]`).forEach(el => { const n = withNames(t); el.textContent = n.length ? " · " + tr("with_list", n) : ""; });
+    peopleChanged(false);
+  }
+  // Pestaña ⚙ → Personas
+  function renderPeoplePane(keepScan){
+    const cnt = new Map(); tracks.forEach(t => withOf(t).forEach(id => cnt.set(id, (cnt.get(id) || 0) + 1)));
+    els("personRows").innerHTML = PEOPLE.length ? PEOPLE.map(p => `<div class="grp-row"><input type="text" class="gi" data-picon="${escAttr(p.id)}" value="${escAttr(p.icon || "")}" maxlength="4" placeholder="…" title="${escAttr(tr("grp_icon_ph"))}" aria-label="${escAttr(tr("grp_icon_ph"))}">
+        <input type="text" class="gn" data-pname="${escAttr(p.id)}" value="${escAttr(p.name)}" spellcheck="false" aria-label="${escAttr(tr("pp_name_lbl"))}">
+        <span class="cnt">${tr("pp_count", nf(cnt.get(p.id) || 0))}</span>
+        <button class="ghost" data-pdel="${escAttr(p.id)}" title="${escAttr(tr("pp_del_tip"))}">🗑</button></div>`).join("") : `<div class="set-note">${tr("pp_need")}</div>`;
+    els("ppMore").classList.toggle("hidden", !PEOPLE.length);
+    const sel = els("ppBulkSel"), prev = sel.value;
+    sel.innerHTML = PEOPLE.map(p => `<option value="${escAttr(p.id)}">${escH(personLabel(p))}</option>`).join("");
+    if(personById(prev)) sel.value = prev;
+    els("ppBulkInfo").textContent = tr("pp_bulk_info", nf(filteredTracks().length));
+    if(!keepScan) els("ppScanRes").innerHTML = "";
+  }
+  function peopleSettingsChanged(){
+    savePeople(); renderPeoplePane(true); renderPeopleFilter();
+    if(elevTrack && !els("elevPanel").classList.contains("hidden")) renderRouteHead(elevTrack);
+    if(!els("tableModal").classList.contains("hidden")) renderTable();
+  }
+  els("personRows").addEventListener("change", e => {
+    const ic = e.target.dataset.picon, nm = e.target.dataset.pname;
+    if(ic){ const p = personById(ic); if(p){ p.icon = e.target.value.trim(); peopleSettingsChanged(); } }
+    else if(nm){ const p = personById(nm); const v = e.target.value.trim(); if(p && v){ p.name = v; peopleSettingsChanged(); } else if(p) e.target.value = p.name; }
+  });
+  els("personRows").addEventListener("keydown", e => { if(e.key === "Enter" && e.target.matches("input")) e.target.blur(); });
+  els("personRows").addEventListener("focusin", e => {
+    if(!e.target.matches("input.gi")) return;
+    const row = e.target.closest(".grp-row"); if(!row || row.querySelector(".gi-tip")) return;
+    const tip = document.createElement("div"); tip.className = "gi-tip"; tip.setAttribute("role", "note");
+    tip.innerHTML = "💡 " + tr(groupIconTipKey()); row.appendChild(tip);
+    try{ e.target.select(); }catch(err){}
+  });
+  els("personRows").addEventListener("focusout", e => {
+    if(!e.target.matches("input.gi")) return;
+    const tip = e.target.closest(".grp-row")?.querySelector(".gi-tip"); if(tip) tip.remove();
+  });
+  els("personRows").addEventListener("click", async e => {
+    const b = e.target.closest("[data-pdel]"); if(!b) return;
+    const p = personById(b.dataset.pdel); if(!p) return;
+    const affected = tracks.filter(t => withOf(t).includes(p.id));
+    if(!confirm(tr("pp_del_confirm", personLabel(p), affected.length))) return;
+    PEOPLE = PEOPLE.filter(x => x.id !== p.id); PEOPLE_OFF.delete(p.id);
+    affected.forEach(t => { t.with = t.with.filter(x => x !== p.id); if(!t.with.length) delete t.with; });
+    if(affected.length){ try{ await dbPutAll(affected); }catch(err){ console.error(err); } }
+    peopleSettingsChanged(); applyFiltersAndRedraw();
+  });
+  els("personAdd").addEventListener("click", () => {
+    PEOPLE.push({ id: "p" + Date.now().toString(36), name: tr("pp_new_name", PEOPLE.length + 1), icon: "" });
+    peopleSettingsChanged();
+    const ins = els("personRows").querySelectorAll("input.gn"); const last = ins[ins.length - 1]; if(last){ last.focus(); last.select(); }
+  });
+  async function bulkPerson(add){
+    const p = personById(els("ppBulkSel").value); if(!p) return;
+    const list = filteredTracks().filter(t => withOf(t).includes(p.id) !== add);
+    if(!list.length){ showToast(tr("pp_bulk_none")); return; }
+    if(!confirm(tr(add ? "pp_bulk_confirm_add" : "pp_bulk_confirm_del", p.name, list.length))) return;
+    list.forEach(t => { const w = withOf(t); t.with = add ? [...w, p.id] : w.filter(x => x !== p.id); if(!t.with.length) delete t.with; });
+    try{ await dbPutAll(list); }catch(err){ console.error(err); }
+    showToast(tr(add ? "pp_bulk_done_add" : "pp_bulk_done_del", p.name, nf(list.length)));
+    peopleChanged(true);
+  }
+  els("ppBulkAdd").addEventListener("click", () => bulkPerson(true));
+  els("ppBulkDel").addEventListener("click", () => bulkPerson(false));
+  // Buscar «con X» en los nombres de las rutas
+  const PP_STOP = new Set(["todos","todas","las","los","el","la","lo","sin","mi","mis","tu","tus","su","sus","amigos","amigas","chicos","chicas","familia","motor","perro","perra","bici","ebike","all","the","my","friends","family"]);
+  const ppNorm = v => String(v).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
+  function ppNamesIn(name){
+    const m = String(name).match(/(?:^|\s)(?:con|with)\s+(.+)$/i); if(!m) return [];
+    const tail = m[1].replace(/\s*\d{6,}.*$/, "");
+    const out = [];
+    tail.split(/,|\s+y\s+|\s+e\s+|&|\s+con\s+|\s+and\s+|\s+with\s+/i).forEach(part => {
+      const w = (part.trim().split(/\s+/)[0] || "").replace(/[.;:!?()"«»]+/g, "");
+      if(!w || !/^\p{Lu}/u.test(w) || /\d/.test(w) || PP_STOP.has(ppNorm(w))) return;
+      if(!out.some(x => ppNorm(x) === ppNorm(w))) out.push(w);
+    });
+    return out;
+  }
+  let ppScan = [];
+  function ppPersonFor(word){ const k = ppNorm(word); return PEOPLE.find(p => ppNorm(p.name) === k || ppNorm(p.name.split(/\s+/)[0]) === k); }
+  function runPeopleScan(){
+    const map = new Map();
+    tracks.forEach(t => ppNamesIn(t.name).forEach(w => { const k = ppNorm(w); if(!map.has(k)) map.set(k, { word: w, routes: [] }); map.get(k).routes.push(t); }));
+    ppScan = [...map.values()].map(x => { const p = ppPersonFor(x.word); const pending = x.routes.filter(t => !p || !withOf(t).includes(p.id)); return { ...x, person: p || null, pending }; })
+      .sort((a, b) => b.routes.length - a.routes.length);
+    const box = els("ppScanRes");
+    if(!ppScan.length){ box.innerHTML = `<p class="set-note">${tr("pp_scan_none")}</p>`; return; }
+    box.innerHTML = `<ul class="pp-scan-list">${ppScan.map((x, i) => `<li class="pp-scan-it"><label><input type="checkbox" data-ppi="${i}" ${x.pending.length && (x.person || x.routes.length >= 2) ? "checked" : ""} ${x.pending.length ? "" : "disabled"}>
+        <b>${escH(x.person ? personLabel(x.person) : x.word)}</b>${x.person ? "" : ` <span class="new">${tr("pp_scan_new")}</span>`}
+        <span class="cnt">${tr("pp_scan_cnt", nf(x.routes.length), nf(x.pending.length))}</span>
+        <button type="button" class="see" data-ppsee="${i}">${tr("pp_scan_see")}</button></label>
+        <ul class="hidden" data-pplist="${i}">${x.routes.slice(0, 200).map(t => `<li>${escH(t.name)}${fmtDate(t.date) ? " · " + fmtDate(t.date) : ""}</li>`).join("")}</ul></li>`).join("")}</ul>
+      <div style="display:flex; justify-content:flex-end; margin-top:10px;"><button class="primary" id="ppScanApply">${tr("pp_scan_apply")}</button></div>`;
+  }
+  els("ppScan").addEventListener("click", runPeopleScan);
+  els("ppScanRes").addEventListener("click", async e => {
+    const see = e.target.closest("[data-ppsee]");
+    if(see){ e.preventDefault(); const ul = els("ppScanRes").querySelector(`[data-pplist="${see.dataset.ppsee}"]`); if(ul) ul.classList.toggle("hidden"); return; }
+    if(e.target.id !== "ppScanApply") return;
+    const picked = [...els("ppScanRes").querySelectorAll("input[data-ppi]:checked")].map(i => ppScan[+i.dataset.ppi]).filter(Boolean);
+    if(!picked.length) return;
+    const changed = new Set(); let nPeople = 0;
+    picked.forEach(x => {
+      let p = x.person || ppPersonFor(x.word);
+      if(!p){ p = { id: "p" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), name: x.word, icon: "" }; PEOPLE.push(p); }
+      nPeople++;
+      x.routes.forEach(t => { const w = withOf(t); if(!w.includes(p.id)){ t.with = [...w, p.id]; changed.add(t); } });
+    });
+    savePeople();
+    if(changed.size){ try{ await dbPutAll([...changed]); }catch(err){ console.error(err); } }
+    showToast(tr("pp_scan_done", nf(changed.size), nPeople));
+    peopleSettingsChanged(); peopleChanged(false); runPeopleScan();
   });
   // (0.76) al pinchar en el icono, una pista de cómo escribir un emoji según el sistema
   function groupIconTipKey(){
