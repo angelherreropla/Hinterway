@@ -101,7 +101,7 @@ button.fs-lnk{ background:none; border:none; color:var(--accent); padding:0; fon
 .zone-info{ margin:6px 0 4px; }
 .year-chips{ display:grid !important; grid-template-columns:repeat(4, 1fr); gap:5px !important; }
 .year-chips label{ justify-content:center; font-size:12.5px !important; padding:4px 0; border:1px solid var(--line); border-radius:6px; background:var(--panel-2); color:var(--text-dim); gap:0 !important; }
-.year-chips label:has(input:checked){ background:rgba(255,122,99,.18); border-color:var(--accent); color:var(--text); }
+.year-chips label.on{ background:rgba(255,122,99,.18); border-color:var(--accent); color:var(--text); }
 .year-chips label:has(input:focus-visible){ outline:2px solid var(--accent); outline-offset:1px; }
 .year-chips input{ position:absolute; opacity:0; width:1px !important; height:1px !important; pointer-events:none; }
 .rng1{ display:grid; grid-template-columns:62px 1fr auto 1fr 22px; gap:5px; align-items:center; margin-bottom:6px; }
@@ -3709,6 +3709,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       if(!seenYears.has(y)){ seenYears.add(y); state.years.add(y); }
       const lbl = document.createElement("label");
       lbl.innerHTML = `<input type="checkbox" data-year="${y}" ${state.years.has(y)?"checked":""}> ${y}`;
+      if(state.years.has(y)) lbl.classList.add("on");
       yearList.appendChild(lbl);
     });
 
@@ -3852,10 +3853,11 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
   // al restablecer los filtros y al cambiar la zona o las fechas; con los demás filtros el mapa no se mueve.
   function applyFiltersAndRedraw(fit){
     const list = filteredTracks();
-    updateHeaderTotals(list);
-    redrawMap(list, fit);
-    els("emptyState").classList.toggle("hidden", tracks.length>0);
+    // (0.81) el resumen y las chapas de filtros activos van primero: si algo del mapa fallara, no se quedan desfasados
     try{ updateFilterSummary(); }catch(e){ console.error(e); }
+    updateHeaderTotals(list);
+    try{ redrawMap(list, fit); }catch(e){ console.error(e); }
+    els("emptyState").classList.toggle("hidden", tracks.length>0);
     if(document.body.classList.contains("no-tracks") !== !tracks.length){
       document.body.classList.toggle("no-tracks", !tracks.length);
       setTimeout(() => map.invalidateSize(), 50);
@@ -4345,7 +4347,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
   // ---------- Quiénes somos / About ----------
   // Versión de la app: se sube (0.4 → 0.5 → …) y se pone la fecha del día cada vez que se genera un HTML nuevo.
   // Versiones 0.x mientras la app no se publique.
-  const APP_VERSION = "0.80", APP_VERSION_DATE = "2026-11-01";
+  const APP_VERSION = "0.81", APP_VERSION_DATE = "2026-11-02";
   const APP_AUTHOR = "Angel Herrero", APP_EMAIL = "angelherreropla@gmail.com";
   const ABOUT_HTML = {
     es: () => `
@@ -4755,6 +4757,15 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
   });
 
   els("btnReset").addEventListener("click", () => {
+    try{ resetFilterControls(); }catch(e){ console.error(e); }
+    // (0.81) pase lo que pase arriba, el estado se vuelve a leer de los controles y se redibuja
+    state.years = new Set([...document.querySelectorAll("#yearList input[data-year]")].map(i => parseInt(i.dataset.year, 10)));
+    state.types = new Set([...document.querySelectorAll("#typeList input[data-type]")].map(i => i.dataset.type));
+    PEOPLE_OFF.clear();
+    readRangeInputs();
+    applyFiltersAndRedraw(true);
+  });
+  function resetFilterControls(){
     els("kmMin").value=0;
     els("kmMax").value = Math.ceil(Math.max(...tracks.map(t=>t.km), 0));
     els("elMin").value=0;
@@ -4770,9 +4781,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     document.querySelectorAll("#typeList input[data-type]").forEach(i=>{ i.checked=true; state.types.add(i.dataset.type); });
     updateGroupChecks();
     PEOPLE_OFF.clear(); renderPeopleFilter();
-    readRangeInputs();
-    applyFiltersAndRedraw(true);
-  });
+  }
 
   // Dibujo del rectángulo: se desactiva el arrastre del mapa mientras se dibuja.
   let zoneRect = null, zoneDrawing = false, zoneStart = null, zoneTemp = null;
@@ -8285,6 +8294,7 @@ ${head}
     S.date = !A.date ? tr("fs_any") : state.dateFrom && state.dateTo ? `${fmtDate(state.dateFrom)} → ${fmtDate(state.dateTo)}` : state.dateFrom ? tr("fs_from", fmtDate(state.dateFrom)) : tr("fs_to", fmtDate(state.dateTo));
     // años
     const yIn = [...document.querySelectorAll("#yearList input[data-year]")], yOn = yIn.filter(i => i.checked).map(i => +i.dataset.year);
+    yIn.forEach(i => i.parentElement.classList.toggle("on", i.checked));   // (0.81) aspecto de las chapas de año
     A.year = yOn.length !== yIn.length;
     S.year = !A.year ? tr("fs_all_n", yIn.length) : !yOn.length ? tr("fs_none") : yearRanges(yOn);
     // tipos (por grupos si un grupo está entero)
