@@ -95,9 +95,9 @@ aside .check-list{ max-height:none; overflow:visible; }
 .fsec.open .fsb{ display:block; }
 .fs-acts{ display:flex; gap:12px; justify-content:flex-end; margin:-2px 0 6px; }
 button.fs-lnk{ background:none; border:none; color:var(--accent); padding:0; font-size:11.5px; text-decoration:underline; border-radius:0; }
-.zone-row{ display:flex; align-items:center; gap:8px; padding:8px 0; }
-.zone-row .fs-t{ flex:1; }
-.zone-row .zone-actions{ margin:0; justify-content:flex-end; }
+.zone-row{ display:flex; align-items:center; gap:6px 8px; padding:8px 0; flex-wrap:wrap; }
+.zone-row .fs-t{ flex:1 0 auto; white-space:nowrap; }
+.zone-row .zone-actions{ margin:0 0 0 auto; justify-content:flex-end; flex-wrap:nowrap; }
 .zone-info{ margin:6px 0 4px; }
 .year-chips{ display:grid !important; grid-template-columns:repeat(4, 1fr); gap:5px !important; }
 .year-chips label{ justify-content:center; font-size:12.5px !important; padding:4px 0; border:1px solid var(--line); border-radius:6px; background:var(--panel-2); color:var(--text-dim); gap:0 !important; }
@@ -542,7 +542,8 @@ button.linklike{ background:none; border:0; padding:0; color:var(--accent); text
 .data-table th .arrow{ color:var(--accent); margin-left:3px; }
 .data-table tbody tr{ cursor:pointer; }
 .data-table tbody tr:hover{ background:var(--panel-2); }
-.table-pager{ display:flex; align-items:center; justify-content:center; gap:14px; margin-top:10px; font-size:13px; color:var(--text-dim); }
+.pg-btn{ min-width:38px; padding:5px 10px; font-size:17px; line-height:1; }
+.table-pager{ display:flex; align-items:center; justify-content:center; gap:8px; margin-top:10px; font-size:13px; color:var(--text-dim); }
 .compare-bar{ display:flex; align-items:center; justify-content:flex-end; gap:10px; margin-bottom:6px; font-size:12.5px; color:var(--text-dim); }
 .compare-bar button:disabled{ opacity:.4; cursor:default; }
 .compare-bar button.ready{ border-color:var(--accent-2); color:var(--text); }
@@ -846,9 +847,11 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       </div>
       <div class="table-wrap"><table class="data-table" id="dataTable"><thead></thead><tbody></tbody></table></div>
       <div class="table-pager">
-        <button class="ghost" id="tablePrev" data-i18n="prev">◀ Anterior</button>
+        <button class="ghost pg-btn" id="tableFirst" data-i18n-title="pg_first" aria-label="Primera página">«</button>
+        <button class="ghost pg-btn" id="tablePrev" data-i18n-title="pg_prev" aria-label="Anterior">‹</button>
         <span id="tablePageInfo"></span>
-        <button class="ghost" id="tableNext" data-i18n="next">Siguiente ▶</button>
+        <button class="ghost pg-btn" id="tableNext" data-i18n-title="pg_next" aria-label="Siguiente">›</button>
+        <button class="ghost pg-btn" id="tableLast" data-i18n-title="pg_last" aria-label="Última página">»</button>
       </div>
     </div>
   </div>
@@ -1590,7 +1593,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       table_count: (n) => `${n} ruta(s) con los filtros actuales.`,
       table_page: (p,total) => `Página ${p} de ${total}`,
       table_no_routes: "Sin rutas",
-      prev: "◀ Anterior", next: "Siguiente ▶",
+      prev: "◀ Anterior", next: "Siguiente ▶", pg_first: "Primera página", pg_prev: "Página anterior", pg_next: "Página siguiente", pg_last: "Última página",
       leyenda_rutas: "Rutas", leyenda_densidad: "Densidad (heatmap)",
       geo_btn_off: "Mostrar mi ubicación", geo_btn_shown: "Seguir mi ubicación", geo_btn_follow: "Dejar de seguir mi ubicación",
       geo_searching: "Buscando tu ubicación…", geo_follow_on: "Siguiendo tu ubicación. Arrastra el mapa o vuelve a tocar para dejar de seguirla.", geo_follow_off: "Ya no se sigue tu ubicación.",
@@ -1951,7 +1954,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       table_count: (n) => `${n} route(s) with the current filters.`,
       table_page: (p,total) => `Page ${p} of ${total}`,
       table_no_routes: "No routes",
-      prev: "◀ Previous", next: "Next ▶",
+      prev: "◀ Previous", next: "Next ▶", pg_first: "First page", pg_prev: "Previous page", pg_next: "Next page", pg_last: "Last page",
       leyenda_rutas: "Routes", leyenda_densidad: "Density (heatmap)",
       geo_btn_off: "Show my location", geo_btn_shown: "Follow my location", geo_btn_follow: "Stop following my location",
       geo_searching: "Finding your location…", geo_follow_on: "Following your location. Drag the map or tap again to stop.", geo_follow_off: "No longer following your location.",
@@ -4170,7 +4173,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
         <li><strong>Gráficos</strong>: km, desnivel y horas por mes o por año, y velocidad media por tipo.</li>
         <li><strong>Récords y Top 10</strong>: la ruta más larga, con más desnivel, más rápida, con más tiempo y más difícil; y las 10 mejores ordenables por cualquier columna.</li>
         <li><strong>Calendario</strong>: un cuadradito por día, más intenso cuantos más km.</li>
-        <li><strong>Tabla de rutas</strong>: todas las rutas filtradas, ordenables por columna (con personas, también la columna <em>Con</em>).</li>
+        <li><strong>Tabla de rutas</strong>: todas las rutas filtradas, ordenables por columna (con personas, también la columna <em>Con</em>). Van de 50 en 50: «, ‹, › y » llevan a la primera página, la anterior, la siguiente y la última.</li>
         <li><strong>Resumen anual</strong>: las cifras de un año. Con <em>Todos los años</em>, una tabla con una fila por año y el total; pincha un año para ver su resumen. <em>Compartir…</em> crea una imagen del año (sin nombres de rutas) para WhatsApp, Telegram, X, email, etc.</li>
         <li><strong>Sitios (subidas y bajadas)</strong>: pulsa <em>Buscar sitios</em> y la app encuentra los altos por los que pasas a menudo, y también los de subidas grandes aunque los hayas pasado una sola vez, y, en cada uno, los caminos por los que llegas (subida A, B…, llegando de bajada o de paso) y, en la pestaña <em>Bajadas</em>, los caminos por los que te vas bajando (bajada A, B…, «hacia» el pueblo donde acaban). De cada subida o bajada ves cuántas veces la has hecho, el mejor tiempo, la mediana, la última, la velocidad media de la mejor vez (km/h), el mejor por tipo y un gráfico de tus tiempos por fecha; pincha un paso para abrir esa ruta. <em>Buscar nombres</em> toma de OpenStreetMap el nombre del puerto, collado, cima o mirador de cada alto (si no hay, el de un aparcamiento, refugio, fuente u otro lugar con nombre en el propio alto, y si tampoco, el del pueblo o paraje, y si no, el del camino o la carretera con nombre que pasa por él) y el del sitio donde empieza cada subida o acaba cada bajada: un lugar con nombre a menos de 100 m, el pueblo, o el camino o la carretera con nombre por los que pasa («Subida A · desde Talledo», «Bajada A · hacia Camino Portillo»). Al pinchar en la casilla del nombre salen los <strong>nombres cercanos</strong> de OpenStreetMap para elegir uno con un clic (en el alto, también como botones debajo); los que no estén en OpenStreetMap quedan como «Alto 373 m». Escribe encima tus propios nombres: mandan sobre los de OpenStreetMap, se guardan y se conservan al volver a buscar. <em>Quitar este sitio</em> lo oculta de la lista y del mapa, también al volver a buscar; con <em>Ver los quitados</em> puedes recuperarlo. Del mismo modo, <em>Quitar</em> junto a una subida quita ese inicio (las que quedan se renombran A, B, C… y ya no salen en el mapa); se recupera con <em>Ver los inicios quitados</em>, al final de la ficha. No se borra ninguna ruta. <em>Ver</em>, junto a cada subida, marca en el mapa el camino que sigue, desde su inicio hasta el alto, tomado de la vez más rápida (en las bajadas, desde el alto hasta su final; en «llegando de bajada» y «de paso», 1,5 km antes y después del alto, de la última vez); en el mapa, pinchar una subida en la ventanita del alto o su letra (círculo: inicio de subida; cuadrado: final de bajada) hace lo mismo, y la letra abre además una ventanita con sus datos. <em>Ver en el mapa</em> muestra los altos de la zona (también desde el icono de capas, casilla «Sitios»), con el seleccionado resaltado, su nombre y el inicio de cada subida. En cambio, <em>Ver en el mapa</em> de la ficha de un sitio muestra solo ese alto, con todas sus subidas dibujadas (cada una por el camino de su vez más rápida) y sus letras; con el botón de abajo a la izquierda cambias a sus bajadas. Las subidas y los «de paso» que quitas dejan de contar en los pasos de la lista. En el mapa, pincha un alto para resaltarlo y ver sus mejores tiempos; <em>Abrir ficha</em> vuelve al panel. En la lista, <strong>×</strong> son las veces que has pasado por el alto, <strong>↗</strong> sus subidas y <strong>↘</strong> sus bajadas (al pasar el ratón por la cabecera sale el nombre). Respeta los filtros. La primera búsqueda la pides tú; desde entonces, al añadir o borrar rutas los sitios se vuelven a buscar solos, en segundo plano (abajo a la izquierda sale «Actualizando Sitios…»), y se conservan los nombres que hayas puesto, los de OpenStreetMap y lo que hayas quitado. Los altos nuevos salen sin nombre de OpenStreetMap hasta que pulses <em>Buscar nombres</em>.</li>
         <li><strong>Caminos y sendas</strong>: pulsa <em>Buscar tramos</em> y la app encuentra los tramos de senda (1 km o más) y de camino o pista (2 km o más) por los que has pasado varias veces en el mismo sentido, en dos pestañas, <em>Sendas</em> y <em>Caminos</em>. Usa el análisis de terreno, así que solo cuentan las rutas que lo tengan. De cada tramo ves su perfil, cuántas veces lo has hecho, el mejor tiempo, la mediana, la última, la velocidad media, el mejor por tipo y un gráfico de tus tiempos por fecha; si también lo has hecho al revés, <em>En sentido contrario</em> te lleva a ese otro tramo. <em>Buscar nombres</em> pone el nombre del camino o la senda de OpenStreetMap si el tramo va casi entero por él («Camino Portillo»); si no, lo que hay al principio y al final, un lugar con nombre, el pueblo o el camino («De Talledo a Otañes»). Puedes escribir el tuyo encima o elegir uno de los <strong>nombres cercanos</strong> (botones debajo de la casilla). <em>Quitar este tramo</em> y <em>Abrir ficha</em> desde el mapa funcionan como en Sitios; <em>Ver en el mapa</em> de un tramo lo resalta solo a él, y para ver todos está el <em>Ver en el mapa</em> de arriba o la casilla «Caminos y sendas» del icono de capas; en el mapa, pinchar un tramo, o el principio (círculo blanco) o el final (círculo oscuro) del resaltado, abre una ventanita con sus datos. Con la capa puesta se ven a la vez las sendas (morado) y los caminos (ocre), con un borde oscuro, y las rutas se atenúan para que los tramos se distingan. En la lista, <strong>↕</strong> es el desnivel del principio al final y <strong>×</strong> las veces que lo has hecho. Tras la primera búsqueda, se vuelven a buscar solos al terminar un análisis de terreno (o al añadir rutas que ya lo tienen), igual que Sitios.</li>
@@ -4274,7 +4277,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
         <li><strong>Charts</strong>: km, gain and hours by month or year, and average speed by type.</li>
         <li><strong>Records & Top 10</strong>: the longest route, most gain, fastest, most time and hardest; and the top 10, sortable by any column.</li>
         <li><strong>Calendar</strong>: one square per day, brighter the more km.</li>
-        <li><strong>Route table</strong>: every filtered route, sortable by column (with people, also the <em>With</em> column).</li>
+        <li><strong>Route table</strong>: every filtered route, sortable by column (with people, also the <em>With</em> column). They come 50 at a time: «, ‹, › and » go to the first, previous, next and last page.</li>
         <li><strong>Year in review</strong>: a year's figures. With <em>All years</em>, a table with one row per year plus the total; click a year to see its summary. <em>Share…</em> creates an image of the year (no route names) for WhatsApp, Telegram, X, email, etc.</li>
         <li><strong>Places (climbs and descents)</strong>: press <em>Find places</em> and the app finds the tops you ride over often, and also big climbs you have done only once, and, for each one, the ways you get there (climb A, B…, arriving downhill or passing) and, in the <em>Descents</em> tab, the ways you leave it going down (descent A, B…, "to" the village where they end). For each climb or descent you see how many times you've done it, the best time, the median, the last one, the average speed of the best time (km/h), the best by type and a chart of your times by date; click a pass to open that route. <em>Find names</em> takes from OpenStreetMap the name of the pass, saddle, peak or viewpoint at each top (failing that, of a car park, shelter, spring or other named place on the top itself, and failing that, of the village or place, or else of the named track or road through it) and of where each climb starts or each descent ends: a named place within 100 m, the village, or the named track or road it passes ("Climb A · from Talledo", "Descent A · to Camino Portillo"). Clicking the name box shows the <strong>nearby names</strong> from OpenStreetMap to pick one with a click (for the top, also as buttons below); those not in OpenStreetMap stay as "Top 373 m". Type your own names over them: they take priority over OpenStreetMap, are saved and are kept when you search again. <em>Remove this place</em> hides it from the list and the map, also when you search again; <em>Show the removed</em> lets you bring it back. In the same way, <em>Remove</em> next to a climb removes that start (the remaining ones are relettered A, B, C… and no longer appear on the map); bring it back with <em>Show the removed starts</em>, at the end of the details. No route is deleted. <em>Show</em>, next to each climb, marks its path on the map, from its start to the top, taken from the fastest time (for descents, from the top to their end; for "arriving downhill" and "passing", 1.5 km before and after the top, from the last time); on the map, clicking a climb in the top's pop-up or its letter (circle: climb start; square: descent end) does the same, and the letter also opens a pop-up with its data. <em>Show on map</em> shows the tops in the area (also from the layers icon, "Places" box), with the selected one highlighted, its name and where each climb starts. <em>Show on map</em> in a place's details, instead, shows only that top, with all its climbs drawn (each along the path of its fastest time) and their letters; the button at the bottom left switches to its descents. Climbs and "passing" entries you remove no longer count in the list's passes. On the map, click a top to highlight it and see its best times; <em>Open details</em> goes back to the panel. In the list, <strong>×</strong> is how many times you have passed the top, <strong>↗</strong> its climbs and <strong>↘</strong> its descents (hover the header to see the name). It follows the filters. You run the first search yourself; after that, adding or deleting routes searches again on its own in the background ("Updating Places…" shows at the bottom left), keeping the names you gave, the OpenStreetMap ones and what you removed. New tops have no OpenStreetMap name until you press <em>Find names</em>.</li>
         <li><strong>Tracks and trails</strong>: press <em>Find stretches</em> and the app finds the trail stretches (1 km or more) and dirt-track stretches (2 km or more) you have ridden several times in the same direction, in two tabs, <em>Trails</em> and <em>Tracks</em>. It uses terrain analysis, so only routes that have it count. For each stretch you see its profile, how many times you've done it, the best time, the median, the last one, the average speed, the best by type and a chart of your times by date; if you have also done it the other way, <em>The other way</em> takes you to that stretch. <em>Find names</em> uses the name of the OpenStreetMap track or trail if the stretch runs almost entirely along it ("Camino Portillo"); otherwise, what is at the start and the end, a named place, the village or the track ("From Talledo to Otañes"). You can type your own over it or pick one of the <strong>nearby names</strong> (buttons below the box). <em>Remove this stretch</em> and <em>Open details</em> from the map work as in Places; <em>Show on map</em> on a stretch highlights only that one, and to see them all use the <em>Show on map</em> at the top or the "Tracks and trails" box in the layers icon; on the map, clicking a stretch, or the start (white circle) or end (dark circle) of the highlighted one, opens a pop-up with its data. With the layer on, trails (purple) and tracks (ochre) are shown together with a dark outline, and the routes are dimmed so the stretches stand out. In the list, <strong>↕</strong> is the elevation change from start to end and <strong>×</strong> how many times you have done it. After the first search, they are searched again on their own when a terrain analysis finishes (or when you add routes that already have it), like Places.</li>
@@ -4347,7 +4350,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
   // ---------- Quiénes somos / About ----------
   // Versión de la app: se sube (0.4 → 0.5 → …) y se pone la fecha del día cada vez que se genera un HTML nuevo.
   // Versiones 0.x mientras la app no se publique.
-  const APP_VERSION = "0.81", APP_VERSION_DATE = "2026-11-02";
+  const APP_VERSION = "0.84", APP_VERSION_DATE = "2026-11-02";
   const APP_AUTHOR = "Angel Herrero", APP_EMAIL = "angelherreropla@gmail.com";
   const ABOUT_HTML = {
     es: () => `
@@ -4785,7 +4788,11 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
 
   // Dibujo del rectángulo: se desactiva el arrastre del mapa mientras se dibuja.
   let zoneRect = null, zoneDrawing = false, zoneStart = null, zoneTemp = null;
-  const ZONE_STYLE = { color:"#ffd400", weight:2, dashArray:"6 5", fillColor:"#ffd400", fillOpacity:0.06, interactive:false };
+  // (0.82) El rectángulo va en su propio panel SVG sin eventos de ratón. Antes usaba el lienzo por defecto (preferCanvas),
+  // que se ponía encima del de las rutas y se quedaba con los clics para siempre, aunque se quitara la zona.
+  map.createPane("zonePane"); map.getPane("zonePane").style.zIndex = 450; map.getPane("zonePane").style.pointerEvents = "none";
+  const zoneRenderer = L.svg({ pane:"zonePane" });
+  const ZONE_STYLE = { color:"#ffd400", weight:2, dashArray:"6 5", fillColor:"#ffd400", fillOpacity:0.06, interactive:false, pane:"zonePane", renderer: zoneRenderer };
   function updateZoneUi(){
     const z = state.zone;
     els("zoneClear").classList.toggle("hidden", !z);
@@ -8063,6 +8070,11 @@ ${head}
     els("tablePageInfo").textContent = sorted.length ? tr("table_page", tablePage+1, totalPages) : tr("table_no_routes");
     els("tablePrev").disabled = tablePage <= 0;
     els("tableNext").disabled = tablePage >= totalPages - 1;
+    // (0.83) sin «Anterior» en la primera página ni «Siguiente» en la última; con una sola página, sin paginación
+    ["tableFirst", "tablePrev"].forEach(id => { els(id).style.visibility = tablePage <= 0 ? "hidden" : ""; els(id).disabled = tablePage <= 0; });
+    ["tableNext", "tableLast"].forEach(id => { els(id).style.visibility = tablePage >= totalPages - 1 ? "hidden" : ""; els(id).disabled = tablePage >= totalPages - 1; });
+    ["tableFirst", "tablePrev", "tableNext", "tableLast"].forEach(id => els(id).setAttribute("aria-label", els(id).title));
+    document.querySelector("#tableModal .table-pager").classList.toggle("hidden", totalPages <= 1);
     updateCompareBar("table");
   }
 
@@ -8083,6 +8095,8 @@ ${head}
   });
   els("tablePrev").addEventListener("click", () => { tablePage--; renderTable(); });
   els("tableNext").addEventListener("click", () => { tablePage++; renderTable(); });
+  els("tableFirst").addEventListener("click", () => { tablePage = 0; renderTable(); });
+  els("tableLast").addEventListener("click", () => { tablePage = 1e9; renderTable(); });   // renderTable lo ajusta a la última
 
   els("btnSurfAll").addEventListener("click", analyzeAllFiltered);
   els("surfStop").addEventListener("click", () => { surfBatchStop = true; });
