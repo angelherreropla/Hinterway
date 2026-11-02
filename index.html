@@ -141,7 +141,9 @@ main{ position:relative; flex:1; min-width:0; }
 /* (0.72) bienvenida, primeros pasos y avisos de paneles vacíos */
 .empty{ overflow-y:auto; }
 /* (0.73) sin rutas no se muestran el panel de filtros ni el menú Filtros */
-body.no-tracks aside#sidebar, body.no-tracks .menu[data-menu="filtros"]{ display:none !important; }
+body.no-tracks aside#sidebar, body.no-tracks #btnFilters{ display:none !important; }
+#btnFilters.on{ border-color:var(--line); background:var(--panel-2); }
+.fcount{ display:inline-block; min-width:18px; margin-left:6px; padding:0 5px; border-radius:9px; background:var(--accent); color:#fff; font-size:11px; font-weight:600; line-height:18px; text-align:center; }
 .welcome{ max-width:520px; display:flex; flex-direction:column; align-items:center; gap:14px; margin:auto 0; }
 .welcome .wl-lead{ font-size:15px; color:var(--text); max-width:460px; }
 .wl-feats{ list-style:none; padding:0; margin:2px 0; display:grid; gap:8px; text-align:left; max-width:440px; }
@@ -360,10 +362,6 @@ body.no-tracks aside#sidebar, body.no-tracks .menu[data-menu="filtros"]{ display
 .cal-day.lv4{ background:#39ff6a; border-color:#39ff6a; }
 .cal-legend{ display:flex; align-items:center; gap:5px; margin-top:12px; font-size:11px; color:var(--text-dim); }
 .repeats-modal{ width:min(900px, 94vw); max-height:90vh; overflow-y:auto; }
-.repeat-group{ background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:10px 12px; margin-bottom:10px; }
-.repeat-group-head{ display:flex; justify-content:space-between; align-items:baseline; gap:8px; cursor:pointer; }
-.repeat-group-head h4{ margin:0; font-size:14px; }
-.repeat-group-head span{ font-size:12px; color:var(--text-dim); white-space:nowrap; }
 .repeat-table{ width:100%; border-collapse:collapse; font-size:12.5px; margin-top:8px; }
 .repeat-table th, .repeat-table td{ padding:5px 7px; border-bottom:1px solid var(--line); text-align:left; white-space:nowrap; }
 .repeat-table th.num, .repeat-table td.num{ text-align:right; }
@@ -628,10 +626,9 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
   /* cabeceras de las ventanas: los botones bajan a otra línea en vez de salirse (el ✕ quedaba fuera) */
   .stats-head{ flex-wrap:wrap; }
   .stats-head > h3{ flex:1 1 auto; min-width:0; }
+  .stats-head{ position:relative; padding-right:46px; }   /* (0.88) el ✕ siempre arriba a la derecha */
+  .stats-head .x-close{ position:absolute; top:0; right:0; }
   .stats-controls{ flex-wrap:wrap; justify-content:flex-end; gap:8px; margin-left:auto; }
-  /* Rutas repetidas: sin Tipo ni Velocidad para que quepa sin desplazar a los lados */
-  .repeats-modal .repeat-table th:nth-child(2), .repeats-modal .repeat-table td:nth-child(2),
-  .repeats-modal .repeat-table th:nth-child(6), .repeats-modal .repeat-table td:nth-child(6){ display:none; }
   .surf-status{ top:56px; font-size:12px; flex-wrap:wrap; justify-content:center; }
   .leaflet-control-attribution{ font-size:9px; }
 }
@@ -668,42 +665,39 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       <div class="menu" data-menu="datos">
         <button class="menu-btn" data-i18n="menu_data">Datos ▾</button>
         <div class="menu-dropdown">
-          <button class="menu-item" id="btnAdd" data-i18n="add_gpx">Añadir GPX</button>
-          <button class="menu-item" id="btnExport" data-i18n="export_csv">Exportar a CSV</button>
-          <button class="menu-item" id="btnBackup" data-i18n="backup_download">Descargar copia de seguridad</button>
-          <button class="menu-item" id="btnRestore" data-i18n="backup_restore">Restaurar copia de seguridad</button>
+          <button class="menu-item" id="btnAdd" data-i18n="add_gpx">Añadir rutas…</button>
           <hr class="menu-sep">
           <button class="menu-item" id="btnSurfAll" data-i18n="surf_analyze_all">Analizar terreno (rutas filtradas)</button>
           <button class="menu-item" id="btnGlitch" data-i18n="glitch_menu">Revisar puntos erróneos (rutas filtradas)</button>
           <hr class="menu-sep">
+          <button class="menu-item" id="btnBackup" data-i18n="backup_download">Descargar copia de seguridad</button>
+          <button class="menu-item" id="btnRestore" data-i18n="backup_restore">Restaurar copia de seguridad</button>
+          <button class="menu-item" id="btnExport" data-i18n="export_csv">Exportar a CSV</button>
+          <hr class="menu-sep">
           <button class="menu-item danger" id="btnClearAll" data-i18n="clear_all">Vaciar todos los datos</button>
         </div>
       </div>
-      <div class="menu" data-menu="filtros">
-        <button class="menu-btn" data-i18n="menu_filters">Filtros ▾</button>
-        <div class="menu-dropdown">
-          <button class="menu-item" id="btnFilters" data-i18n="hide_panel">Ocultar panel</button>
-          <button class="menu-item" id="btnReset" data-i18n="reset_filters">Restablecer filtros</button>
-        </div>
-      </div>
+      <button class="menu-btn" id="btnFilters" title="Filtros"><span id="btnFiltersTxt">Filtros</span><span class="fcount hidden" id="btnFiltersCount"></span></button>
+      <button class="hidden" id="btnReset" data-i18n="reset_filters">Restablecer filtros</button>
       <div class="menu" data-menu="paneles">
         <button class="menu-btn" data-i18n="menu_panels">Paneles ▾</button>
         <div class="menu-dropdown">
-          <button class="menu-item" id="btnStats" data-i18n="panel_charts">Gráficos</button>
-          <button class="menu-item" id="btnRecords" data-i18n="panel_records">Récords y Top 10</button>
-          <button class="menu-item" id="btnCalendar" data-i18n="panel_calendar">Calendario</button>
           <button class="menu-item" id="btnTable" data-i18n="panel_table">Tabla de rutas</button>
+          <button class="menu-item" id="btnStats" data-i18n="panel_charts">Gráficos</button>
+          <button class="menu-item" id="btnCalendar" data-i18n="panel_calendar">Calendario</button>
           <button class="menu-item" id="btnYearReview" data-i18n="panel_year_review">Resumen anual</button>
+          <hr class="menu-sep">
+          <button class="menu-item" id="btnRecords" data-i18n="panel_records">Récords y Top 10</button>
+          <hr class="menu-sep">
           <button class="menu-item" id="btnSites" data-i18n="panel_sites">Sitios (subidas y bajadas)</button>
           <button class="menu-item" id="btnSegs" data-i18n="panel_segs">Caminos y sendas</button>
-          <button class="menu-item hidden" id="btnRepeats" data-i18n="panel_repeats">Rutas repetidas</button>
         </div>
       </div>
       <div class="menu" data-menu="info">
         <button class="menu-btn" data-i18n="menu_info">Info ▾</button>
         <div class="menu-dropdown">
-          <button class="menu-item" id="btnHelp" data-i18n="help">Ayuda</button>
           <button class="menu-item" id="btnOnboard" data-i18n="ob_menu">Primeros pasos</button>
+          <button class="menu-item" id="btnHelp" data-i18n="help">Ayuda</button>
           <button class="menu-item" id="btnAbout" data-i18n="about">Quiénes somos</button>
           <button class="menu-item hidden" id="btnLangEsM">🇪🇸 Español</button>
           <button class="menu-item hidden" id="btnLangEnM">🇬🇧 English</button>
@@ -938,19 +932,6 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       </div>
       <p id="glitchInfo" class="stats-info"></p>
       <div id="glitchList"></div>
-    </div>
-  </div>
-  <div class="modal-overlay hidden" id="repeatsModal">
-    <div class="modal repeats-modal">
-      <div class="stats-head">
-        <h3 style="margin:0;" data-i18n="panel_repeats">Rutas repetidas</h3>
-        <div class="stats-controls">
-          <button class="ghost" id="repeatsRecalc" data-i18n="recalc">Recalcular</button>
-          <button class="ghost" id="repeatsClose">✕</button>
-        </div>
-      </div>
-      <p id="repeatsInfo" class="stats-info"></p>
-      <div id="repeatsList"></div>
     </div>
   </div>
   <div class="modal-overlay hidden" id="calModal">
@@ -1314,7 +1295,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
   const I18N = {
     es: {
       app_title: "🏔️ Hinterway",
-      menu_data: "Datos ▾", menu_filters: "Filtros ▾", menu_panels: "Paneles ▾", menu_info: "Info ▾", about: "Quiénes somos",
+      menu_data: "Datos ▾", menu_filters: "Filtros", menu_panels: "Paneles ▾", menu_info: "Info ▾", about: "Quiénes somos",
       settings: "Configuración", set_tab_look: "Apariencia", set_lang: "Idioma", set_theme: "Tema",
       set_theme_sub: "\"Automático\" sigue el modo claro u oscuro de tu sistema.", set_theme_dark: "Oscuro", set_theme_light: "Claro", set_theme_auto: "Automático",
       set_datefmt: "Formato de fecha", set_intensity_sub: "Más alta, rutas más visibles; más baja, se ve mejor dónde se acumulan.", set_weight: "Grosor de las rutas",
@@ -1341,23 +1322,21 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       set_fit: "Centrar el mapa al pinchar una ruta", set_fit_sub: "Si está desactivado, el mapa no se mueve al pinchar una ruta en él. Desde la tabla, los récords o el Top 10 siempre se centra.",
       set_type_count: (n, km) => `${n} ${n === 1 ? "ruta" : "rutas"} · ${km} km`,
       confirm_merge_types: (a, b) => `Ya existe el tipo "${b}". ¿Fusionar las rutas de "${a}" en "${b}"? Se quedará el color de "${b}".`,
-      add_gpx: "Añadir rutas (GPX, TCX)", export_csv: "Exportar a CSV",
+      add_gpx: "Añadir rutas…", export_csv: "Exportar a CSV",
       backup_download: "Descargar copia de seguridad", backup_restore: "Restaurar copia de seguridad",
       clear_all: "Vaciar todos los datos",
       show_panel: "Mostrar panel", hide_panel: "Ocultar panel", reset_filters: "Restablecer filtros",
       panel_charts: "Gráficos", panel_records: "Récords y Top 10", panel_calendar: "Calendario",
-      panel_table: "Tabla de rutas", panel_repeats: "Rutas repetidas", help: "Ayuda",
-      filter_name: "Nombre", filter_name_ph: "Buscar en el nombre…",
-      filter_year: "Año", filter_type: "Tipo de actividad",
-      filter_date: "Fecha", date_from: "Desde", date_to: "Hasta", date_clear: "Quitar fechas",
+      panel_table: "Tabla de rutas", help: "Ayuda",
+      filter_name_ph: "Buscar en el nombre…",
+      filter_year: "Año",       filter_date: "Fecha", date_from: "Desde", date_to: "Hasta", date_clear: "Quitar fechas",
       filter_zone: "Zona del mapa", zone_draw: "▭ Dibujar zona", zone_redraw: "▭ Cambiar zona", zone_clear: "Quitar zona",
       zone_info_none: "Rutas que pasan por un rectángulo que dibujas en el mapa.",
       zone_info_on: (w, h) => `Zona activa: ${w} × ${h} km. Solo se muestran las rutas que pasan por ella.`,
       zone_hint: "Arrastra sobre el mapa para dibujar la zona",
       all: "Todos", none: "Ninguno",
-      filter_km: "Distancia (km)", filter_gain: "Desnivel positivo (m)", filter_idx: "Índice de dificultad", route_intensity: "Intensidad de las rutas",
-      range_to: "a",
-      empty_title: "Bienvenido a Hinterway",
+      route_intensity: "Intensidad de las rutas",
+            empty_title: "Bienvenido a Hinterway",
       empty_text: "Admite archivos GPX y TCX, también comprimidos en .gz; puedes elegir cientos a la vez o, en el ordenador, arrastrarlos a esta ventana. Si no traen el tipo de actividad, te lo preguntará.",
       drop_title: "Suelta los archivos para añadirlos",
       filter_people: "Acompañantes", pp_solo: "Solo (sin acompañantes)",
@@ -1416,7 +1395,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       ob_s5: "Busca Caminos y sendas", ob_s5d: "Los tramos de pista y senda que repites. Necesita el terreno.",
       ob_s6: "Haz una copia de seguridad", ob_s6d: "Todo está solo en este navegador: guarda una copia por si acaso.",
       ob_s6d_old: "Tu última copia no tiene los últimos cambios.",
-      ob_go: "Ir", ob_add: "Añadir", ob_review: "Revisar", ob_analyze: "Analizar", ob_open: "Abrir", ob_download: "Descargar",
+      ob_add: "Añadir", ob_review: "Revisar", ob_analyze: "Analizar", ob_open: "Abrir", ob_download: "Descargar",
       ob_foot: "Puedes cerrar esta lista y volver a abrirla en Info → Primeros pasos.",
       ob_done_foot: "¡Todo listo! Ya puedes cerrar esta lista.",
       hint_no_tracks: "Aún no has añadido rutas.",
@@ -1463,18 +1442,15 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       ficha_similar_none: "Ninguna comparte al menos dos subidas, bajadas o tramos con esta.", ficha_shared: "En común", ficha_sim_tip: "Ver su ficha",
 
       elev_segment: (dist,gain,loss,avg) => `Tramo seleccionado: ${dist} km · subida +${gain} m · bajada −${loss} m · ${avg}% de media &nbsp;·&nbsp; <a href="#" class="elev-reset-zoom" style="color:var(--accent-2);">Ver ruta completa</a>`,
-      km_unit: "km",
-      unknown_type: "Desconocido",
+            unknown_type: "Desconocido",
       csv_header: ["Nombre","Archivo","Fecha","Tipo","Km","Desnivel (m)","Tiempo en movimiento (h)","Velocidad media (km/h)","Índice de dificultad","% Asfalto","% Pista","% Senda","% Sin datos (terreno)","Con"],
       no_index: "Sin índice",
-      index_label: "Índice de dificultad",
-      save: "Guardar", cancel: "Cancelar", assign: "Asignar",
+            cancel: "Cancelar", assign: "Asignar",
       new_type: "+ Nuevo tipo…", new_type_ph: "Nombre del nuevo tipo",
       rename: "Renombrar", delete_route: "Borrar ruta",
       type_modal_title: "Tipo de ruta",
       type_modal_count: (n) => `${n} archivo(s) sin tipo de actividad`,
-      moving_suffix: "en mov.", no_data: "sin datos",
-      no_lib_charts: "No se ha podido cargar la librería de gráficos (¿sin conexión a internet?).",
+            no_lib_charts: "No se ha podido cargar la librería de gráficos (¿sin conexión a internet?).",
       no_dated_routes: "No hay rutas con fecha para mostrar con los filtros actuales.",
       based_on: (n, extra) => `Basado en las ${n} rutas que cumplen los filtros actuales${extra}. Pulsa un tipo de la leyenda para ocultarlo o mostrarlo en todos los gráficos. La velocidad media solo cuenta rutas con tiempo en movimiento.`,
       based_on_extra: (n) => ` (${n} sin fecha reconocible, no incluidas)`,
@@ -1486,10 +1462,8 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       based_on_records: (n) => `Basado en las ${n} rutas que cumplen los filtros actuales.`,
       rec_longest: "Más larga", rec_most_gain: "Más desnivel", rec_fastest: "Más rápida (media)",
       rec_most_time: "Más tiempo en movimiento", rec_hardest: "Más difícil (índice)",
-      top10_title: "Top 10", sort_by: "Ordenar por", top10_hint: "Pulsa en el título de una columna para ordenar (otra vez para invertir)",
-      opt_distance: "Distancia", opt_gain: "Desnivel", opt_idx: "Índice de dificultad",
-      opt_speed: "Velocidad media", opt_duration: "Tiempo en movimiento",
-      col_num: "#", col_route: "Ruta", col_date: "Fecha", col_type: "Tipo", col_km: "Km",
+      top10_title: "Top 10", top10_hint: "Pulsa en el título de una columna para ordenar (otra vez para invertir)",
+            col_num: "#", col_route: "Ruta", col_date: "Fecha", col_type: "Tipo", col_km: "Km",
       col_gain: "Desnivel", col_idx: "Índice",
       col_s_asf: "% Asfalto", col_s_pis: "% Pista", col_s_sen: "% Senda",
       rp_gain: "m desnivel", rp_moving: "en mov.", rp_index: "índice", rp_type: "Tipo de actividad (se guarda al elegirlo)",
@@ -1524,11 +1498,6 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       cal_no_activity: (fecha) => `${fecha}: sin actividad`,
       cal_activity: (fecha,n,km,m) => `${fecha}: ${n} ruta(s), ${km} km, ${m} m`,
       cal_summary: (year,dias,n,km,gain) => `${year}: ${dias} días activos, ${n} ruta(s), ${km} km, ${gain} m de desnivel. El color depende de los km de cada día respecto al día con más km de ese año.`,
-      repeats_analyzing: "Analizando rutas…",
-      repeats_none_filtered: "No se han encontrado rutas repetidas con los filtros actuales.",
-      repeats_add_routes: "Añade rutas para poder detectar repeticiones.",
-      repeats_found: (n) => `${n} ruta(s) repetida(s) detectada(s) entre las que cumplen los filtros actuales (comparando los recorridos por su forma, no por el nombre).`,
-      repeats_times: (n,d1,d2) => `${n} veces · ${d1} → ${d2}`,
       panel_sites: "Sitios (subidas y bajadas)", leyenda_sitios: "Sitios (altos)",
       panel_segs: "Caminos y sendas", leyenda_segs: "Caminos y sendas", rs_info_segs: "Caminos y sendas",
       segs_run: "Buscar tramos", segs_tab_senda: (n) => `Sendas (${n})`, segs_tab_pista: (n) => `Caminos (${n})`,
@@ -1589,11 +1558,11 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       segs_osm_failed: (n) => `OpenStreetMap no responde ahora (consultados ${n} tramos). Prueba más tarde: lo ya consultado se conserva.`,
       sites_osm_none: "Ya se han buscado los nombres de todos los altos.",
       sites_osm_zone: (k,n) => `zona ${k} de ${n}`, sites_osm_wait: (w) => `OpenStreetMap ocupado, reintentando en ${w} s…`, osm_ways_step: (k,n) => `caminos con nombre: consulta ${k} de ${n}`,
-      recalc: "Recalcular",
+     
       table_count: (n) => `${n} ruta(s) con los filtros actuales.`,
       table_page: (p,total) => `Página ${p} de ${total}`,
       table_no_routes: "Sin rutas",
-      prev: "◀ Anterior", next: "Siguiente ▶", pg_first: "Primera página", pg_prev: "Página anterior", pg_next: "Página siguiente", pg_last: "Última página",
+      pg_first: "Primera página", pg_prev: "Página anterior", pg_next: "Página siguiente", pg_last: "Última página",
       leyenda_rutas: "Rutas", leyenda_densidad: "Densidad (heatmap)",
       geo_btn_off: "Mostrar mi ubicación", geo_btn_shown: "Seguir mi ubicación", geo_btn_follow: "Dejar de seguir mi ubicación",
       geo_searching: "Buscando tu ubicación…", geo_follow_on: "Siguiendo tu ubicación. Arrastra el mapa o vuelve a tocar para dejar de seguirla.", geo_follow_off: "Ya no se sigue tu ubicación.",
@@ -1618,8 +1587,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       backup_rem_never: (n) => `Tienes ${n} ruta(s) y todavía no has hecho ninguna copia de seguridad.`,
       backup_rem_old: (d, n) => `Tu última copia de seguridad es de hace ${d} día(s)${n ? ` y tienes ${n} ruta(s) nueva(s)` : " y hay cambios desde entonces"}.`,
       backup_rem_now: "Descargar copia", backup_rem_later: "Más tarde",
-      confirm_restore: (n) => `Se van a añadir o actualizar ${n} ruta(s) desde la copia de seguridad. Las que ya tengas con el mismo nombre de archivo se sobrescribirán; el resto de tus rutas actuales no se tocan. ¿Continuar?`,
-      alert_backup_unreadable: "No se ha podido leer ese archivo como copia de seguridad.",
+            alert_backup_unreadable: "No se ha podido leer ese archivo como copia de seguridad.",
       alert_db_blocked: "Hay otra pestaña con una versión anterior de esta app abierta. Ciérrala para que esta pueda actualizar sus datos guardados.",
       confirm_clear_all: "Esto borra todas las rutas cargadas en este navegador. ¿Continuar?",
       confirm_clear_surf_note: n => `${n} ruta(s) tienen el terreno analizado. A continuación podrás elegir si conservas esos análisis para recuperarlos al volver a cargar los mismos GPX.`,
@@ -1675,7 +1643,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     },
     en: {
       app_title: "🏔️ Hinterway",
-      menu_data: "Data ▾", menu_filters: "Filters ▾", menu_panels: "Panels ▾", menu_info: "Info ▾", about: "About",
+      menu_data: "Data ▾", menu_filters: "Filters", menu_panels: "Panels ▾", menu_info: "Info ▾", about: "About",
       settings: "Settings", set_tab_look: "Appearance", set_lang: "Language", set_theme: "Theme",
       set_theme_sub: "\"Automatic\" follows your system's light or dark mode.", set_theme_dark: "Dark", set_theme_light: "Light", set_theme_auto: "Automatic",
       set_datefmt: "Date format", set_intensity_sub: "Higher: routes stand out more; lower: easier to see where they pile up.", set_weight: "Route thickness",
@@ -1702,23 +1670,21 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       set_fit: "Center the map when clicking a route", set_fit_sub: "When off, the map doesn't move when you click a route on it. From the table, records or Top 10 it always centers.",
       set_type_count: (n, km) => `${n} ${n === 1 ? "route" : "routes"} · ${km} km`,
       confirm_merge_types: (a, b) => `Type "${b}" already exists. Merge the routes of "${a}" into "${b}"? "${b}"'s color will be kept.`,
-      add_gpx: "Add routes (GPX, TCX)", export_csv: "Export to CSV",
+      add_gpx: "Add routes…", export_csv: "Export to CSV",
       backup_download: "Download backup", backup_restore: "Restore backup",
       clear_all: "Clear all data",
       show_panel: "Show panel", hide_panel: "Hide panel", reset_filters: "Reset filters",
       panel_charts: "Charts", panel_records: "Records & Top 10", panel_calendar: "Calendar",
-      panel_table: "Route table", panel_repeats: "Repeated routes", help: "Help",
-      filter_name: "Name", filter_name_ph: "Search by name…",
-      filter_year: "Year", filter_type: "Activity type",
-      filter_date: "Date", date_from: "From", date_to: "To", date_clear: "Clear dates",
+      panel_table: "Route table", help: "Help",
+      filter_name_ph: "Search by name…",
+      filter_year: "Year",       filter_date: "Date", date_from: "From", date_to: "To", date_clear: "Clear dates",
       filter_zone: "Map area", zone_draw: "▭ Draw area", zone_redraw: "▭ Change area", zone_clear: "Clear area",
       zone_info_none: "Routes that pass through a rectangle you draw on the map.",
       zone_info_on: (w, h) => `Active area: ${w} × ${h} km. Only routes passing through it are shown.`,
       zone_hint: "Drag on the map to draw the area",
       all: "All", none: "None",
-      filter_km: "Distance (km)", filter_gain: "Elevation gain (m)", filter_idx: "Difficulty index", route_intensity: "Route intensity",
-      range_to: "to",
-      empty_title: "Welcome to Hinterway",
+      route_intensity: "Route intensity",
+            empty_title: "Welcome to Hinterway",
       empty_text: "It reads GPX and TCX files, also gzipped as .gz; you can pick hundreds at once or, on a computer, drag them onto this window. If they don't include the activity type, you'll be asked.",
       drop_title: "Drop the files to add them",
       filter_people: "Companions", pp_solo: "Alone (no companions)",
@@ -1777,7 +1743,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       ob_s5: "Find Tracks and trails", ob_s5d: "The dirt-track and trail stretches you repeat. Needs the terrain.",
       ob_s6: "Make a backup", ob_s6d: "Everything is only in this browser: keep a copy just in case.",
       ob_s6d_old: "Your last backup doesn't include the latest changes.",
-      ob_go: "Go", ob_add: "Add", ob_review: "Review", ob_analyze: "Analyze", ob_open: "Open", ob_download: "Download",
+      ob_add: "Add", ob_review: "Review", ob_analyze: "Analyze", ob_open: "Open", ob_download: "Download",
       ob_foot: "You can close this list and reopen it from Info → Getting started.",
       ob_done_foot: "All done! You can close this list now.",
       hint_no_tracks: "You haven't added any routes yet.",
@@ -1824,18 +1790,15 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       ficha_similar_none: "None shares at least two climbs, descents or stretches with this one.", ficha_shared: "Shared", ficha_sim_tip: "Show its details",
 
       elev_segment: (dist,gain,loss,avg) => `Selected section: ${dist} km · climb +${gain} m · descent −${loss} m · ${avg}% average &nbsp;·&nbsp; <a href="#" class="elev-reset-zoom" style="color:var(--accent-2);">View full route</a>`,
-      km_unit: "km",
-      unknown_type: "Unknown",
+            unknown_type: "Unknown",
       csv_header: ["Name","File","Date","Type","Km","Elevation gain (m)","Moving time (h)","Average speed (km/h)","Difficulty index","% Paved","% Track","% Trail","% No data (terrain)","With"],
       no_index: "No index",
-      index_label: "Difficulty index",
-      save: "Save", cancel: "Cancel", assign: "Assign",
+            cancel: "Cancel", assign: "Assign",
       new_type: "+ New type…", new_type_ph: "New type name",
       rename: "Rename", delete_route: "Delete route",
       type_modal_title: "Route type",
       type_modal_count: (n) => `${n} file(s) with no activity type`,
-      moving_suffix: "moving", no_data: "no data",
-      no_lib_charts: "Could not load the charting library (no internet connection?).",
+            no_lib_charts: "Could not load the charting library (no internet connection?).",
       no_dated_routes: "No routes with a date to show with the current filters.",
       based_on: (n, extra) => `Based on the ${n} routes matching the current filters${extra}. Click a type in the legend to hide or show it in all charts. Average speed only counts routes with moving time.`,
       based_on_extra: (n) => ` (${n} with no recognizable date, not included)`,
@@ -1847,10 +1810,8 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       based_on_records: (n) => `Based on the ${n} routes matching the current filters.`,
       rec_longest: "Longest", rec_most_gain: "Most elevation gain", rec_fastest: "Fastest (average)",
       rec_most_time: "Most moving time", rec_hardest: "Hardest (index)",
-      top10_title: "Top 10", sort_by: "Sort by", top10_hint: "Click a column title to sort (again to reverse)",
-      opt_distance: "Distance", opt_gain: "Elevation gain", opt_idx: "Difficulty index",
-      opt_speed: "Average speed", opt_duration: "Moving time",
-      col_num: "#", col_route: "Route", col_date: "Date", col_type: "Type", col_km: "Km",
+      top10_title: "Top 10", top10_hint: "Click a column title to sort (again to reverse)",
+            col_num: "#", col_route: "Route", col_date: "Date", col_type: "Type", col_km: "Km",
       col_gain: "Gain", col_idx: "Index",
       col_s_asf: "% Paved", col_s_pis: "% Track", col_s_sen: "% Trail",
       rp_gain: "m gain", rp_moving: "moving", rp_index: "index", rp_type: "Activity type (saved when chosen)",
@@ -1885,11 +1846,6 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       cal_no_activity: (fecha) => `${fecha}: no activity`,
       cal_activity: (fecha,n,km,m) => `${fecha}: ${n} route(s), ${km} km, ${m} m`,
       cal_summary: (year,dias,n,km,gain) => `${year}: ${dias} active days, ${n} route(s), ${km} km, ${gain} m of elevation gain. Color depends on that day's km relative to your top day that year.`,
-      repeats_analyzing: "Analyzing routes…",
-      repeats_none_filtered: "No repeated routes found with the current filters.",
-      repeats_add_routes: "Add routes to detect repeats.",
-      repeats_found: (n) => `${n} repeated route(s) detected among those matching the current filters (comparing the tracks' shape, not the name).`,
-      repeats_times: (n,d1,d2) => `${n} times · ${d1} → ${d2}`,
       panel_sites: "Places (climbs and descents)", leyenda_sitios: "Places (tops)",
       panel_segs: "Tracks and trails", leyenda_segs: "Tracks and trails", rs_info_segs: "Tracks and trails",
       segs_run: "Find stretches", segs_tab_senda: (n) => `Trails (${n})`, segs_tab_pista: (n) => `Tracks (${n})`,
@@ -1950,11 +1906,11 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       segs_osm_failed: (n) => `OpenStreetMap is not responding right now (${n} segments checked). Try later: what was checked is kept.`,
       sites_osm_none: "Names have already been looked up for all tops.",
       sites_osm_zone: (k,n) => `area ${k} of ${n}`, sites_osm_wait: (w) => `OpenStreetMap busy, retrying in ${w} s…`, osm_ways_step: (k,n) => `named ways: query ${k} of ${n}`,
-      recalc: "Recalculate",
+     
       table_count: (n) => `${n} route(s) with the current filters.`,
       table_page: (p,total) => `Page ${p} of ${total}`,
       table_no_routes: "No routes",
-      prev: "◀ Previous", next: "Next ▶", pg_first: "First page", pg_prev: "Previous page", pg_next: "Next page", pg_last: "Last page",
+      pg_first: "First page", pg_prev: "Previous page", pg_next: "Next page", pg_last: "Last page",
       leyenda_rutas: "Routes", leyenda_densidad: "Density (heatmap)",
       geo_btn_off: "Show my location", geo_btn_shown: "Follow my location", geo_btn_follow: "Stop following my location",
       geo_searching: "Finding your location…", geo_follow_on: "Following your location. Drag the map or tap again to stop.", geo_follow_off: "No longer following your location.",
@@ -1979,8 +1935,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       backup_rem_never: (n) => `You have ${n} route(s) and haven't made a backup yet.`,
       backup_rem_old: (d, n) => `Your last backup is ${d} day(s) old${n ? ` and you have ${n} new route(s)` : " and there have been changes since"}.`,
       backup_rem_now: "Download backup", backup_rem_later: "Later",
-      confirm_restore: (n) => `${n} route(s) from the backup will be added or updated. Ones you already have with the same file name will be overwritten; the rest of your current routes are untouched. Continue?`,
-      alert_backup_unreadable: "That file could not be read as a backup.",
+            alert_backup_unreadable: "That file could not be read as a backup.",
       alert_db_blocked: "Another tab with an older version of this app is open. Close it so this one can update its saved data.",
       confirm_clear_all: "This deletes all routes loaded in this browser. Continue?",
       confirm_clear_surf_note: n => `${n} route(s) have their terrain analyzed. Next you can choose to keep those analyses so they come back when you load the same GPX files again.`,
@@ -2068,7 +2023,6 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     if(!els("recordsModal").classList.contains("hidden")) renderRecords();
     if(!els("calModal").classList.contains("hidden")) renderCalendar();
     if(!els("tableModal").classList.contains("hidden")) renderTable();
-    if(!els("repeatsModal").classList.contains("hidden")) renderRepeats(false);
     if(!els("glitchModal").classList.contains("hidden")) renderGlitch();
     if(!els("sitesModal").classList.contains("hidden")) renderSites();
     if(!els("yearReviewModal").classList.contains("hidden")) renderYearReview();
@@ -2086,12 +2040,6 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     const dLat = toRad(b[0]-a[0]), dLon = toRad(b[1]-a[1]);
     const s = Math.sin(dLat/2)**2 + Math.cos(toRad(a[0]))*Math.cos(toRad(b[0]))*Math.sin(dLon/2)**2;
     return 2*R*Math.asin(Math.sqrt(s));
-  }
-  function decimate(pts, max){
-    if(pts.length <= max) return pts;
-    const step = pts.length/max, out = [];
-    for(let i=0;i<max;i++) out.push(pts[Math.floor(i*step)]);
-    return out;
   }
   // ---------- puntos de cada ruta (desde 0.49) ----------
   // Al añadir un GPX se guardan solo los puntos que hacen falta para seguir el recorrido y la altitud con una
@@ -2704,7 +2652,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
 
   function typeOptionsHtml(current){
     const options = [...new Set([current, ...seenTypes, ...defaultTypes].filter(Boolean))];
-    return options.map(o => `<option value="${o}" ${o===current?"selected":""}>${o}</option>`).join("")
+    return options.map(o => `<option value="${escH(o)}" ${o===current?"selected":""}>${escH(o)}</option>`).join("")
       + `<option value="__new__">${tr("new_type")}</option>`;
   }
 
@@ -3085,7 +3033,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
           <input type="text" class="popup-rename-input" data-id="${t.id}" value="${String(t.name).replace(/"/g,"&quot;")}">
           <button class="ghost popup-rename-save" data-id="${t.id}">✓</button>
         </div>
-        <div class="rp-sub">${dateTxt ? `<span>${dateTxt}</span>·` : ""}<span class="dot" style="background:${color}"></span><span title="${t.type || ""}">${typeLabel(t.type)}</span><span class="rp-with" data-id="${escH(t.id)}">${withNames(t).length ? " · " + escH(tr("with_list", withNames(t))) : ""}</span></div>
+        <div class="rp-sub">${dateTxt ? `<span>${dateTxt}</span>·` : ""}<span class="dot" style="background:${color}"></span><span title="${escH(t.type || "")}">${escH(typeLabel(t.type))}</span><span class="rp-with" data-id="${escH(t.id)}">${withNames(t).length ? " · " + escH(tr("with_list", withNames(t))) : ""}</span></div>
       </div>
       ${PEOPLE.length ? `<div class="rp-people popup-people-row hidden" data-id="${escH(t.id)}">${peopleChipsHtml(t)}</div>` : ""}
       <div class="rp-stats">${st}</div>
@@ -3508,29 +3456,40 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
   // (pedir un redibujado por cada una duplicaba el trabajo).
   map.on("moveend", () => {
     const v = cullBounds();
-    routeLayer.eachLayer(l => { if(l._culled && l._bb && v.intersects(l._bb)) l._project(); });
+    routeLayer.eachLayer(l => { if(l._map && l._culled && l._bb && v.intersects(l._bb)) l._project(); });   // (0.86) con la capa de rutas quitada, l._map es null
   });
 
   let selectedLine = null;
+  const lineCache = new Map();   // id de ruta → línea del mapa (0.87)
   function redrawMap(list, fit){
     routeLayer.clearLayers();
     selectedLine = null;
     hideElevationProfile();
     const opacity = routeOpacity(list.length);
+    // (0.87) Las líneas se reutilizan entre redibujados (antes se creaban de nuevo con cada filtro, recalculando
+    // la versión simplificada de cada una): se rehacen solo si la ruta ha cambiado (otro objeto u otros puntos).
+    const band = lodCur = lodBand(map.getZoom()), seen = new Set();
     list.forEach(t => {
       if(t.pts.length < 2) return;
       const color = typeColors.get(t.type || "Desconocido") || "#ff5a1f";
       const baseStyle = { color, weight:routeWeight, opacity };
-      const line = L.polyline(t.pts, { ...baseStyle, renderer:sharedRenderer });
-      line._project = cullProject;
-      line._full = line.getLatLngs(); lodApply(line, lodCur = lodBand(map.getZoom()));   // antes de añadirla: no se dibuja dos veces
-      line.addTo(routeLayer);
-      line._id = t.id;
+      let line = lineCache.get(t.id);
+      if(!line || line._t !== t || line._src !== t.pts){
+        line = L.polyline(t.pts, { ...baseStyle, renderer:sharedRenderer });
+        line._project = cullProject;
+        line._full = line.getLatLngs();
+        line._id = t.id; line._t = t; line._src = t.pts;
+        line.on("click", () => selectRoute(line, t));
+        line.on("mouseover", () => { if(line !== selectedLine) line.setStyle({ weight:routeWeight + 2.5, opacity:Math.min(1, line._baseStyle.opacity+0.3) }); });
+        line.on("mouseout", () => { if(line !== selectedLine) line.setStyle(line._baseStyle); });
+        lineCache.set(t.id, line);
+      } else line.setStyle(baseStyle);
+      seen.add(t.id);
+      lodApply(line, band);   // antes de añadirla: no se dibuja dos veces
       line._baseStyle = baseStyle;
-      line.on("click", () => selectRoute(line, t));
-      line.on("mouseover", () => { if(line !== selectedLine) line.setStyle({ weight:routeWeight + 2.5, opacity:Math.min(1, line._baseStyle.opacity+0.3) }); });
-      line.on("mouseout", () => { if(line !== selectedLine) line.setStyle(line._baseStyle); });
+      line.addTo(routeLayer);
     });
+    if(lineCache.size > tracks.length + 50){ const ids = new Set(tracks.map(t => t.id)); [...lineCache.keys()].forEach(id => { if(!ids.has(id)) lineCache.delete(id); }); }
     if(fit && list.length){
       const b = L.latLngBounds(list.flatMap(t=>t.pts));
       if(b.isValid()) map.fitBounds(b, { padding:[30,30] });
@@ -3548,8 +3507,12 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     list.forEach(t => {
       for(let i=0;i<t.pts.length;i+=step) puntos.push([t.pts[i][0], t.pts[i][1], 1]);
     });
-    heatLayer.setOptions({ max: Math.max(2, list.length * 0.06) });
-    heatLayer.setLatLngs(puntos);
+    // (0.85) Si la capa de densidad se había activado y luego quitado, leaflet.heat falla al redibujar sin mapa
+    // ("Cannot read properties of null (reading '_animating')") y cortaba el redibujado (p. ej. al restablecer filtros).
+    // Fuera del mapa solo se guardan los datos; al volver a activarla se pinta con ellos.
+    const max = Math.max(2, list.length * 0.06);
+    if(heatLayer._map){ heatLayer.setOptions({ max }); heatLayer.setLatLngs(puntos); }
+    else { heatLayer.options.max = max; heatLayer._latlngs = puntos; }
   }
 
   // ---------- filtros / UI ----------
@@ -3731,8 +3694,8 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       typeList.appendChild(head);
       byG.get(g.id).forEach(ty => {
         const lbl = document.createElement("label"); lbl.className = "grp-item";
-        lbl.innerHTML = `<input type="checkbox" data-type="${ty}" ${state.types.has(ty)?"checked":""}> `
-          + `<span class="type-dot" style="background:${typeColors.get(ty)}"></span> ${typeLabel(ty)}`;   // el color se cambia en ⚙ → Tipos de actividad
+        lbl.innerHTML = `<input type="checkbox" data-type="${escH(ty)}" ${state.types.has(ty)?"checked":""}> `
+          + `<span class="type-dot" style="background:${escH(typeColors.get(ty))}"></span> ${escH(typeLabel(ty))}`;   // el color se cambia en ⚙ → Tipos de actividad
         typeList.appendChild(lbl);
       });
     });
@@ -4076,10 +4039,12 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
   }
 
   // ---------- panel de filtros: mostrar / ocultar ----------
+  // (0.88) «Filtros» es un botón que abre y cierra el panel; lleva el número de filtros puestos
   function updateFiltersBtn(){
-    const b = els("btnFilters");
-    b.textContent = tr(els("sidebar").classList.contains("hidden") ? "show_panel" : "hide_panel");
-    b.removeAttribute("data-i18n");   // el texto depende del estado, no es fijo
+    const b = els("btnFilters"), open = !els("sidebar").classList.contains("hidden");
+    els("btnFiltersTxt").textContent = tr("menu_filters");
+    b.title = tr(open ? "hide_panel" : "show_panel");
+    b.classList.toggle("on", open);
   }
   function setSidebar(visible){
     els("sidebar").classList.toggle("hidden", !visible);
@@ -4157,24 +4122,25 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
 
       <h4>3. Filtros (panel izquierdo)</h4>
       <ul>
-        <li>El panel y el menú Filtros aparecen cuando hay alguna ruta cargada.</li>
+        <li>El panel y el botón <strong>Filtros</strong> (arriba) aparecen cuando hay alguna ruta cargada. El botón abre y cierra el panel y, si hay filtros puestos, muestra cuántos (por ejemplo «Filtros 2»).</li>
         <li><strong>Secciones plegables</strong> (desde 0.80): Fecha, Año, Tipo, Acompañantes y Más filtros (distancia, desnivel e índice) se abren y cierran pinchando su título, y la app recuerda cuáles dejas abiertas. Al lado del título se lee un resumen («todos», «2024–2026», «sin Nico», «> 50 km»…); si la sección tiene un filtro puesto, el resumen sale en color con un punto, aunque esté plegada. Los años son chapas que se marcan con un toque. Arriba del todo aparecen los <strong>filtros activos</strong>, cada uno con × para quitarlo, y <em>Restablecer</em>.</li>
         <li><strong>Nombre</strong>: busca un texto en el nombre.</li>
         <li><strong>Fecha</strong> desde / hasta: ambos días incluidos; puedes rellenar solo uno.</li>
         <li><strong>Zona del mapa</strong>: pulsa "Dibujar zona" y arrastra un rectángulo; quedan las rutas que pasan por él y el mapa se ajusta a ellas. "Quitar zona" lo elimina.</li>
         <li><strong>Año</strong> y <strong>tipo de actividad</strong> (el cuadrito muestra su color). Los tipos van agrupados por grupo de actividad (🚴 Bici, ⚡ E-bike, 🥾 A pie…): la casilla del grupo marca o desmarca todos sus tipos, y aparece a medias si solo hay algunos marcados.</li>
         <li><strong>Acompañantes</strong> (si has creado personas): «Solo» son las rutas sin nadie más; cada persona, las rutas en las que fue. Se ve una ruta si va alguno de los marcados.</li>
-        <li><strong>Distancia</strong>, <strong>desnivel</strong> e <strong>índice de dificultad</strong>: mínimo y máximo. Los máximos se amplían solos al añadir rutas, salvo que los hayas cambiado a mano.</li>
-        <li>Todos se combinan entre sí y afectan al mapa, a los totales y a los paneles. Al cambiar la zona o las fechas, el mapa se ajusta a las rutas que quedan; con los demás filtros se queda donde estás. <strong>Filtros → Restablecer filtros</strong> los deja como al principio y vuelve a mostrar todas las rutas.</li>
+        <li><strong>Distancia</strong>, <strong>desnivel</strong> e <strong>índice de dificultad</strong> (en <em>Más filtros</em>): mínimo y máximo. Los máximos se amplían solos al añadir rutas, salvo que los hayas cambiado a mano.</li>
+        <li>Todos se combinan entre sí y afectan al mapa, a los totales y a los paneles. Al cambiar la zona o las fechas, el mapa se ajusta a las rutas que quedan; con los demás filtros se queda donde estás. <em>Restablecer</em>, arriba del panel, los deja como al principio y vuelve a mostrar todas las rutas.</li>
       </ul>
 
       <h4>4. Paneles</h4>
       <ul>
-        <li><strong>Gráficos</strong>: km, desnivel y horas por mes o por año, y velocidad media por tipo.</li>
-        <li><strong>Récords y Top 10</strong>: la ruta más larga, con más desnivel, más rápida, con más tiempo y más difícil; y las 10 mejores ordenables por cualquier columna.</li>
-        <li><strong>Calendario</strong>: un cuadradito por día, más intenso cuantos más km.</li>
+        <li>Se abren desde el menú <strong>Paneles</strong> y se cierran con ✕.</li>
         <li><strong>Tabla de rutas</strong>: todas las rutas filtradas, ordenables por columna (con personas, también la columna <em>Con</em>). Van de 50 en 50: «, ‹, › y » llevan a la primera página, la anterior, la siguiente y la última.</li>
+        <li><strong>Gráficos</strong>: km, desnivel y horas por mes o por año, y velocidad media por tipo.</li>
+        <li><strong>Calendario</strong>: un cuadradito por día, más intenso cuantos más km.</li>
         <li><strong>Resumen anual</strong>: las cifras de un año. Con <em>Todos los años</em>, una tabla con una fila por año y el total; pincha un año para ver su resumen. <em>Compartir…</em> crea una imagen del año (sin nombres de rutas) para WhatsApp, Telegram, X, email, etc.</li>
+        <li><strong>Récords y Top 10</strong>: la ruta más larga, con más desnivel, más rápida, con más tiempo y más difícil; y las 10 mejores ordenables por cualquier columna.</li>
         <li><strong>Sitios (subidas y bajadas)</strong>: pulsa <em>Buscar sitios</em> y la app encuentra los altos por los que pasas a menudo, y también los de subidas grandes aunque los hayas pasado una sola vez, y, en cada uno, los caminos por los que llegas (subida A, B…, llegando de bajada o de paso) y, en la pestaña <em>Bajadas</em>, los caminos por los que te vas bajando (bajada A, B…, «hacia» el pueblo donde acaban). De cada subida o bajada ves cuántas veces la has hecho, el mejor tiempo, la mediana, la última, la velocidad media de la mejor vez (km/h), el mejor por tipo y un gráfico de tus tiempos por fecha; pincha un paso para abrir esa ruta. <em>Buscar nombres</em> toma de OpenStreetMap el nombre del puerto, collado, cima o mirador de cada alto (si no hay, el de un aparcamiento, refugio, fuente u otro lugar con nombre en el propio alto, y si tampoco, el del pueblo o paraje, y si no, el del camino o la carretera con nombre que pasa por él) y el del sitio donde empieza cada subida o acaba cada bajada: un lugar con nombre a menos de 100 m, el pueblo, o el camino o la carretera con nombre por los que pasa («Subida A · desde Talledo», «Bajada A · hacia Camino Portillo»). Al pinchar en la casilla del nombre salen los <strong>nombres cercanos</strong> de OpenStreetMap para elegir uno con un clic (en el alto, también como botones debajo); los que no estén en OpenStreetMap quedan como «Alto 373 m». Escribe encima tus propios nombres: mandan sobre los de OpenStreetMap, se guardan y se conservan al volver a buscar. <em>Quitar este sitio</em> lo oculta de la lista y del mapa, también al volver a buscar; con <em>Ver los quitados</em> puedes recuperarlo. Del mismo modo, <em>Quitar</em> junto a una subida quita ese inicio (las que quedan se renombran A, B, C… y ya no salen en el mapa); se recupera con <em>Ver los inicios quitados</em>, al final de la ficha. No se borra ninguna ruta. <em>Ver</em>, junto a cada subida, marca en el mapa el camino que sigue, desde su inicio hasta el alto, tomado de la vez más rápida (en las bajadas, desde el alto hasta su final; en «llegando de bajada» y «de paso», 1,5 km antes y después del alto, de la última vez); en el mapa, pinchar una subida en la ventanita del alto o su letra (círculo: inicio de subida; cuadrado: final de bajada) hace lo mismo, y la letra abre además una ventanita con sus datos. <em>Ver en el mapa</em> muestra los altos de la zona (también desde el icono de capas, casilla «Sitios»), con el seleccionado resaltado, su nombre y el inicio de cada subida. En cambio, <em>Ver en el mapa</em> de la ficha de un sitio muestra solo ese alto, con todas sus subidas dibujadas (cada una por el camino de su vez más rápida) y sus letras; con el botón de abajo a la izquierda cambias a sus bajadas. Las subidas y los «de paso» que quitas dejan de contar en los pasos de la lista. En el mapa, pincha un alto para resaltarlo y ver sus mejores tiempos; <em>Abrir ficha</em> vuelve al panel. En la lista, <strong>×</strong> son las veces que has pasado por el alto, <strong>↗</strong> sus subidas y <strong>↘</strong> sus bajadas (al pasar el ratón por la cabecera sale el nombre). Respeta los filtros. La primera búsqueda la pides tú; desde entonces, al añadir o borrar rutas los sitios se vuelven a buscar solos, en segundo plano (abajo a la izquierda sale «Actualizando Sitios…»), y se conservan los nombres que hayas puesto, los de OpenStreetMap y lo que hayas quitado. Los altos nuevos salen sin nombre de OpenStreetMap hasta que pulses <em>Buscar nombres</em>.</li>
         <li><strong>Caminos y sendas</strong>: pulsa <em>Buscar tramos</em> y la app encuentra los tramos de senda (1 km o más) y de camino o pista (2 km o más) por los que has pasado varias veces en el mismo sentido, en dos pestañas, <em>Sendas</em> y <em>Caminos</em>. Usa el análisis de terreno, así que solo cuentan las rutas que lo tengan. De cada tramo ves su perfil, cuántas veces lo has hecho, el mejor tiempo, la mediana, la última, la velocidad media, el mejor por tipo y un gráfico de tus tiempos por fecha; si también lo has hecho al revés, <em>En sentido contrario</em> te lleva a ese otro tramo. <em>Buscar nombres</em> pone el nombre del camino o la senda de OpenStreetMap si el tramo va casi entero por él («Camino Portillo»); si no, lo que hay al principio y al final, un lugar con nombre, el pueblo o el camino («De Talledo a Otañes»). Puedes escribir el tuyo encima o elegir uno de los <strong>nombres cercanos</strong> (botones debajo de la casilla). <em>Quitar este tramo</em> y <em>Abrir ficha</em> desde el mapa funcionan como en Sitios; <em>Ver en el mapa</em> de un tramo lo resalta solo a él, y para ver todos está el <em>Ver en el mapa</em> de arriba o la casilla «Caminos y sendas» del icono de capas; en el mapa, pinchar un tramo, o el principio (círculo blanco) o el final (círculo oscuro) del resaltado, abre una ventanita con sus datos. Con la capa puesta se ven a la vez las sendas (morado) y los caminos (ocre), con un borde oscuro, y las rutas se atenúan para que los tramos se distingan. En la lista, <strong>↕</strong> es el desnivel del principio al final y <strong>×</strong> las veces que lo has hecho. Tras la primera búsqueda, se vuelven a buscar solos al terminar un análisis de terreno (o al añadir rutas que ya lo tienen), igual que Sitios.</li>
         <li><strong>Grupos en los paneles</strong>: Gráficos, Calendario, Tabla y Resumen anual tienen un selector <em>Grupo</em> (Todos o uno) para sumar solo ese grupo. Récords y Top 10, Sitios y Caminos y sendas tienen un selector <em>Comparar</em>: siempre comparan dentro de un grupo (al principio, el que tiene más rutas), y la elección es la misma en los tres.</li>
@@ -4184,11 +4150,12 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
 
       <h4>5. Menú Datos</h4>
       <ul>
-        <li><strong>Exportar a CSV</strong> las rutas filtradas, para abrirlas en Excel (incluye la columna «Con»).</li>
-        <li><strong>Descargar copia de seguridad</strong>: eliges qué rutas (todas, solo las filtradas o ninguna), si incluir los tiempos de paso, el análisis de terreno y la configuración, y si comprimirla (.json.gz, unas 5 veces más pequeña). Te muestra el tamaño aproximado y recuerda tus opciones. Si hay cambios sin copiar y la última copia completa tiene más de 7 días, la app te lo recuerda al abrirla.</li>
-        <li><strong>Restaurar copia de seguridad</strong> (.json o .json.gz): te muestra qué trae la copia y eliges qué hacer: añadir y actualizar rutas, reemplazar todas, o solo completar los tiempos de paso de las rutas que no los tienen; y si aplicar su configuración.</li>
+        <li><strong>Añadir rutas…</strong>: ver el apartado 1.</li>
         <li><strong>Analizar terreno</strong> de todas las rutas filtradas que aún no lo tienen (se puede detener).</li>
         <li><strong>Revisar puntos erróneos</strong> de las rutas filtradas ya guardadas: lista las que tienen saltos del GPS que vuelven, con cuántos puntos, cuánto duran, hasta dónde se alejan y los km de más. Pincha una fila para verla en el mapa (en rojo, lo que se quitaría); <em>Corregir</em> (o <em>Corregir todas</em>) quita esos puntos y descuenta los km, el desnivel y el tiempo en movimiento que sumaban. Hace falta que la ruta tenga tiempos de paso. El análisis de terreno no se rehace solo. Para deshacerlo, vuelve a añadir el GPX con la opción de ⚙ → Mapa en «No».</li>
+        <li><strong>Descargar copia de seguridad</strong>: eliges qué rutas (todas, solo las filtradas o ninguna), si incluir los tiempos de paso, el análisis de terreno y la configuración, y si comprimirla (.json.gz, unas 5 veces más pequeña). Te muestra el tamaño aproximado y recuerda tus opciones. Si hay cambios sin copiar y la última copia completa tiene más de 7 días, la app te lo recuerda al abrirla.</li>
+        <li><strong>Restaurar copia de seguridad</strong> (.json o .json.gz): te muestra qué trae la copia y eliges qué hacer: añadir y actualizar rutas, reemplazar todas, o solo completar los tiempos de paso de las rutas que no los tienen; y si aplicar su configuración.</li>
+        <li><strong>Exportar a CSV</strong> las rutas filtradas, para abrirlas en Excel (incluye la columna «Con»).</li>
         <li><strong>Vaciar todos los datos</strong> borra lo guardado en este navegador.</li>
       </ul>
 
@@ -4222,7 +4189,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       <h4>9. En el móvil</h4>
       <ul>
         <li>En el iPhone y el iPad el selector deja elegir cualquier archivo, porque Safari pone en gris los .tcx y .gz (y a veces los .gpx); Hinterway comprueba después la extensión e ignora lo que no sea GPX, TCX o .gz.</li>
-        <li>El panel de filtros se abre y se cierra desde Filtros (o con ✕); el idioma y los ajustes, desde ⚙.</li>
+        <li>El panel de filtros se abre y se cierra con el botón <strong>Filtros</strong> (o con ✕). En los paneles, el ✕ queda siempre arriba a la derecha. El idioma y los ajustes, desde ⚙.</li>
         <li>En el perfil, toca un punto para ver sus datos o arrastra el dedo para seleccionar un tramo. La zona del mapa se dibuja con el dedo.</li>
         <li>Algunas columnas de la Tabla y del Top 10 se ocultan para que quepan. "Compartir (imagen + texto)" envía la imagen del resumen anual directamente a cualquier app.</li>
         <li>Mi ubicación: el botón de la diana, debajo del zoom (solo en móviles). Un toque muestra dónde estás (punto azul; el círculo indica la precisión) y centra el mapa; un segundo toque lo sigue mientras te mueves, hasta que arrastras el mapa (el punto se queda, en gris) o vuelves a tocar (se quita). La primera vez el navegador pide permiso. Solo funciona con la página abierta y la pantalla encendida (no graba rutas) y seguir la posición gasta batería. Hace falta abrir la app por https; en iPhone, además, la ubicación tiene que estar permitida para Safari en Ajustes → Privacidad → Localización.</li>
@@ -4261,24 +4228,25 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
 
       <h4>3. Filters (left panel)</h4>
       <ul>
-        <li>The panel and the Filters menu appear once some route is loaded.</li>
+        <li>The panel and the <strong>Filters</strong> button (at the top) appear once some route is loaded. The button opens and closes the panel and, when filters are set, shows how many (for example “Filters 2”).</li>
         <li><strong>Collapsible sections</strong> (since 0.80): Date, Year, Type, Companions and More filters (distance, gain and index) open and close by clicking their title, and the app remembers which ones you leave open. Next to the title there is a summary (“all”, “2024–2026”, “without Nico”, “> 50 km”…); if the section has a filter set, the summary is coloured with a dot, even when collapsed. Years are chips you tick with a tap. At the very top the <strong>active filters</strong> appear, each with × to remove it, plus <em>Reset</em>.</li>
         <li><strong>Name</strong>: searches for text in the name.</li>
         <li><strong>Date</strong> from / to: both days included; you can fill in just one.</li>
         <li><strong>Map area</strong>: press "Draw area" and drag a rectangle; the routes passing through it remain and the map zooms to them. "Clear area" removes it.</li>
         <li><strong>Year</strong> and <strong>activity type</strong> (the small square shows its color). Types are listed under their activity group (🚴 Bike, ⚡ E-bike, 🥾 On foot…): the group's box ticks or unticks all its types, and shows half-ticked when only some are.</li>
         <li><strong>Companions</strong> (if you have created people): “Alone” is the routes with nobody else; each person, the routes they came on. A route shows if any of the ticked ones went.</li>
-        <li><strong>Distance</strong>, <strong>gain</strong> and <strong>difficulty index</strong>: minimum and maximum. Maximums widen automatically when you add routes, unless you changed them by hand.</li>
-        <li>They all combine and affect the map, the totals and the panels. When you change the area or the dates, the map zooms to the remaining routes; with the other filters it stays where you are. <strong>Filters → Reset filters</strong> clears them and shows all routes again.</li>
+        <li><strong>Distance</strong>, <strong>gain</strong> and <strong>difficulty index</strong> (in <em>More filters</em>): minimum and maximum. Maximums widen automatically when you add routes, unless you changed them by hand.</li>
+        <li>They all combine and affect the map, the totals and the panels. When you change the area or the dates, the map zooms to the remaining routes; with the other filters it stays where you are. <em>Reset</em>, at the top of the panel, clears them and shows all routes again.</li>
       </ul>
 
       <h4>4. Panels</h4>
       <ul>
-        <li><strong>Charts</strong>: km, gain and hours by month or year, and average speed by type.</li>
-        <li><strong>Records & Top 10</strong>: the longest route, most gain, fastest, most time and hardest; and the top 10, sortable by any column.</li>
-        <li><strong>Calendar</strong>: one square per day, brighter the more km.</li>
+        <li>They open from the <strong>Panels</strong> menu and close with ✕.</li>
         <li><strong>Route table</strong>: every filtered route, sortable by column (with people, also the <em>With</em> column). They come 50 at a time: «, ‹, › and » go to the first, previous, next and last page.</li>
+        <li><strong>Charts</strong>: km, gain and hours by month or year, and average speed by type.</li>
+        <li><strong>Calendar</strong>: one square per day, brighter the more km.</li>
         <li><strong>Year in review</strong>: a year's figures. With <em>All years</em>, a table with one row per year plus the total; click a year to see its summary. <em>Share…</em> creates an image of the year (no route names) for WhatsApp, Telegram, X, email, etc.</li>
+        <li><strong>Records & Top 10</strong>: the longest route, most gain, fastest, most time and hardest; and the top 10, sortable by any column.</li>
         <li><strong>Places (climbs and descents)</strong>: press <em>Find places</em> and the app finds the tops you ride over often, and also big climbs you have done only once, and, for each one, the ways you get there (climb A, B…, arriving downhill or passing) and, in the <em>Descents</em> tab, the ways you leave it going down (descent A, B…, "to" the village where they end). For each climb or descent you see how many times you've done it, the best time, the median, the last one, the average speed of the best time (km/h), the best by type and a chart of your times by date; click a pass to open that route. <em>Find names</em> takes from OpenStreetMap the name of the pass, saddle, peak or viewpoint at each top (failing that, of a car park, shelter, spring or other named place on the top itself, and failing that, of the village or place, or else of the named track or road through it) and of where each climb starts or each descent ends: a named place within 100 m, the village, or the named track or road it passes ("Climb A · from Talledo", "Descent A · to Camino Portillo"). Clicking the name box shows the <strong>nearby names</strong> from OpenStreetMap to pick one with a click (for the top, also as buttons below); those not in OpenStreetMap stay as "Top 373 m". Type your own names over them: they take priority over OpenStreetMap, are saved and are kept when you search again. <em>Remove this place</em> hides it from the list and the map, also when you search again; <em>Show the removed</em> lets you bring it back. In the same way, <em>Remove</em> next to a climb removes that start (the remaining ones are relettered A, B, C… and no longer appear on the map); bring it back with <em>Show the removed starts</em>, at the end of the details. No route is deleted. <em>Show</em>, next to each climb, marks its path on the map, from its start to the top, taken from the fastest time (for descents, from the top to their end; for "arriving downhill" and "passing", 1.5 km before and after the top, from the last time); on the map, clicking a climb in the top's pop-up or its letter (circle: climb start; square: descent end) does the same, and the letter also opens a pop-up with its data. <em>Show on map</em> shows the tops in the area (also from the layers icon, "Places" box), with the selected one highlighted, its name and where each climb starts. <em>Show on map</em> in a place's details, instead, shows only that top, with all its climbs drawn (each along the path of its fastest time) and their letters; the button at the bottom left switches to its descents. Climbs and "passing" entries you remove no longer count in the list's passes. On the map, click a top to highlight it and see its best times; <em>Open details</em> goes back to the panel. In the list, <strong>×</strong> is how many times you have passed the top, <strong>↗</strong> its climbs and <strong>↘</strong> its descents (hover the header to see the name). It follows the filters. You run the first search yourself; after that, adding or deleting routes searches again on its own in the background ("Updating Places…" shows at the bottom left), keeping the names you gave, the OpenStreetMap ones and what you removed. New tops have no OpenStreetMap name until you press <em>Find names</em>.</li>
         <li><strong>Tracks and trails</strong>: press <em>Find stretches</em> and the app finds the trail stretches (1 km or more) and dirt-track stretches (2 km or more) you have ridden several times in the same direction, in two tabs, <em>Trails</em> and <em>Tracks</em>. It uses terrain analysis, so only routes that have it count. For each stretch you see its profile, how many times you've done it, the best time, the median, the last one, the average speed, the best by type and a chart of your times by date; if you have also done it the other way, <em>The other way</em> takes you to that stretch. <em>Find names</em> uses the name of the OpenStreetMap track or trail if the stretch runs almost entirely along it ("Camino Portillo"); otherwise, what is at the start and the end, a named place, the village or the track ("From Talledo to Otañes"). You can type your own over it or pick one of the <strong>nearby names</strong> (buttons below the box). <em>Remove this stretch</em> and <em>Open details</em> from the map work as in Places; <em>Show on map</em> on a stretch highlights only that one, and to see them all use the <em>Show on map</em> at the top or the "Tracks and trails" box in the layers icon; on the map, clicking a stretch, or the start (white circle) or end (dark circle) of the highlighted one, opens a pop-up with its data. With the layer on, trails (purple) and tracks (ochre) are shown together with a dark outline, and the routes are dimmed so the stretches stand out. In the list, <strong>↕</strong> is the elevation change from start to end and <strong>×</strong> how many times you have done it. After the first search, they are searched again on their own when a terrain analysis finishes (or when you add routes that already have it), like Places.</li>
         <li><strong>Groups in the panels</strong>: Charts, Calendar, Table and Year in review have a <em>Group</em> selector (All or one) to add up only that group. Records and Top 10, Places and Tracks and trails have a <em>Compare</em> selector: they always compare within one group (at first, the one with the most routes), and the choice is shared by all three.</li>
@@ -4288,11 +4256,12 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
 
       <h4>5. Data menu</h4>
       <ul>
-        <li><strong>Export to CSV</strong> the filtered routes, to open them in Excel (includes the “With” column).</li>
-        <li><strong>Download backup</strong>: choose which routes (all, filtered only or none), whether to include pass times, terrain analysis and settings, and whether to compress it (.json.gz, about 5 times smaller). It shows the approximate size and remembers your choices. If there are unsaved changes and the last full backup is more than 7 days old, the app reminds you when you open it.</li>
-        <li><strong>Restore backup</strong> (.json or .json.gz): shows what the backup contains and lets you choose: add and update routes, replace all, or only fill in the pass times of routes that lack them; and whether to apply its settings.</li>
+        <li><strong>Add routes…</strong>: see section 1.</li>
         <li><strong>Analyze terrain</strong> of every filtered route that doesn't have it yet (can be stopped).</li>
         <li><strong>Check GPS glitches</strong> in the filtered routes you already have: lists those with GPS jumps that come back, with how many points, how long they last, how far they stray and the extra km. Click a row to see it on the map (in red, what would be removed); <em>Fix</em> (or <em>Fix all</em>) removes those points and subtracts the km, elevation gain and moving time they added. The route needs pass times. Terrain analysis isn't redone automatically. To undo it, add the GPX again with the ⚙ → Map option set to “No”.</li>
+        <li><strong>Download backup</strong>: choose which routes (all, filtered only or none), whether to include pass times, terrain analysis and settings, and whether to compress it (.json.gz, about 5 times smaller). It shows the approximate size and remembers your choices. If there are unsaved changes and the last full backup is more than 7 days old, the app reminds you when you open it.</li>
+        <li><strong>Restore backup</strong> (.json or .json.gz): shows what the backup contains and lets you choose: add and update routes, replace all, or only fill in the pass times of routes that lack them; and whether to apply its settings.</li>
+        <li><strong>Export to CSV</strong> the filtered routes, to open them in Excel (includes the “With” column).</li>
         <li><strong>Clear all data</strong> deletes what's stored in this browser.</li>
       </ul>
 
@@ -4326,7 +4295,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       <h4>9. On mobile</h4>
       <ul>
         <li>On iPhone and iPad the picker lets you choose any file, because Safari greys out .tcx and .gz (and sometimes .gpx) files; Hinterway then checks the extension and ignores anything that isn't GPX, TCX or .gz.</li>
-        <li>The filters panel opens and closes from Filters (or with ✕); language and settings are in ⚙.</li>
+        <li>The filters panel opens and closes with the <strong>Filters</strong> button (or with ✕). In the panels, ✕ always stays at the top right. Language and settings are in ⚙.</li>
         <li>On the profile, tap a point to see its data or drag your finger to select a section. The map area is drawn with your finger.</li>
         <li>Some Table and Top 10 columns are hidden so they fit. "Share (image + text)" sends the year-in-review image straight to any app.</li>
         <li>My location: the target button below the zoom buttons (phones only). One tap shows where you are (blue dot; the circle shows the accuracy) and centers the map; a second tap follows you as you move, until you drag the map (the dot stays, in grey) or tap again (it is removed). The first time, the browser asks for permission. It only works while the page is open and the screen is on (it does not record routes), and following your position uses battery. The app must be opened over https; on iPhone, location must also be allowed for Safari in Settings → Privacy → Location Services.</li>
@@ -4350,22 +4319,22 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
   // ---------- Quiénes somos / About ----------
   // Versión de la app: se sube (0.4 → 0.5 → …) y se pone la fecha del día cada vez que se genera un HTML nuevo.
   // Versiones 0.x mientras la app no se publique.
-  const APP_VERSION = "0.84", APP_VERSION_DATE = "2026-11-02";
+  const APP_VERSION = "0.88", APP_VERSION_DATE = "2026-11-02";
   const APP_AUTHOR = "Angel Herrero", APP_EMAIL = "angelherreropla@gmail.com";
   const ABOUT_HTML = {
     es: () => `
-      <p><strong>Hinterway</strong> es una aplicación para ver en un mapa todas tus rutas (GPX o TCX) a la vez, como un mapa de calor de por dónde has pasado, y analizarlas: filtros por nombre, fechas, año, tipo, distancia, desnivel y dificultad, gráficos, récords, calendario, resumen anual, comparación de rutas, perfil de cada ruta y tipo de terreno.</p>
+      <p><strong>Hinterway</strong> es una aplicación para ver en un mapa todas tus rutas (GPX o TCX) a la vez, como un mapa de calor de por dónde has pasado, y analizarlas: filtros por nombre, fechas, zona, año, tipo, acompañantes, distancia, desnivel y dificultad; tabla, gráficos, récords, calendario y resumen anual; ficha, perfil y tipo de terreno de cada ruta; comparación de rutas; tus subidas y bajadas (Sitios) y los caminos y sendas que repites, con tus tiempos; grupos de actividad y personas.</p>
       <p><strong>Autor:</strong> ${APP_AUTHOR}<br>
       <strong>Contacto:</strong> <a href="mailto:${APP_EMAIL}" style="color:var(--accent-2);">${APP_EMAIL}</a></p>
-      <p><strong>Privacidad:</strong> tus rutas no salen de tu navegador: se leen y se guardan solo en este equipo, sin cuentas ni servidores propios. La única consulta externa con datos de tus rutas es el análisis de terreno, que pide a servidores públicos de OpenStreetMap (Overpass: el principal, de FOSSGIS, y el espejo de VK Maps) los caminos de la zona por la que pasa la ruta, sin enviar la traza. Los fondos de mapa se descargan de los servidores de cada proveedor.</p>
+      <p><strong>Privacidad:</strong> tus rutas no salen de tu navegador: se leen y se guardan solo en este equipo, sin cuentas ni servidores propios. Las únicas consultas externas con datos de tus rutas son el análisis de terreno y la búsqueda de nombres de Sitios y de Caminos y sendas, que piden a servidores públicos de OpenStreetMap (Overpass: el principal, de FOSSGIS, y el espejo de VK Maps) los caminos y lugares con nombre de una zona, sin enviar tus rutas enteras (detalles en Info → Ayuda, apartado 10). Los fondos de mapa se descargan de los servidores de cada proveedor, y las librerías y la tipografía, de cdnjs y Google Fonts.</p>
       <p><strong>Navegadores:</strong> versiones actuales de Chrome, Edge, Firefox y Safari, en ordenador y móvil (detalles en Info → Ayuda).</p>
       <p><strong>Créditos:</strong> datos de mapa © colaboradores de <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener" style="color:var(--accent-2);">OpenStreetMap</a> (licencia ODbL); análisis de terreno con la API Overpass; capas de <a href="https://opentopomap.org" target="_blank" rel="noopener" style="color:var(--accent-2);">OpenTopoMap</a>, <a href="https://www.cyclosm.org" target="_blank" rel="noopener" style="color:var(--accent-2);">CyclOSM</a> y Esri (satélite); mapa con Leaflet y Leaflet.heat; gráficos con Chart.js.</p>
       <p style="margin-bottom:0; color:var(--text-dim);">Versión ${APP_VERSION} · ${APP_VERSION_DATE}</p>`,
     en: () => `
-      <p><strong>Hinterway</strong> is an app to see all your routes (GPX or TCX) on one map at once, as a heatmap of where you have been, and analyze them: filters by name, dates, year, type, distance, elevation gain and difficulty, charts, records, calendar, year in review, route comparison, each route's elevation profile and terrain type.</p>
+      <p><strong>Hinterway</strong> is an app to see all your routes (GPX or TCX) on one map at once, as a heatmap of where you have been, and analyze them: filters by name, dates, area, year, type, companions, distance, elevation gain and difficulty; table, charts, records, calendar and year in review; each route's details, elevation profile and terrain type; route comparison; your climbs and descents (Places) and the tracks and trails you repeat, with your times; activity groups and people.</p>
       <p><strong>Author:</strong> ${APP_AUTHOR}<br>
       <strong>Contact:</strong> <a href="mailto:${APP_EMAIL}" style="color:var(--accent-2);">${APP_EMAIL}</a></p>
-      <p><strong>Privacy:</strong> your routes never leave your browser: they are read and stored only on this device, with no accounts or servers of our own. The only external request involving your routes is the terrain analysis, which asks public OpenStreetMap servers (Overpass: the main one, run by FOSSGIS, and the VK Maps mirror) for the ways in the area the route goes through, without sending the track. Map backgrounds are downloaded from each provider's servers.</p>
+      <p><strong>Privacy:</strong> your routes never leave your browser: they are read and stored only on this device, with no accounts or servers of our own. The only external requests involving your routes are the terrain analysis and the name search in Places and in Tracks and trails, which ask public OpenStreetMap servers (Overpass: the main one, run by FOSSGIS, and the VK Maps mirror) for the ways and named places in an area, without sending your whole routes (details in Info → Help, section 10). Map backgrounds are downloaded from each provider's servers, and the libraries and font from cdnjs and Google Fonts.</p>
       <p><strong>Browsers:</strong> current versions of Chrome, Edge, Firefox and Safari, on desktop and mobile (details in Info → Help).</p>
       <p><strong>Credits:</strong> map data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener" style="color:var(--accent-2);">OpenStreetMap</a> contributors (ODbL license); terrain analysis with the Overpass API; layers from <a href="https://opentopomap.org" target="_blank" rel="noopener" style="color:var(--accent-2);">OpenTopoMap</a>, <a href="https://www.cyclosm.org" target="_blank" rel="noopener" style="color:var(--accent-2);">CyclOSM</a> and Esri (satellite); map built with Leaflet and Leaflet.heat; charts with Chart.js.</p>
       <p style="margin-bottom:0; color:var(--text-dim);">Version ${APP_VERSION} · ${APP_VERSION_DATE}</p>`,
@@ -4385,7 +4354,9 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
 
   // ---------- exportar a CSV ----------
   function csvField(v){
-    const s = v == null ? "" : String(v);
+    let s = v == null ? "" : String(v);
+    // (0.86) un texto que empiece por = + - @ lo trataría Excel como fórmula: se le antepone un apóstrofo
+    if(typeof v === "string" && /^[=+\-@\t\r]/.test(s)) s = "'" + s;
     return /[;"\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
   }
   els("btnExport").addEventListener("click", () => {
@@ -5181,7 +5152,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
     const typeRows = [...byType.entries()].sort((a,b) => b[1]-a[1]).map(([ty,tkm]) => {
       const pct = km ? Math.round(tkm/km*100) : 0;
       const color = typeColors.get(ty) || "#ff8a69";
-      return `<div class="yr-type-row"><span class="sw" style="background:${color};"></span><span style="width:110px;">${typeLabel(ty)}</span>
+      return `<div class="yr-type-row"><span class="sw" style="background:${color};"></span><span style="width:110px;">${escH(typeLabel(ty))}</span>
         <div class="bar"><div style="width:${pct}%; background:${color};"></div></div><span class="pct">${pct}%</span></div>`;
     }).join("");
 
@@ -5564,7 +5535,7 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
       const tiempo = t.duration ? formatDuration(t.duration) : "—";
       const row = document.createElement("tr");
       row.innerHTML = `<td><input type="checkbox" class="cmp-check" data-id="${t.id}" ${compareSelection.has(t.id)?"checked":""}></td>
-        <td>${i+1}</td><td class="t10-c-name"><button class="ficha-row-btn" data-id="${escH(t.id)}" title="${escH(tr("ficha_btn_tip"))}">ⓘ</button><span class="t10-name">${escH(t.name)}</span></td><td>${fmtDate(t.date) || "—"}</td><td class="t10-c-type"><span class="t10-type">${typeLabel(t.type)}</span></td>
+        <td>${i+1}</td><td class="t10-c-name"><button class="ficha-row-btn" data-id="${escH(t.id)}" title="${escH(tr("ficha_btn_tip"))}">ⓘ</button><span class="t10-name">${escH(t.name)}</span></td><td>${fmtDate(t.date) || "—"}</td><td class="t10-c-type"><span class="t10-type">${escH(typeLabel(t.type))}</span></td>
         <td class="num">${fmtKm(t.km)}</td><td class="num">${nf(t.gain)}</td><td class="num">${tiempo}</td><td class="num">${vel}</td>
         <td class="num">${idx != null ? nf(idx) : "—"}</td>`;
       row.querySelector(".cmp-check").addEventListener("click", e => { e.stopPropagation(); toggleCompare(t.id); });
@@ -5695,161 +5666,6 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
   els("calYear").addEventListener("change", renderCalendar);
   els("calModal").addEventListener("click", e => { if(e.target === els("calModal")) closeCalendar(); });
   document.addEventListener("keydown", e => { if(e.key === "Escape") closeCalendar(); });
-
-  // ---------- rutas repetidas ----------
-  function trackRefPoints(t, n){ return decimate(t.pts, n); }
-  function centroidOf(pts){
-    let sl=0, so=0;
-    pts.forEach(p => { sl += p[0]; so += p[1]; });
-    return [sl/pts.length, so/pts.length];
-  }
-  function cellKey(lat, lon, size){ return Math.floor(lat/size) + "," + Math.floor(lon/size); }
-
-  function matchFraction(from, to, thresholdM){
-    let hits = 0;
-    from.forEach(p => {
-      let best = Infinity;
-      for(const q of to){
-        const d = haversine(p, q);
-        if(d < best) best = d;
-        if(best <= thresholdM) break;
-      }
-      if(best <= thresholdM) hits++;
-    });
-    return hits / from.length;
-  }
-
-  function tracksSignature(){
-    let h = 0;
-    for(const t of tracks){
-      for(let i=0;i<t.id.length;i++) h = (h*31 + t.id.charCodeAt(i)) >>> 0;
-      h = (h*31 + 7) >>> 0;
-    }
-    return tracks.length + ":" + h;
-  }
-
-  function computeRepeatGroups(){
-    const CELL = 0.02, THRESHOLD_M = 60, MIN_MATCH = 0.7, N_REF = 20;
-    const refs = tracks.map(t => {
-      const ref = trackRefPoints(t, N_REF);
-      const c = centroidOf(ref);
-      return { t, ref, cell: cellKey(c[0], c[1], CELL) };
-    });
-    const buckets = new Map();
-    refs.forEach((r,i) => {
-      if(!buckets.has(r.cell)) buckets.set(r.cell, []);
-      buckets.get(r.cell).push(i);
-    });
-    const parent = refs.map((_,i) => i);
-    function find(x){ while(parent[x] !== x){ parent[x] = parent[parent[x]]; x = parent[x]; } return x; }
-    function union(a,b){ a = find(a); b = find(b); if(a !== b) parent[a] = b; }
-
-    const processed = new Set();
-    for(const key of buckets.keys()){
-      const [cy, cx] = key.split(",").map(Number);
-      let candidates = [];
-      for(let dy=-1; dy<=1; dy++) for(let dx=-1; dx<=1; dx++){
-        const k2 = (cy+dy) + "," + (cx+dx);
-        if(buckets.has(k2)) candidates.push(...buckets.get(k2));
-      }
-      candidates = [...new Set(candidates)];
-      for(let a=0; a<candidates.length; a++){
-        for(let b=a+1; b<candidates.length; b++){
-          const i = candidates[a], j = candidates[b];
-          const pairKey = i < j ? i+"-"+j : j+"-"+i;
-          if(processed.has(pairKey)) continue;
-          processed.add(pairKey);
-          if(find(i) === find(j)) continue;
-          const score = (matchFraction(refs[i].ref, refs[j].ref, THRESHOLD_M) + matchFraction(refs[j].ref, refs[i].ref, THRESHOLD_M)) / 2;
-          if(score >= MIN_MATCH) union(i, j);
-        }
-      }
-    }
-
-    const groupsMap = new Map();
-    refs.forEach((r,i) => {
-      const root = find(i);
-      if(!groupsMap.has(root)) groupsMap.set(root, []);
-      groupsMap.get(root).push(r.t);
-    });
-    const groups = [...groupsMap.values()].filter(g => g.length >= 2);
-    groups.forEach(g => {
-      const counts = new Map();
-      g.forEach(t => { const k = t.name.trim().toLowerCase(); counts.set(k, (counts.get(k)||0) + 1); });
-      let best = null, bestN = 0;
-      counts.forEach((n,k) => { if(n > bestN){ bestN = n; best = k; } });
-      const rep = g.find(t => t.name.trim().toLowerCase() === best) || g[0];
-      g._label = rep.name;
-      g.sort((a,b) => (a.date||"").localeCompare(b.date||""));
-    });
-    groups.sort((a,b) => b.length - a.length);
-    return groups;
-  }
-
-  let repeatGroupsCache = null, repeatGroupsCacheKey = null;
-  function getRepeatGroups(force){
-    const key = tracksSignature();
-    if(!force && repeatGroupsCache && repeatGroupsCacheKey === key) return repeatGroupsCache;
-    repeatGroupsCache = computeRepeatGroups();
-    repeatGroupsCacheKey = key;
-    return repeatGroupsCache;
-  }
-
-  function renderRepeats(force){
-    const info = els("repeatsInfo"), list = els("repeatsList");
-    info.textContent = tr("repeats_analyzing");
-    list.innerHTML = "";
-    setTimeout(() => {
-      const allGroups = getRepeatGroups(force);
-      const filteredIds = new Set(filteredTracks().map(t => t.id));
-      const groups = allGroups
-        .map(g => g.filter(t => filteredIds.has(t.id)))
-        .filter(g => g.length >= 2);
-
-      if(!groups.length){
-        info.textContent = tracks.length ? tr("repeats_none_filtered") : tr("repeats_add_routes");
-        return;
-      }
-      info.textContent = tr("repeats_found", groups.length);
-
-      groups.forEach(g => {
-        const withDur = g.filter(t => t.duration);
-        const bestId = withDur.length ? withDur.reduce((a,b) => a.km/(a.duration/3600) > b.km/(b.duration/3600) ? a : b).id : null;
-
-        const card = document.createElement("div");
-        card.className = "repeat-group";
-        const head = document.createElement("div");
-        head.className = "repeat-group-head";
-        head.innerHTML = `<h4>${escH(g[0].name)}</h4><span>${tr("repeats_times", g.length, fmtDate(g[0].date) || "?", fmtDate(g[g.length-1].date) || "?")}</span>`;
-        card.appendChild(head);
-
-        const table = document.createElement("table");
-        table.className = "repeat-table";
-        table.innerHTML = `<thead><tr><th>${tr("col_date")}</th><th>${tr("col_type")}</th><th class="num">${tr("col_km")}</th><th class="num">${tr("col_gain")}</th><th class="num">${tr("col_time")}</th><th class="num">${tr("col_speed")}</th></tr></thead>`;
-        const tbody = document.createElement("tbody");
-        g.forEach(t => {
-          const vel = fmtSpeed(t.km, t.duration);
-          const tiempo = t.duration ? formatDuration(t.duration) : "—";
-          const row = document.createElement("tr");
-          if(t.id === bestId) row.className = "best";
-          row.innerHTML = `<td>${fmtDate(t.date) || "—"}</td><td>${typeLabel(t.type)}</td>
-            <td class="num">${fmtKm(t.km)}</td><td class="num">${nf(t.gain)}</td><td class="num">${tiempo}</td><td class="num">${vel}</td>`;
-          row.addEventListener("click", () => focusTrack(t.id));
-          tbody.appendChild(row);
-        });
-        table.appendChild(tbody);
-        card.appendChild(table);
-        list.appendChild(card);
-      });
-    }, 10);
-  }
-
-  function openRepeats(){ els("repeatsModal").classList.remove("hidden"); renderRepeats(false); }
-  function closeRepeats(){ els("repeatsModal").classList.add("hidden"); }
-  els("btnRepeats").addEventListener("click", openRepeats);
-  els("repeatsClose").addEventListener("click", closeRepeats);
-  els("repeatsRecalc").addEventListener("click", () => renderRepeats(true));
-  els("repeatsModal").addEventListener("click", e => { if(e.target === els("repeatsModal")) closeRepeats(); });
 
   // ---------- (0.69) revisar los puntos erróneos de las rutas ya guardadas ----------
   // Se buscan en los puntos guardados de cada ruta (con sus tiempos de paso). Corregir quita esos puntos y descuenta
@@ -7017,7 +6833,6 @@ td.num input[type=checkbox], th input[type=checkbox]{ margin:0; }
   document.addEventListener("keydown", e => { if(e.key === "Escape") closeSites(); });
   map.on("overlayadd", e => { if(e.layer === siteLayer){ siteSolo = false; drawSiteLayer(); } });
   (async () => { try{ sitesData = sitesValid(await sitesDbGet()); }catch(e){} })();
-  document.addEventListener("keydown", e => { if(e.key === "Escape") closeRepeats(); });
 
   // ---------- caminos y sendas (0.40): tramos repetidos de senda y de pista ----------
   // Sale del análisis de terreno de cada ruta (t.surface.runs). Para cada tramo seguido de senda (≥ 1 km) o
@@ -8361,6 +8176,8 @@ ${head}
     });
     const box = els("activeFilters");
     box.classList.toggle("hidden", !chips.length);
+    const fc = els("btnFiltersCount"); fc.textContent = chips.length; fc.classList.toggle("hidden", !chips.length);
+    updateFiltersBtn();
     const html = chips.map(([k, txt]) => `<span class="fchip"><b title="${escH(txt)}">${escH(txt)}</b><button type="button" data-fclear="${k}" title="${escH(tr("fs_remove"))}" aria-label="${escH(tr("fs_remove"))}">×</button></span>`).join("")
       + (chips.length ? `<button type="button" class="fs-lnk" data-freset="1">${tr("fs_reset")}</button>` : "");
     if(box._html !== html){ box.innerHTML = html; box._html = html; }   // sin rehacer si no cambia (un clic a medio camino no se pierde)
@@ -8811,8 +8628,7 @@ ${head}
     sv_status: "Último aviso del marcador",
     sv_done: (d, left, lim) => `Descargadas ${d}. ${left ? `Quedan ${left}.` : "No falta ninguna."}${lim ? " Strava ha llegado a su límite diario: vuelve a pulsar el marcador mañana." : ""}`,
     sv_imported: (n) => `Importadas ${n} ${n == 1 ? "ruta" : "rutas"} de Strava.`,
-    sv_close: "Cerrar",
-  });
+      });
   Object.assign(I18N.en, {
     sv_menu: "Get from Strava…",
     sv_title: "Get routes from Strava",
@@ -8844,8 +8660,7 @@ ${head}
     sv_status: "Last message from the bookmark",
     sv_done: (d, left, lim) => `Downloaded ${d}. ${left ? `${left} left.` : "None left."}${lim ? " Strava has reached its daily limit: click the bookmark again tomorrow." : ""}`,
     sv_imported: (n) => `Imported ${n} ${n == 1 ? "route" : "routes"} from Strava.`,
-    sv_close: "Close",
-  });
+      });
 
   const SV_SPORTS = {
     bike: ["Ride", "MountainBikeRide", "GravelRide", "EBikeRide", "EMountainBikeRide", "Velomobile", "Handcycle"],
@@ -9192,6 +9007,7 @@ ${head}
       v.classList.toggle("stuck", box.scrollTop > 0 && v.getBoundingClientRect().top - box.getBoundingClientRect().top <= 2);
     }, { passive:true });
   })();
+  document.querySelectorAll(".stats-head button").forEach(b => { if(b.textContent.trim() === "✕") b.classList.add("x-close"); });
   (async function init(){
     applyI18n();
     showLoading(tr("loading_saved_routes"));
